@@ -3,6 +3,8 @@
 import { createContact } from '@/lib/api';
 import { useState } from 'react';
 import { FaClock, FaEnvelope, FaMapMarkerAlt, FaPhone } from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function ContactPage() {
     const [formData, setFormData] = useState({
@@ -12,12 +14,6 @@ export default function ContactPage() {
         subject: '',
         message: '',
         website: '' // honeypot field
-    });
-
-    const [formStatus, setFormStatus] = useState({
-        submitted: false,
-        success: false,
-        message: ''
     });
 
     const handleChange = (e) => {
@@ -34,61 +30,44 @@ export default function ContactPage() {
         // Check honeypot field
         if (formData.website) {
             // If honeypot is filled, silently reject but appear successful
-            setFormStatus({
-                submitted: true,
-                success: true,
-                message: 'Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong thời gian sớm nhất.'
-            });
+            toast.success('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong thời gian sớm nhất.');
             return;
         }
 
         // Validate form
         if (!formData.name || !formData.email || !formData.phone || !formData.message) {
-            setFormStatus({
-                submitted: true,
-                success: false,
-                message: 'Vui lòng điền đầy đủ thông tin bắt buộc'
-            });
+            toast.error('Vui lòng điền đầy đủ thông tin bắt buộc');
             return;
         }
 
         try {
             const response = await createContact(formData);
-            if (!response.ok) {
+            if (!response.success) {
                 throw new Error('Có lỗi xảy ra khi gửi yêu cầu');
             }
-            const data = await response.json();
 
-            if (data.success) {
-                setFormStatus({
-                    submitted: true,
-                    success: true,
-                    message: data.message || 'Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong thời gian sớm nhất.'
-                });
+            const successMessage = response.message || 'Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong thời gian sớm nhất.';
+            toast.success(successMessage);
 
-                // Reset form after successful submission
-                setFormData({
-                    name: '',
-                    email: '',
-                    phone: '',
-                    subject: '',
-                    message: '',
-                    website: ''
-                });
-            } else {
-                throw new Error(data.message || 'Có lỗi xảy ra khi gửi yêu cầu');
-            }
-        } catch (error) {
-            setFormStatus({
-                submitted: true,
-                success: false,
-                message: error.message || 'Không thể gửi yêu cầu tư vấn. Vui lòng thử lại sau.'
+            // Reset form after successful submission
+            setFormData({
+                name: '',
+                email: '',
+                phone: '',
+                subject: '',
+                message: '',
+                website: ''
             });
+        } catch (error) {
+            const errorMessage = error.message || 'Không thể gửi yêu cầu tư vấn. Vui lòng thử lại sau.';
+            toast.error(errorMessage);
         }
     };
 
     return (
         <div className="container mx-auto px-4 py-8">
+            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} closeOnClick pauseOnHover draggable />
+            
             <h1 className="text-3xl font-bold mb-2">Liên Hệ Với Chúng Tôi</h1>
             <p className="text-gray-600 mb-8">Chúng tôi luôn sẵn sàng hỗ trợ bạn với mọi thắc mắc và yêu cầu</p>
 
@@ -150,12 +129,6 @@ export default function ContactPage() {
                 <div className="md:col-span-2">
                     <div className="bg-white rounded-lg shadow-md p-6">
                         <h2 className="text-xl font-semibold mb-4">Gửi Yêu Cầu Tư Vấn</h2>
-
-                        {formStatus.submitted && (
-                            <div className={`p-4 mb-4 rounded-md ${formStatus.success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                {formStatus.message}
-                            </div>
-                        )}
 
                         <form onSubmit={handleSubmit}>
                             {/* Honeypot field - hidden from real users */}
@@ -250,7 +223,7 @@ export default function ContactPage() {
 
                             <button
                                 type="submit"
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-md"
+                                className="cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-md"
                             >
                                 Gửi yêu cầu
                             </button>

@@ -9,7 +9,6 @@ import { useAuth } from '@/lib/AuthContext';
 
 export default function CurtainCard({ curtain }) {
     const { user } = useAuth();
-    console.log('curtain', curtain);
     const { _id, name, price, mainImage, image, category, color } = curtain;
     const [isHovered, setIsHovered] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
