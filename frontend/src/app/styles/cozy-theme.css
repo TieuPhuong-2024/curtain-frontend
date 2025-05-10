@@ -1,0 +1,81 @@
+/* Cozy Theme Styles */
+
+body, .cozy-bg {
+    background: #f5eee6;
+    color: #5b4636;
+    font-family: 'Quicksand', 'Nunito', Arial, sans-serif;
+    transition: background 0.3s, color 0.3s;
+}
+
+.cozy-card {
+    background: #fffaf6;
+    border-radius: 18px;
+    box-shadow: 0 4px 18px rgba(90, 70, 50, 0.08);
+    padding: 24px 18px;
+    margin: 18px 0;
+}
+
+.cozy-title {
+    color: #a67c52;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.cozy-btn {
+    background: linear-gradient(90deg, #e7cba9 0%, #d6a77a 100%);
+    color: #5b4636;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 26px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(166, 124, 82, 0.09);
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.cozy-btn:hover {
+    background: linear-gradient(90deg, #d6a77a 0%, #e7cba9 100%);
+    box-shadow: 0 4px 16px rgba(166, 124, 82, 0.13);
+}
+
+.cozy-img {
+    border-radius: 14px;
+    box-shadow: 0 2px 10px rgba(90, 70, 50, 0.05);
+    margin-bottom: 16px;
+}
+
+.cozy-section {
+    background: #f3e6d8;
+    border-radius: 14px;
+    padding: 18px 14px;
+    margin-bottom: 22px;
+}
+
+.cozy-divider {
+    border-top: 1.5px dashed #d6a77a;
+    margin: 18px 0;
+}
+
+/* Cozy scroll bar */
+::-webkit-scrollbar {
+    width: 10px;
+    background: #f5eee6;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #e7cba9;
+    border-radius: 8px;
+}
+
+/* Cozy link */
+.cozy-link {
+    color: #a67c52;
+    text-decoration: underline dotted;
+    transition: color 0.2s;
+}
+
+.cozy-link:hover {
+    color: #d6a77a;
+}
