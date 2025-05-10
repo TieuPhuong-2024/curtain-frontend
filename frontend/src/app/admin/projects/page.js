@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye, FaCheckCircle, FaTimesCircle, FaExclamationCircle } from 'react-icons/fa';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import { getProjects, deleteProject } from '@/lib/api';
 
 export default function AdminProjects() {
     const [projects, setProjects] = useState([]);
@@ -21,8 +21,8 @@ export default function AdminProjects() {
     const fetchProjects = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/projects`);
-            setProjects(response.data);
+            const projectsData = await getProjects();
+            setProjects(projectsData);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching projects:', error);
@@ -33,7 +33,7 @@ export default function AdminProjects() {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`);
+            await deleteProject(id);
             toast.success('Xóa công trình thành công!');
             setConfirmDelete(null);
             fetchProjects();
@@ -45,26 +45,28 @@ export default function AdminProjects() {
 
     const filteredProjects = projects.filter(project => 
         project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (project.shortDescription && project.shortDescription.toLowerCase().includes(searchTerm.toLowerCase())) ||
         project.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
         project.type.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const renderProjectImage = (project) => {
-        if (project.images && project.images.length > 0) {
+        if (project.thumbnail) {
             return (
                 <div className="relative w-20 h-20 overflow-hidden rounded">
                     <Image 
-                        src={project.images[0]} 
+                        src={project.thumbnail}
                         alt={project.title} 
                         fill
                         style={{ objectFit: 'cover' }}
+                        sizes="80px"
                     />
                 </div>
             );
         }
         return (
             <div className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded">
-                <span className="text-gray-400">No image</span>
+                <span className="text-xs text-gray-400">No image</span>
             </div>
         );
     };
@@ -143,7 +145,7 @@ export default function AdminProjects() {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <div className="flex space-x-2">
-                                                    <Link href={`/cong-trinh?id=${project._id}`} target="_blank" className="text-indigo-600 hover:text-indigo-900" title="Xem">
+                                                    <Link href={`/cong-trinh/${project._id}`} target="_blank" className="text-indigo-600 hover:text-indigo-900" title="Xem">
                                                         <FaEye />
                                                     </Link>
                                                     <Link href={`/admin/projects/edit/${project._id}`} className="text-blue-600 hover:text-blue-900" title="Sửa">
@@ -153,14 +155,14 @@ export default function AdminProjects() {
                                                         <div className="flex items-center space-x-2">
                                                             <button
                                                                 onClick={() => handleDelete(project._id)}
-                                                                className="text-red-600 hover:text-red-900"
+                                                                className="cursor-pointer text-red-600 hover:text-red-900"
                                                                 title="Xác nhận xóa"
                                                             >
                                                                 Xác nhận
                                                             </button>
                                                             <button
                                                                 onClick={() => setConfirmDelete(null)}
-                                                                className="text-gray-600 hover:text-gray-900"
+                                                                className="cursor-pointer text-gray-600 hover:text-gray-900"
                                                                 title="Hủy"
                                                             >
                                                                 Hủy
@@ -169,7 +171,7 @@ export default function AdminProjects() {
                                                     ) : (
                                                         <button
                                                             onClick={() => setConfirmDelete(project._id)}
-                                                            className="text-red-600 hover:text-red-900"
+                                                            className="cursor-pointer text-red-600 hover:text-red-900"
                                                             title="Xóa"
                                                         >
                                                             <FaTrash />

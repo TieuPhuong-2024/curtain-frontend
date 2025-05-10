@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createBanner, deleteBanner, getBanners, updateBanner, } from "@/lib/api";
 import ImageUploader from "@/components/ImageUploader";
-import { FaTrash } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
 
 export default function AdminBannerPage() {
     const [banners, setBanners] = useState([]);
@@ -144,9 +144,9 @@ export default function AdminBannerPage() {
                                 <button
                                     type="button"
                                     onClick={() => handleRemoveImage()}
-                                    className="cursor-pointer absolute inset-0 bg-black bg-opacity-50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                    className="cursor-pointer absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 text-xs"
                                 >
-                                    <FaTrash />
+                                    <FaTimes />
                                 </button>
                             </div>
                         )}

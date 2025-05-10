@@ -21,6 +21,9 @@ export default function CurtainCard({ curtain }) {
     const displayImage = mainImage || image || '/images/curtain-placeholder.jpg';
     // Xử lý trường hợp category có thể là object hoặc string
     const categoryName = typeof category === 'object' ? category?.name : category;
+    // Use hexCode for background color, with a fallback. Name for display.
+    const displayBackgroundColor = color?.hexCode || 'transparent'; 
+    const displayColorName = color?.name || 'N/A';
 
     // Check if device is touch-enabled for better mobile experience
     const checkTouch = () => {
@@ -203,11 +206,16 @@ export default function CurtainCard({ curtain }) {
                             currency: 'VND'
                         }).format(price)}
                     </p>
-                    <div
-                        className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-gray-300"
-                        style={{ backgroundColor: color?.toLowerCase() }}
-                        title={color}
-                    />
+                    <div className="flex items-center gap-1 sm:gap-2">
+                        <div
+                            className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-gray-300"
+                            style={{ backgroundColor: displayBackgroundColor }}
+                            title={displayColorName}
+                        />
+                        <span className="text-xs text-gray-600 truncate max-w-[50px] sm:max-w-[100px]">
+                            {displayColorName}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { uploadImagesFromDevice, uploadImageFromUrl } from '../lib/api';
 
 const ImageUploader = ({ onUpload, isMultiple = true }) => {
   const [uploadType, setUploadType] = useState(null);
@@ -57,24 +58,7 @@ const ImageUploader = ({ onUpload, isMultiple = true }) => {
     setError('');
 
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      const formData = new FormData();
-
-      // Append all files to formData with the name 'images'
-      selectedFiles.forEach(file => {
-        formData.append('images', file);
-      });
-
-      const response = await fetch(`${API_URL}/upload/multiple-from-device`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Lỗi khi tải lên ảnh');
-      }
-
-      const data = await response.json();
+      const data = await uploadImagesFromDevice(selectedFiles);
       onUpload(data.urls);
       setUploadType(null);
       setSelectedFiles([]);
@@ -97,20 +81,7 @@ const ImageUploader = ({ onUpload, isMultiple = true }) => {
     setError('');
 
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      const response = await fetch(`${API_URL}/upload/from-url`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ imageUrl }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Lỗi khi lưu URL ảnh');
-      }
-
-      const data = await response.json();
+      const data = await uploadImageFromUrl(imageUrl);
       onUpload([data.url]);
       setUploadType(null);
       setImageUrl('');
@@ -132,7 +103,7 @@ const ImageUploader = ({ onUpload, isMultiple = true }) => {
 
   return (
     <div className="mb-4">
-      <label className="block font-medium mb-1">Ảnh</label>
+      {/* <label className="block font-medium mb-1">Ảnh</label> */}
 
       {/* Preview images */}
       {previews.length > 0 && (

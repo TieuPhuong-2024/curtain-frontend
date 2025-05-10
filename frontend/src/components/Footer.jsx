@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import {FaEnvelope, FaFacebook, FaInstagram, FaMapMarkerAlt, FaPhone, FaTwitter} from 'react-icons/fa';
+import {FaEnvelope, FaFacebook, FaInstagram, FaMapMarkerAlt, FaPhone, FaTwitter, FaYoutube} from 'react-icons/fa';
 
 export default function Footer() {
     return (
@@ -14,14 +14,8 @@ export default function Footer() {
                             chất liệu và màu sắc để phù hợp với mọi không gian sống.
                         </p>
                         <div className="flex space-x-4">
-                            <a href="#" className="text-gray-300 hover:text-white">
-                                <FaFacebook size={20}/>
-                            </a>
-                            <a href="#" className="text-gray-300 hover:text-white">
-                                <FaTwitter size={20}/>
-                            </a>
-                            <a href="#" className="text-gray-300 hover:text-white">
-                                <FaInstagram size={20}/>
+                            <a href="https://www.youtube.com/@Tu%E1%BA%A5nR%C3%A8mB%C3%ACnhD%C6%B0%C6%A1ng" className="text-gray-300 hover:text-white">
+                                <FaYoutube size={20}/>
                             </a>
                         </div>
                     </div>
@@ -69,15 +63,15 @@ export default function Footer() {
                         <ul className="space-y-2">
                             <li className="flex items-center">
                                 <FaMapMarkerAlt className="mr-2"/>
-                                <span>123 Đường ABC, Quận 1, TP.HCM</span>
+                                <span>15/7A Tân Lập - Đông Hoà - Dĩ An - Bình Dương</span>
                             </li>
                             <li className="flex items-center">
                                 <FaPhone className="mr-2"/>
-                                <span>+84 123 456 789</span>
+                                <span>0937 543 809</span>
                             </li>
                             <li className="flex items-center">
                                 <FaEnvelope className="mr-2"/>
-                                <span>info@curtainshop.com</span>
+                                <span>tuanremgiare@gmail.com</span>
                             </li>
                         </ul>
                     </div>

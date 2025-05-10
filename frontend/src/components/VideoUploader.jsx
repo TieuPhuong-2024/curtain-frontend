@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { FaUpload } from 'react-icons/fa';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
+import { uploadVideo } from '../lib/api';
 
 export default function VideoUploader({ onUpload }) {
     const [uploading, setUploading] = useState(false);
@@ -13,16 +13,8 @@ export default function VideoUploader({ onUpload }) {
         try {
             setUploading(true);
             const uploadPromises = files.map(async (file) => {
-                const formData = new FormData();
-                formData.append('video', file);
-
-                const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload/video`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-
-                return response.data.url;
+                const result = await uploadVideo(file);
+                return result.url;
             });
 
             const uploadedVideos = await Promise.all(uploadPromises);

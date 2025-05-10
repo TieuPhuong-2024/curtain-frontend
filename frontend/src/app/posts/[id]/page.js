@@ -1,18 +1,17 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { getPostById, getPosts } from '@/lib/api';
 import PostCard from '@/components/PostCard';
-import { convertBlockNoteToHtml } from '@/utils/blockNoteConverter';
+import { renderCKEditorContent } from '@/utils/ckeditorConverter';
+import '@/app/styles/content-styles.css';
 
 export default function PostDetail({ params }) {
   const postId = use(params).id;
-  const router = useRouter();
-  
+
   const [post, setPost] = useState(null);
   const [relatedPosts, setRelatedPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +23,7 @@ export default function PostDetail({ params }) {
       try {
         const fetchedPost = await getPostById(postId);
         setPost(fetchedPost);
-        
+
         // Fetch related posts with the same tags
         if (fetchedPost.tags && fetchedPost.tags.length > 0) {
           // Use the first tag to find related posts
@@ -34,7 +33,7 @@ export default function PostDetail({ params }) {
           const filtered = response.posts.filter(p => p._id !== postId);
           setRelatedPosts(filtered);
         }
-        
+
         setLoading(false);
       } catch (err) {
         setError('Failed to load post');
@@ -83,23 +82,23 @@ export default function PostDetail({ params }) {
           ← Quay lại
         </Link>
       </div>
-      
+
       {/* Article header */}
       <article className="max-w-4xl mx-auto">
         <header className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
-          
+
           {post.summary && (
             <p className="text-xl text-gray-600 mb-6">{post.summary}</p>
           )}
-          
+
           <div className="flex items-center text-gray-500 text-sm">
             <span>Đăng ngày {formatDate(post.createdAt)}</span>
             <span className="mx-2">•</span>
             <span>{post.viewCount} lượt xem ({post.uniqueViewCount} độc giả)</span>
           </div>
         </header>
-        
+
         {/* Featured image */}
         {post.featuredImage && (
           <div className="relative h-[400px] w-full mb-8 rounded-lg overflow-hidden">
@@ -114,17 +113,20 @@ export default function PostDetail({ params }) {
         )}
 
         {/* Post content */}
-        <div className="prose prose-lg max-w-none mb-12">
-          <div dangerouslySetInnerHTML={{ __html: convertBlockNoteToHtml(post.content) }} />
+        <div className="prose prose-lg max-w-none mb-12 post-content">
+          <div
+            className="ck-content"
+            dangerouslySetInnerHTML={{ __html: renderCKEditorContent(post.content) }}
+          />
         </div>
-        
+
         {/* Tags */}
         {post.tags && post.tags.length > 0 && (
           <div className="mb-12">
             <div className="flex flex-wrap gap-2">
               {post.tags.map((tag) => (
-                <Link 
-                  key={tag} 
+                <Link
+                  key={tag}
                   href={`/posts?tag=${tag}`}
                   className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm hover:bg-gray-300"
                 >
@@ -135,7 +137,7 @@ export default function PostDetail({ params }) {
           </div>
         )}
       </article>
-      
+
       {/* Related posts */}
       {relatedPosts.length > 0 && (
         <div className="mt-16">

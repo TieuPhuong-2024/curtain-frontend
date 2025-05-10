@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { getPosts, deletePost } from '@/lib/api';
 import PostCard from '@/components/PostCard';
 import { useRouter } from 'next/navigation';
+import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 
 export default function AdminPosts() {
   const [posts, setPosts] = useState([]);
@@ -58,9 +59,9 @@ export default function AdminPosts() {
         <h1 className="text-2xl font-bold">Quản lý Bài viết</h1>
         <button
           onClick={handleCreatePost}
-          className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-md flex items-center hover:bg-blue-700 transition"
         >
-          Thêm bài viết mới
+          <FaPlus className='mr-2' /> Thêm bài viết mới
         </button>
       </div>
 
@@ -107,20 +108,20 @@ export default function AdminPosts() {
               {posts.map((post) => (
                 <div key={post._id} className="relative">
                   <PostCard post={post} isAdmin={true} />
-                  
+
                   {/* Admin Actions Overlay */}
                   <div className="absolute top-0 right-0 p-2 flex gap-2">
-                    <button 
+                    <button
                       onClick={() => router.push(`/admin/posts/${post._id}`)}
                       className="cursor-pointer bg-blue-600 text-white p-2 rounded hover:bg-blue-700 text-sm"
                     >
-                      Edit
+                      <FaEdit />
                     </button>
                     <button
                       onClick={() => handleDelete(post._id)}
                       className="cursor-pointer bg-red-600 text-white p-2 rounded hover:bg-red-700 text-sm"
                     >
-                      Delete
+                      <FaTrash />
                     </button>
                   </div>
                 </div>
@@ -136,11 +137,10 @@ export default function AdminPosts() {
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`cursor-pointer px-4 py-2 rounded ${
-                      currentPage === page
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white text-gray-700 hover:bg-gray-100'
-                    }`}
+                    className={`cursor-pointer px-4 py-2 rounded ${currentPage === page
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                      }`}
                   >
                     {page}
                   </button>

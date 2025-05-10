@@ -9,9 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@blocknote/core": "^0.29.1",
-    "@blocknote/mantine": "^0.29.1",
-    "@blocknote/react": "^0.29.1",
+    "@ckeditor/ckeditor5-build-classic": "^40.2.0",
+    "@ckeditor/ckeditor5-react": "^6.2.0",
+    "@ckeditor/ckeditor5-watchdog": "^45.0.0",
     "axios": "^1.8.4",
     "date-fns": "^4.1.0",
     "firebase": "^11.6.0",
@@ -19,8 +19,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-firebase-hooks": "^5.1.1",
-    "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
+    "react-toastify": "^11.0.5",
     "xlsx": "^0.18.5",
     "yet-another-react-lightbox": "^3.23.0"
   },

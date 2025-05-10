@@ -7,6 +7,7 @@ module.exports = {
   ],
   theme: {
     screens: {
+      'xs': '375px',     // Small mobile devices
       'sm': '576px',     // Mobile landscape
       'md': '768px',     // Tablets
       'lg': '1024px',    // Laptops/smaller desktops

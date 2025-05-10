@@ -9,7 +9,7 @@ import {useEffect, useState} from 'react';
 import {getBanners, getCategories, getCurtains} from '@/lib/api';
 import CurtainCard from '@/components/CurtainCard';
 import BannerSlider from '@/components/BannerSlider';
-import CategoryScroll from '@/components/CategoryScroll';
+import CategorySlider from '@/components/CategorySlider';
 
 export default function Home() {
     const [featuredCurtains, setFeaturedCurtains] = useState([]);
@@ -134,7 +134,7 @@ export default function Home() {
                     ) : categories.length === 0 ? (
                         <div className="text-center py-12">Chưa có danh mục nào.</div>
                     ) : (
-                        <CategoryScroll categories={categories} productCounts={productCounts} />
+                        <CategorySlider categories={categories} productCounts={productCounts} />
                     )}
                 </div>
             </section>
@@ -146,7 +146,7 @@ export default function Home() {
                         <div>
                             <h2 className="text-3xl font-bold mb-6">Tại Sao Chọn Chúng Tôi?</h2>
                             <p className="text-gray-600 mb-8">
-                                Với hơn 10 năm kinh nghiệm, chúng tôi tự hào cung cấp các sản phẩm rèm cửa
+                                Với hơn 20 năm kinh nghiệm, chúng tôi tự hào cung cấp các sản phẩm rèm cửa
                                 chất lượng cao, được thiết kế để nâng tầm không gian sống của bạn.
                             </p>
 
@@ -234,23 +234,24 @@ export default function Home() {
             </section>
 
             {/* CTA Section */}
-            <section className="py-16 bg-indigo-700 text-white">
-                <div className="container mx-auto px-4 text-center">
-                    <h2 className="text-3xl font-bold mb-4">Sẵn Sàng Làm Mới Không Gian Của Bạn?</h2>
-                    <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
+            <section className="py-16 bg-[#f9f3ea] text-[#5d4938] relative">
+                <div className="container mx-auto px-4 text-center relative z-10">
+                    <h2 className="text-3xl font-bold mb-5">Sẵn Sàng Làm Mới Không Gian Của Bạn?</h2>
+                    <p className="text-lg mb-12 max-w-2xl mx-auto">
                         Liên hệ ngay với chúng tôi để được tư vấn miễn phí và nhận báo giá tốt nhất
                     </p>
-                    <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <div className="flex flex-col sm:flex-row justify-center gap-y-4 sm:gap-y-0 sm:gap-x-6">
                         <Link href="/contact"
-                              className="bg-white text-indigo-700 hover:bg-gray-100 px-6 py-3 rounded-md font-semibold">
+                              className="w-60 mx-auto sm:mx-0 bg-[#f9f3ea] text-[#5d4938] hover:bg-[#f0e9df] border border-[#d1c3b3] px-6 py-3 rounded-md font-medium transition-colors duration-300">
                             Liên hệ ngay
                         </Link>
                         <Link href="/products"
-                              className="bg-transparent hover:bg-indigo-600 border-2 border-white px-6 py-3 rounded-md font-semibold">
+                              className="w-60 mx-auto sm:mx-0 bg-transparent text-[#5d4938] hover:bg-[#f0e9df] border border-[#d1c3b3] px-6 py-3 rounded-md font-medium transition-colors duration-300">
                             Khám phá sản phẩm
                         </Link>
                     </div>
                 </div>
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#192437]"></div>
             </section>
         </div>
     );

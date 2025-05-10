@@ -1,15 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getAllContacts, updateContactStatus } from '@/lib/api';
-import { toast } from 'react-hot-toast';
+import { getAllContacts, updateContactStatus, deleteContact } from '@/lib/api';
+import { toast } from 'react-toastify';
 import { format } from 'date-fns';
-import { FaEnvelope, FaPhone, FaSpinner } from 'react-icons/fa';
+import { FaEnvelope, FaPhone, FaSpinner, FaTrash } from 'react-icons/fa';
 
 export default function ContactsPage() {
     const [contacts, setContacts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedContacts, setSelectedContacts] = useState([]);
 
     useEffect(() => {
         fetchContacts();
@@ -20,6 +21,7 @@ export default function ContactsPage() {
             setLoading(true);
             const data = await getAllContacts();
             setContacts(data);
+            setSelectedContacts([]);
             setError(null);
         } catch (err) {
             setError('Không thể tải danh sách liên hệ');
@@ -38,6 +40,49 @@ export default function ContactsPage() {
             toast.success('Cập nhật trạng thái thành công');
         } catch (err) {
             toast.error('Không thể cập nhật trạng thái');
+        }
+    };
+
+    const handleCheckboxChange = (contactId) => {
+        setSelectedContacts(prev => {
+            if (prev.includes(contactId)) {
+                return prev.filter(id => id !== contactId);
+            } else {
+                return [...prev, contactId];
+            }
+        });
+    };
+
+    const handleSelectAll = (e) => {
+        if (e.target.checked) {
+            setSelectedContacts(contacts.map(contact => contact._id));
+        } else {
+            setSelectedContacts([]);
+        }
+    };
+
+    const handleDeleteSelected = async () => {
+        if (selectedContacts.length === 0) {
+            toast.error('Vui lòng chọn ít nhất một liên hệ để xóa');
+            return;
+        }
+
+        if (!confirm(`Bạn có chắc chắn muốn xóa ${selectedContacts.length} liên hệ đã chọn?`)) {
+            return;
+        }
+        
+        try {
+            // Delete contacts one by one
+            for (const id of selectedContacts) {
+                await deleteContact(id);
+            }
+            
+            // Update local state
+            setContacts(contacts.filter(contact => !selectedContacts.includes(contact._id)));
+            setSelectedContacts([]);
+            toast.success('Xóa liên hệ thành công');
+        } catch (err) {
+            toast.error('Không thể xóa liên hệ');
         }
     };
 
@@ -93,13 +138,31 @@ export default function ContactsPage() {
 
     return (
         <div className="p-6">
-            <h1 className="text-2xl font-bold text-gray-800 mb-6">Quản lý Liên hệ</h1>
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold text-gray-800">Quản lý Liên hệ</h1>
+                {selectedContacts.length > 0 && (
+                    <button
+                        onClick={handleDeleteSelected}
+                        className="flex items-center px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                    >
+                        <FaTrash className="mr-2" /> Xóa ({selectedContacts.length})
+                    </button>
+                )}
+            </div>
             
             <div className="bg-white rounded-lg shadow overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                             <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <input
+                                        type="checkbox"
+                                        onChange={handleSelectAll}
+                                        checked={selectedContacts.length === contacts.length && contacts.length > 0}
+                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    />
+                                </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Người liên hệ
                                 </th>
@@ -123,6 +186,14 @@ export default function ContactsPage() {
                         <tbody className="bg-white divide-y divide-gray-200">
                             {contacts.map((contact) => (
                                 <tr key={contact._id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedContacts.includes(contact._id)}
+                                            onChange={() => handleCheckboxChange(contact._id)}
+                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        />
+                                    </td>
                                     <td className="px-6 py-4">
                                         <div className="text-sm font-medium text-gray-900">
                                             {contact.name}

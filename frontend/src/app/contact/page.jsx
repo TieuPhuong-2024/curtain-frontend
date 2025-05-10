@@ -102,7 +102,7 @@ export default function ContactPage() {
                                 <FaMapMarkerAlt className="text-indigo-600 mt-1 mr-3" size={20} />
                                 <div>
                                     <h3 className="font-medium">Địa chỉ</h3>
-                                    <p className="text-gray-600">123 Đường ABC, Quận 1, TP.HCM</p>
+                                    <p className="text-gray-600">15/7A Tân Lập - Đông Hoà - Dĩ An - Bình Dương</p>
                                 </div>
                             </div>
 
@@ -110,7 +110,7 @@ export default function ContactPage() {
                                 <FaPhone className="text-indigo-600 mt-1 mr-3" size={20} />
                                 <div>
                                     <h3 className="font-medium">Điện thoại</h3>
-                                    <p className="text-gray-600">+84 123 456 789</p>
+                                    <p className="text-gray-600">0937 543 809</p>
                                 </div>
                             </div>
 
@@ -118,7 +118,7 @@ export default function ContactPage() {
                                 <FaEnvelope className="text-indigo-600 mt-1 mr-3" size={20} />
                                 <div>
                                     <h3 className="font-medium">Email</h3>
-                                    <p className="text-gray-600">info@curtainshop.com</p>
+                                    <p className="text-gray-600">tuanremgiare@gmail.com</p>
                                 </div>
                             </div>
 
@@ -133,7 +133,7 @@ export default function ContactPage() {
                             {/* Google Maps */}
                             <div className="w-full h-[400px] rounded-lg overflow-hidden shadow-md">
                                 <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.325247630613!2d106.6926323!3d10.7825832!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTDCsDQ2JzU3LjMiTiAxMDbCsDQxJzMzLjUiRQ!5e0!3m2!1svi!2s!4v1650000000000!5m2!1svi!2s"
+                                    src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d979.4783043103389!2d106.7964363!3d10.894199799999999!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3174d9c911c29f63%3A0x61e3f2694805f3f7!2zxJDGsOG7nW5nIELDoCBIdXnhu4duIFRoYW5oIFF1YW4!5e0!3m2!1svi!2s!4v1746425217612!5m2!1svi!2s"
                                     width="100%"
                                     height="100%"
                                     style={{ border: 0 }}

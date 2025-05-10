@@ -2,15 +2,16 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { FaMapMarkerAlt, FaImages, FaVideo, FaChevronLeft, FaChevronRight, FaTimes } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaImages, FaVideo, FaChevronLeft, FaChevronRight, FaTimes, FaCalendarAlt, FaUser, FaCheckCircle } from 'react-icons/fa';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 
 export default function ProjectCard({ project }) {
-  const { title, description, location, type, images, videos } = project;
+  const { title, description, location, type, images, videos, completionDate, customerName, productDetails } = project;
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [showDetails, setShowDetails] = useState(false);
 
   // Bổ sung lại các hàm chuyển ảnh chính
   const handlePrevImage = () => {
@@ -64,8 +65,12 @@ export default function ProjectCard({ project }) {
     document.body.style.overflow = 'auto';
   };
 
+  const toggleDetails = () => {
+    setShowDetails(!showDetails);
+  };
+
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-lg mb-8 card-hover">
+    <div className="bg-white rounded-lg overflow-hidden shadow-lg mb-8 card-hover transition-all duration-300 hover:shadow-xl">
       {/* Main image with navigation */}
       <div className="relative h-60 sm:h-72 md:h-80 w-full">
         <Image
@@ -114,33 +119,79 @@ export default function ProjectCard({ project }) {
       <div className="p-3 sm:p-4 md:p-5">
         <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">{title}</h3>
         
-        {location && (
-          <div className="flex items-center text-sm sm:text-base text-gray-600 mb-2 sm:mb-3">
+        <div className="flex flex-wrap items-center text-sm sm:text-base text-gray-600 mb-2 sm:mb-3">
+          <div className="flex items-center mr-4 mb-1">
             <FaMapMarkerAlt className="mr-1 text-blue-600" />
             <span>{location}</span>
           </div>
-        )}
+          
+          {completionDate && (
+            <div className="flex items-center mb-1">
+              <FaCalendarAlt className="mr-1 text-blue-600" />
+              <span>{completionDate}</span>
+            </div>
+          )}
+        </div>
         
         <p className="text-sm sm:text-base text-gray-700 mb-3 sm:mb-4 line-clamp-3">{description}</p>
         
-        {/* Media buttons */}
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+        {/* Additional details section */}
+        {(productDetails || customerName) && (
+          <div className={`mb-4 overflow-hidden transition-all duration-300 ${showDetails ? 'max-h-80' : 'max-h-0'}`}>
+            {customerName && (
+              <div className="flex items-start mb-2">
+                <FaUser className="mr-2 text-blue-600 mt-1 flex-shrink-0" />
+                <div>
+                  <div className="font-medium text-gray-800">Khách hàng:</div>
+                  <div className="text-gray-600">{customerName}</div>
+                </div>
+              </div>
+            )}
+            
+            {productDetails && productDetails.length > 0 && (
+              <div className="flex items-start">
+                <FaCheckCircle className="mr-2 text-blue-600 mt-1 flex-shrink-0" />
+                <div>
+                  <div className="font-medium text-gray-800">Sản phẩm đã sử dụng:</div>
+                  <ul className="list-disc pl-5 text-gray-600 text-sm">
+                    {productDetails.map((detail, index) => (
+                      <li key={index}>{detail}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* Action buttons */}
+        <div className="flex flex-wrap gap-2">
           {images.length > 0 && (
             <button 
               onClick={() => handleOpenLightbox('image', 0)}
-              className="cursor-pointer flex items-center justify-center sm:justify-start bg-blue-100 text-blue-700 px-3 py-1.5 sm:py-2 rounded text-sm hover:bg-blue-200 transition-colors"
+              className="cursor-pointer flex items-center justify-center bg-blue-100 text-blue-700 px-3 py-1.5 sm:py-2 rounded text-sm hover:bg-blue-200 transition-colors"
             >
               <FaImages className="mr-1 sm:mr-2" />
-              Xem tất cả ảnh ({images.length})
+              {images.length > 1 ? `Xem tất cả ảnh (${images.length})` : 'Xem ảnh'}
             </button>
           )}
+          
           {videos && videos.length > 0 && (
             <button 
               onClick={() => handleOpenLightbox('video', 0)}
-              className="cursor-pointer flex items-center justify-center sm:justify-start bg-red-100 text-red-700 px-3 py-1.5 sm:py-2 rounded text-sm hover:bg-red-200 transition-colors"
+              className="cursor-pointer flex items-center justify-center bg-red-100 text-red-700 px-3 py-1.5 sm:py-2 rounded text-sm hover:bg-red-200 transition-colors"
             >
               <FaVideo className="mr-1 sm:mr-2" />
-              Xem video ({videos.length})
+              {videos.length > 1 ? `Xem video (${videos.length})` : 'Xem video'}
+            </button>
+          )}
+          
+          {(productDetails || customerName) && (
+            <button 
+              onClick={toggleDetails}
+              className="cursor-pointer flex items-center justify-center bg-gray-100 text-gray-700 px-3 py-1.5 sm:py-2 rounded text-sm hover:bg-gray-200 transition-colors ml-auto"
+            >
+              {showDetails ? 'Ẩn chi tiết' : 'Xem thêm chi tiết'}
             </button>
           )}
         </div>

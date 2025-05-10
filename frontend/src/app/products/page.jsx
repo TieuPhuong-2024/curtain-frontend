@@ -3,7 +3,7 @@
 import '../styles/cozy-theme.css';
 import {useEffect, useState} from 'react';
 import {useSearchParams} from 'next/navigation';
-import {getCurtains, getCategories} from '@/lib/api';
+import {getCurtains, getCategories, getColors} from '@/lib/api';
 import CurtainCard from '@/components/CurtainCard';
 import {FaFilter, FaTimes} from 'react-icons/fa';
 
@@ -22,18 +22,21 @@ export default function ProductsPage() {
     const [priceRange, setPriceRange] = useState({min: 0, max: 10000000});
     const [categories, setCategories] = useState([]);
 
-    const colors = [
-        'Trắng', 'Đen', 'Xám', 'Be', 'Nâu', 'Xanh dương', 'Xanh lá', 'Đỏ', 'Vàng', 'Hồng'
-    ];
+    const [colors, setColors] = useState([]); // State for colors
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                const [curtainsData, categoriesData] = await Promise.all([
+                const [curtainsData, categoriesData, colorsData] = await Promise.all([
                     getCurtains(),
-                    getCategories()
+                    getCategories(),
+                    getColors()
                 ]);
+                
+                setCurtains(curtainsData);
+                setCategories(categoriesData);
+                setColors(colorsData || []); // Store colors from database
                 setCurtains(curtainsData);
                 setCategories(categoriesData);
             } catch (err) {
@@ -81,7 +84,13 @@ export default function ProductsPage() {
         // Xử lý trường hợp category có thể là object
         const curtainCategoryId = typeof curtain.category === 'object' ? curtain.category?._id : curtain.category;
         const matchesCategory = selectedCategory === '' || curtainCategoryId === selectedCategory;
-        const matchesColor = selectedColors.length === 0 || selectedColors.includes(curtain.color);
+        
+        // Xử lý trường hợp color có thể null hoặc case sensitivity
+        const curtainColorObject = curtain.color || {}; // curtain.color is an object, provide fallback
+        const matchesColor = selectedColors.length === 0 || 
+            selectedColors.some(selectedColorName => // selectedColorName is a string from the filter
+                curtainColorObject.name?.toLowerCase() === selectedColorName.toLowerCase());
+                
         const matchesPrice = curtain.price >= priceRange.min && curtain.price <= priceRange.max;
 
         return matchesCategory && matchesColor && matchesPrice;
@@ -144,21 +153,28 @@ export default function ProductsPage() {
                         </div>
                     </div>
 
-                    {/* Color Filter */}
-                    <div className="mb-6">
-                        <h3 className="font-medium mb-2">Màu sắc</h3>
-                        <div className="grid grid-cols-2 gap-1">
-                            {colors.map(color => (
-                                <div key={color} className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        id={`color-${color}`}
-                                        checked={selectedColors.includes(color)}
-                                        onChange={() => toggleColorFilter(color)}
-                                        className="mr-2"
-                                    />
-                                    <label htmlFor={`color-${color}`}>{color}</label>
-                                </div>
+                    {/* Color Filters */}
+                    <div className="space-y-4">
+                        <h3 className="text-sm font-medium text-gray-700">Màu sắc</h3>
+                        <div className="flex flex-wrap gap-2">
+                            {colors.map((color) => (
+                                <button
+                                    key={color._id}
+                                    onClick={() => {
+                                        if (selectedColors.includes(color.name)) {
+                                            setSelectedColors(selectedColors.filter(c => c !== color.name));
+                                        } else {
+                                            setSelectedColors([...selectedColors, color.name]);
+                                        }
+                                    }}
+                                    className={`px-3 py-1 rounded-full text-sm ${
+                                        selectedColors.includes(color.name)
+                                            ? 'bg-indigo-600 text-white'
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    }`}
+                                >
+                                    {color.name}
+                                </button>
                             ))}
                         </div>
                     </div>
