@@ -251,8 +251,7 @@ export default function Home() {
                         </Link>
                     </div>
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#192437]"></div>
             </section>
         </div>
     );
-}
+} 
