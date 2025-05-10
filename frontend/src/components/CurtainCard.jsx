@@ -9,6 +9,7 @@ import { useAuth } from '@/lib/AuthContext';
 
 export default function CurtainCard({ curtain }) {
     const { user } = useAuth();
+    console.log('curtain', curtain);
     const { _id, name, price, mainImage, image, category, color } = curtain;
     const [isHovered, setIsHovered] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
@@ -22,8 +23,8 @@ export default function CurtainCard({ curtain }) {
     // Xử lý trường hợp category có thể là object hoặc string
     const categoryName = typeof category === 'object' ? category?.name : category;
     // Use hexCode for background color, with a fallback. Name for display.
-    const displayBackgroundColor = color?.hexCode || 'transparent'; 
-    const displayColorName = color?.name || 'N/A';
+    const displayBackgroundColor = color?.hexCode || (typeof color === 'string' ? color : 'transparent'); 
+    const displayColorName = color?.name || (typeof color === 'string' ? color : 'N/A');
 
     // Check if device is touch-enabled for better mobile experience
     const checkTouch = () => {
