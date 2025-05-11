@@ -35,7 +35,7 @@ export const metadata = {
     title: 'Tuấn Rèm - Rèm Cửa Cao Cấp Cho Không Gian Của Bạn',
     description:
       'Cửa hàng rèm cửa với đa dạng mẫu mã, chất liệu và màu sắc. Chuyên cung cấp rèm cửa cao cấp cho nhà ở, văn phòng.',
-    url: 'https://tuanrem.com',
+    url: 'https://curtain-frontend.vercel.app',
     siteName: 'Tuấn Rèm',
     images: [
       {

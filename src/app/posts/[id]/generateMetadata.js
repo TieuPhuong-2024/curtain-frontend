@@ -38,7 +38,7 @@ export async function generateMetadata({ params }) {
           contentSnippet ||
           post.excerpt ||
           `Đọc bài viết "${post.title}" từ Tuấn Rèm.`,
-        url: `https://tuanrem.com/posts/${params.id}`,
+        url: `https://curtain-frontend.vercel.app/posts/${params.id}`,
         siteName: 'Tuấn Rèm',
         images: [
           {

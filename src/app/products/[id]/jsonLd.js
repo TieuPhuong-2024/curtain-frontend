@@ -39,7 +39,7 @@ export default function ProductJsonLd({ id }) {
     },
     offers: {
       '@type': 'Offer',
-      url: `https://tuanrem.com/products/${id}`,
+      url: `https://curtain-frontend.vercel.app/products/${id}`,
       priceCurrency: 'VND',
       price: product.price?.toString() || '',
       priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)

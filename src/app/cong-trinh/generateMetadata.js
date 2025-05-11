@@ -9,7 +9,7 @@ export async function generateMetadata() {
       title: 'Công Trình Đã Thực Hiện - Tuấn Rèm',
       description:
         'Bộ sưu tập các dự án thiết kế và lắp đặt rèm cửa cao cấp cho nhà ở, văn phòng và không gian thương mại.',
-      url: 'https://tuanrem.com/cong-trinh',
+      url: 'https://curtain-frontend.vercel.app/cong-trinh',
       siteName: 'Tuấn Rèm',
       images: [
         {

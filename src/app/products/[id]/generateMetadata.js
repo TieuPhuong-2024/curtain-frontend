@@ -26,7 +26,7 @@ export async function generateMetadata({ params }) {
         description:
           product.description ||
           `${product.name} - Rèm cửa cao cấp với chất liệu ${product.material || 'cao cấp'}.`,
-        url: `https://tuanrem.com/products/${params.id}`,
+        url: `https://curtain-frontend.vercel.app/products/${params.id}`,
         siteName: 'Tuấn Rèm',
         images: [
           {

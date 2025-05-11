@@ -9,7 +9,7 @@ export async function generateMetadata() {
       title: 'Bài Viết Về Rèm Cửa & Trang Trí Nội Thất - Tuấn Rèm',
       description:
         'Khám phá các bài viết hữu ích về trang trí nội thất, thiết kế rèm cửa và mẹo chăm sóc, bảo quản các sản phẩm rèm cửa cao cấp.',
-      url: 'https://tuanrem.com/posts',
+      url: 'https://curtain-frontend.vercel.app/posts',
       siteName: 'Tuấn Rèm',
       images: [
         {

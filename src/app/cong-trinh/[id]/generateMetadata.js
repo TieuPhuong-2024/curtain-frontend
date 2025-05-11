@@ -36,7 +36,7 @@ export async function generateMetadata({ params }) {
         description:
           descriptionSnippet ||
           `Dự án ${project.title || project.name} - Một công trình thiết kế và lắp đặt rèm cửa cao cấp của Tuấn Rèm.`,
-        url: `https://tuanrem.com/cong-trinh/${params.id}`,
+        url: `https://curtain-frontend.vercel.app/cong-trinh/${params.id}`,
         siteName: 'Tuấn Rèm',
         images: [
           {

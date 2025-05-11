@@ -9,7 +9,7 @@ export async function generateMetadata() {
       title: 'Sản Phẩm Rèm Cửa Cao Cấp - Tuấn Rèm',
       description:
         'Bộ sưu tập rèm cửa cao cấp đa dạng mẫu mã, chất liệu và màu sắc phù hợp cho mọi không gian.',
-      url: 'https://tuanrem.com/products',
+      url: 'https://curtain-frontend.vercel.app/products',
       siteName: 'Tuấn Rèm',
       images: [
         {
