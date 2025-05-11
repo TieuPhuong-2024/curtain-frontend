@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import '@/app/styles/content-styles.css';
+import PostCard from '@/components/PostCard';
+import { getPostById, getPosts } from '@/lib/api';
+import { renderCKEditorContent } from '@/utils/ckeditorConverter';
+import { format } from 'date-fns';
 import Image from 'next/image';
 import Link from 'next/link';
-import { format } from 'date-fns';
-import { getPostById, getPosts } from '@/lib/api';
-import PostCard from '@/components/PostCard';
-import { renderCKEditorContent } from '@/utils/ckeditorConverter';
-import '@/app/styles/content-styles.css';
+import { use, useEffect, useState } from 'react';
+import PostJsonLd from './jsonLd';
 
 export default function PostDetail({ params }) {
   const postId = use(params).id;
@@ -30,7 +31,7 @@ export default function PostDetail({ params }) {
           const tag = fetchedPost.tags[0];
           const response = await getPosts(1, 3, 'published', tag);
           // Filter out the current post
-          const filtered = response.posts.filter(p => p._id !== postId);
+          const filtered = response.posts.filter((p) => p._id !== postId);
           setRelatedPosts(filtered);
         }
 
@@ -76,9 +77,14 @@ export default function PostDetail({ params }) {
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+      <PostJsonLd id={postId} />
+
       {/* Navigation link */}
       <div className="mb-6">
-        <Link href="/posts" className="text-blue-600 hover:underline flex items-center">
+        <Link
+          href="/posts"
+          className="text-blue-600 hover:underline flex items-center"
+        >
           ← Quay lại
         </Link>
       </div>
@@ -95,7 +101,9 @@ export default function PostDetail({ params }) {
           <div className="flex items-center text-gray-500 text-sm">
             <span>Đăng ngày {formatDate(post.createdAt)}</span>
             <span className="mx-2">•</span>
-            <span>{post.viewCount} lượt xem ({post.uniqueViewCount} độc giả)</span>
+            <span>
+              {post.viewCount} lượt xem ({post.uniqueViewCount} độc giả)
+            </span>
           </div>
         </header>
 
@@ -116,7 +124,9 @@ export default function PostDetail({ params }) {
         <div className="prose prose-lg max-w-none mb-12 post-content">
           <div
             className="ck-content"
-            dangerouslySetInnerHTML={{ __html: renderCKEditorContent(post.content) }}
+            dangerouslySetInnerHTML={{
+              __html: renderCKEditorContent(post.content),
+            }}
           />
         </div>
 

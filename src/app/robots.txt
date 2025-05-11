@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Block admin paths
+Disallow: /admin/
+Disallow: /login/
+Disallow: /register/
+
+# Sitemap location
+Sitemap: https://tuanrem.com/sitemap.xml 
