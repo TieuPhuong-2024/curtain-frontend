@@ -44,24 +44,24 @@ export default function ProjectJsonLd({ id }) {
       project.featuredImage ||
       (project.images && project.images.length > 0
         ? project.images[0].url
-        : 'https://curtain-frontend.vercel.app/images/logo.png'),
+        : 'http://localhost:3000/images/logo.png'),
     datePublished: formatDate(project.completionDate || project.createdAt),
     author: {
       '@type': 'Organization',
       name: 'Tuấn Rèm',
-      url: 'https://curtain-frontend.vercel.app',
+      url: 'http://localhost:3000',
     },
     publisher: {
       '@type': 'Organization',
       name: 'Tuấn Rèm',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://curtain-frontend.vercel.app/images/logo.png',
+        url: 'http://localhost:3000/images/logo.png',
       },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://curtain-frontend.vercel.app/cong-trinh/${id}`,
+      '@id': `http://localhost:3000/cong-trinh/${id}`,
     },
     ...(project.location && {
       locationCreated: {

@@ -32,25 +32,25 @@ export default function PostJsonLd({ id }) {
     '@type': 'BlogPosting',
     headline: post.title,
     description: post.excerpt || getPlainText(post.content).substring(0, 160),
-    image: post.featuredImage || 'https://curtain-frontend.vercel.app/images/logo.png',
+    image: post.featuredImage || 'http://localhost:3000/images/logo.png',
     datePublished: post.createdAt || new Date().toISOString(),
     dateModified: post.updatedAt || new Date().toISOString(),
     author: {
       '@type': 'Organization',
       name: 'Tuấn Rèm',
-      url: 'https://curtain-frontend.vercel.app',
+      url: 'http://localhost:3000',
     },
     publisher: {
       '@type': 'Organization',
       name: 'Tuấn Rèm',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://curtain-frontend.vercel.app/images/logo.png',
+        url: 'http://localhost:3000/images/logo.png',
       },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://curtain-frontend.vercel.app/posts/${id}`,
+      '@id': `http://localhost:3000/posts/${id}`,
     },
     // Add article body if needed (consider performance/size constraints)
     articleBody: getPlainText(post.content),

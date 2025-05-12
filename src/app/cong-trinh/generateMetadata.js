@@ -9,7 +9,7 @@ export async function generateMetadata() {
       title: 'Công Trình Đã Thực Hiện - Tuấn Rèm',
       description:
         'Bộ sưu tập các dự án thiết kế và lắp đặt rèm cửa cao cấp cho nhà ở, văn phòng và không gian thương mại.',
-      url: 'https://curtain-frontend.vercel.app/cong-trinh',
+      url: 'http://localhost:3000/cong-trinh',
       siteName: 'Tuấn Rèm',
       images: [
         {
@@ -27,6 +27,9 @@ export async function generateMetadata() {
       description:
         'Khám phá các công trình trang trí rèm cửa đã hoàn thành của Tuấn Rèm.',
       images: ['/images/logo.png'],
+    },
+    alternates: {
+      canonical: 'http://localhost:3000/cong-trinh',
     },
   };
 }

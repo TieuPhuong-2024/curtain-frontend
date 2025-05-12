@@ -7,8 +7,8 @@ export default function JsonLd() {
     name: 'Tuấn Rèm',
     description:
       'Cửa hàng rèm cửa cao cấp với đa dạng mẫu mã, chất liệu và màu sắc.',
-    image: 'https://curtain-frontend.vercel.app/images/logo.png',
-    url: 'https://curtain-frontend.vercel.app',
+    image: 'http://localhost:3000/images/logo.png',
+    url: 'http://localhost:3000',
     telephone: '+84xxxxxxxxxx', // Replace with actual phone number
     address: {
       '@type': 'PostalAddress',

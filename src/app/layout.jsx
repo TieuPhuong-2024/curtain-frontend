@@ -35,7 +35,7 @@ export const metadata = {
     title: 'Tuấn Rèm - Rèm Cửa Cao Cấp Cho Không Gian Của Bạn',
     description:
       'Cửa hàng rèm cửa với đa dạng mẫu mã, chất liệu và màu sắc. Chuyên cung cấp rèm cửa cao cấp cho nhà ở, văn phòng.',
-    url: 'https://curtain-frontend.vercel.app',
+    url: 'http://localhost:3000',
     siteName: 'Tuấn Rèm',
     images: [
       {
@@ -60,6 +60,9 @@ export const metadata = {
     google: 'google-site-verification=YOUR_CODE', // Replace with your actual Google verification code
   },
   category: 'home decor',
+  alternates: {
+    canonical: 'http://localhost:3000',
+  },
 };
 
 export default function RootLayout({ children }) {

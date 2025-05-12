@@ -38,7 +38,7 @@ export async function generateMetadata({ params }) {
           contentSnippet ||
           post.excerpt ||
           `Đọc bài viết "${post.title}" từ Tuấn Rèm.`,
-        url: `https://curtain-frontend.vercel.app/posts/${params.id}`,
+        url: `http://localhost:3000/posts/${params.id}`,
         siteName: 'Tuấn Rèm',
         images: [
           {
@@ -65,6 +65,9 @@ export async function generateMetadata({ params }) {
           post.excerpt ||
           `Đọc bài viết "${post.title}" từ Tuấn Rèm.`,
         images: [post.featuredImage || '/images/logo.png'],
+      },
+      alternates: {
+        canonical: `http://localhost:3000/posts/${params.id}`,
       },
     };
   } catch (error) {

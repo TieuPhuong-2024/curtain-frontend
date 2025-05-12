@@ -26,7 +26,7 @@ export default async function Image() {
         }}
       >
         <img
-          src="https://curtain-frontend.vercel.app/images/logo.png"
+          src="http://localhost:3000/images/logo.png"
           alt="Tuấn Rèm Logo"
           width={180}
           height={180}

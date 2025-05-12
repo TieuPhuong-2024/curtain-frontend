@@ -26,7 +26,7 @@ export async function generateMetadata({ params }) {
         description:
           product.description ||
           `${product.name} - Rèm cửa cao cấp với chất liệu ${product.material || 'cao cấp'}.`,
-        url: `https://curtain-frontend.vercel.app/products/${params.id}`,
+        url: `http://localhost:3000/products/${params.id}`,
         siteName: 'Tuấn Rèm',
         images: [
           {
@@ -52,6 +52,9 @@ export async function generateMetadata({ params }) {
         'product:price:amount': product.price?.toString() || '',
         'product:price:currency': 'VND',
         'product:availability': product.inStock ? 'in stock' : 'out of stock',
+      },
+      alternates: {
+        canonical: `http://localhost:3000/products/${params.id}`,
       },
     };
   } catch (error) {

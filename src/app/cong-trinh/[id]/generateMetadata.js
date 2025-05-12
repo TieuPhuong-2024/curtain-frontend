@@ -36,7 +36,7 @@ export async function generateMetadata({ params }) {
         description:
           descriptionSnippet ||
           `Dự án ${project.title || project.name} - Một công trình thiết kế và lắp đặt rèm cửa cao cấp của Tuấn Rèm.`,
-        url: `https://curtain-frontend.vercel.app/cong-trinh/${params.id}`,
+        url: `http://localhost:3000/cong-trinh/${params.id}`,
         siteName: 'Tuấn Rèm',
         images: [
           {
@@ -63,6 +63,9 @@ export async function generateMetadata({ params }) {
             project.images?.[0]?.url ||
             '/images/logo.png',
         ],
+      },
+      alternates: {
+        canonical: `http://localhost:3000/cong-trinh/${params.id}`,
       },
     };
   } catch (error) {

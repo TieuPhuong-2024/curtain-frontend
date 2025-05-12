@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: 'https://curtain-frontend.vercel.app',
+  siteUrl: 'http://localhost:3000',
   generateRobotsTxt: true,
   robotsTxtOptions: {
     policies: [
@@ -10,7 +10,7 @@ module.exports = {
         disallow: ['/admin/', '/login/', '/register/'],
       },
     ],
-    additionalSitemaps: ['https://curtain-frontend.vercel.app/sitemap.xml'],
+    additionalSitemaps: ['http://localhost:3000/sitemap.xml'],
   },
   exclude: ['/admin/*', '/login', '/register'],
   generateIndexSitemap: true,
