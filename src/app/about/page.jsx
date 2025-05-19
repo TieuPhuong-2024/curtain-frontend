@@ -14,10 +14,10 @@ export default function AboutPage() {
                         <div className="md:w-1/2">
                             <div className="relative h-80 md:h-full">
                                 <Image
-                                    src="/images/about-store.jpg"
+                                    src="/images/logo-2.png"
                                     alt="Cửa hàng rèm cửa"
                                     fill
-                                    style={{ objectFit: 'cover' }}
+                                    style={{ objectFit: 'contain' }}
                                 />
                             </div>
                         </div>

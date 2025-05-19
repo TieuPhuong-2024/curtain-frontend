@@ -4,14 +4,14 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { FaGoogle, FaFacebook } from 'react-icons/fa';
+import { FaGoogle } from 'react-icons/fa';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { user, login, loginWithGoogle, loginWithFacebook } = useAuth();
+  const { user, login, loginWithGoogle } = useAuth();
   const router = useRouter();
 
   // Redirect if user is already logged in
@@ -57,23 +57,6 @@ export default function LoginPage() {
       }
     } catch (err) {
       setError('Đăng nhập Google thất bại: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFacebookLogin = async () => {
-    setLoading(true);
-    setError('');
-    
-    try {
-      const result = await loginWithFacebook();
-      
-      if (!result.success) {
-        setError(result.error || 'Đăng nhập Facebook thất bại');
-      }
-    } catch (err) {
-      setError('Đăng nhập Facebook thất bại: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -173,23 +156,14 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-3">
+          <div className="mt-6">
             <button
               onClick={handleGoogleLogin}
               disabled={loading}
               className="cursor-pointer flex w-full items-center justify-center gap-3 rounded-md bg-white py-2 px-3 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-70"
             >
               <FaGoogle className="text-red-500" />
-              <span>Google</span>
-            </button>
-
-            <button
-              onClick={handleFacebookLogin}
-              disabled={loading}
-              className="cursor-pointer flex w-full items-center justify-center gap-3 rounded-md bg-white py-2 px-3 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-70"
-            >
-              <FaFacebook className="text-blue-600" />
-              <span>Facebook</span>
+              <span>Đăng nhập với Google</span>
             </button>
           </div>
         </div>
