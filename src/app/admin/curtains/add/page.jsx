@@ -4,7 +4,8 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaUpload, FaPlus, FaTimes, FaEdit, FaSave } from 'react-icons/fa';
-import { createCurtain, getCategories, uploadImage, getColors, createColor, getColorById, updateColor } from '@/lib/api';
+import { createCurtain, uploadImage, getColors, createColor, getColorById, updateColor } from '@/lib/api';
+import { getCategories, createCategory } from '@/lib/categoryApi';
 
 export default function AddCurtain() {
     const router = useRouter();
@@ -43,6 +44,77 @@ export default function AddCurtain() {
     const [isEditingColor, setIsEditingColor] = useState(false);
     const [currentColorId, setCurrentColorId] = useState(null);
     const [selectedColor, setSelectedColor] = useState(null);
+    
+    // State for Add Category
+    const [showAddCategory, setShowAddCategory] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const [isAddingCategory, setIsAddingCategory] = useState(false);
+    const [categoryImage, setCategoryImage] = useState(null);
+    const [categoryImagePreview, setCategoryImagePreview] = useState('');
+    const categoryFileInputRef = useRef(null);
+
+    // Handle category image selection
+    const handleCategoryImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setCategoryImage(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setCategoryImagePreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    // Handle category image button click
+    const handleCategoryImageButtonClick = () => {
+        categoryFileInputRef.current.click();
+    };
+
+    // Function to handle adding a new category
+    const handleAddCategory = async () => {
+        if (!newCategoryName.trim()) return;
+        
+        setIsAddingCategory(true);
+        setError(null);
+        
+        try {
+            let imageUrl = '';
+            
+            // Upload image if selected
+            if (categoryImage) {
+                const uploadResult = await uploadImage(categoryImage);
+                imageUrl = uploadResult.url;
+            }
+            
+            // Create new category with image
+            const newCategory = await createCategory({ 
+                name: newCategoryName.trim(),
+                image: imageUrl 
+            });
+            
+            // Add new category to the list
+            setCategories(prev => [...prev, newCategory]);
+            
+            // Auto-select the newly created category
+            setFormData(prev => ({
+                ...prev,
+                category: newCategory._id
+            }));
+            
+            // Reset form
+            setNewCategoryName('');
+            setCategoryImage(null);
+            setCategoryImagePreview('');
+            setShowAddCategory(false);
+            
+        } catch (error) {
+            console.error('Error adding category:', error);
+            setError('Có lỗi xảy ra khi thêm danh mục mới. Vui lòng thử lại.');
+        } finally {
+            setIsAddingCategory(false);
+        }
+    };
 
     const fetchAllColors = async () => {
         try {
@@ -331,15 +403,86 @@ export default function AddCurtain() {
                         </div>
 
                         {/* Danh mục */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Danh mục <span className="text-red-500">*</span>
-                            </label>
+                        <div className="mb-4">
+                            <div className="flex justify-between items-center mb-2">
+                                <label className="block text-gray-700 text-sm font-bold" htmlFor="category">
+                                    Danh mục <span className="text-red-500">*</span>
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowAddCategory(!showAddCategory)}
+                                    className="cursor-pointer text-xs text-blue-600 hover:text-blue-800 flex items-center"
+                                >
+                                    <FaPlus className="mr-1" /> {showAddCategory ? 'Hủy' : 'Thêm mới'}
+                                </button>
+                            </div>
+
+                            {showAddCategory && (
+                                <div className="mb-3 space-y-3">
+                                    <div className="flex">
+                                        <input
+                                            type="text"
+                                            value={newCategoryName}
+                                            onChange={(e) => setNewCategoryName(e.target.value)}
+                                            placeholder="Tên danh mục mới"
+                                            className="flex-1 shadow appearance-none border rounded-l py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={handleAddCategory}
+                                            disabled={!newCategoryName.trim() || isAddingCategory}
+                                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r focus:outline-none focus:shadow-outline disabled:opacity-50"
+                                        >
+                                            {isAddingCategory ? 'Đang thêm...' : 'Thêm'}
+                                        </button>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center">
+                                            <button
+                                                type="button"
+                                                onClick={handleCategoryImageButtonClick}
+                                                className="cursor-pointer text-sm text-blue-600 hover:text-blue-800 flex items-center"
+                                            >
+                                                <FaUpload className="mr-1" /> Tải lên hình ảnh
+                                            </button>
+                                            <input
+                                                type="file"
+                                                ref={categoryFileInputRef}
+                                                onChange={handleCategoryImageChange}
+                                                accept="image/*"
+                                                className="hidden"
+                                            />
+                                        </div>
+                                        {categoryImagePreview && (
+                                            <div className="relative w-20 h-20 border rounded-md overflow-hidden">
+                                                <img
+                                                    src={categoryImagePreview}
+                                                    alt="Category preview"
+                                                    className="w-full h-full object-cover"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setCategoryImage(null);
+                                                        setCategoryImagePreview('');
+                                                    }}
+                                                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                                                    title="Xóa ảnh"
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
                             <select
+                                id="category"
                                 name="category"
-                                className="w-full p-2 border border-gray-300 rounded-md"
                                 value={formData.category}
                                 onChange={handleChange}
+                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                 required
                             >
                                 <option value="">Chọn danh mục</option>

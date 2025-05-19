@@ -23,7 +23,7 @@ const CategoryCard = ({ category, productCount = 0 }) => {
           {category.name}
         </h3>
         <span className="block text-xs sm:text-sm md:text-base text-gray-500 mb-1 text-center">
-          {productCount} sản phẩm
+          {productCount > 0 ? `${productCount} sản phẩm` : 'Sắp ra mắt'}
         </span>
       </div>
     </Link>

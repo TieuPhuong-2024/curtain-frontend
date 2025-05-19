@@ -43,7 +43,7 @@ const CategorySlider = ({ categories, productCounts = {} }) => {
         {showLeftArrow && (
           <button
             onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-primary text-gray-800 hover:text-white p-2 rounded-full z-10 shadow-md transition-all hover:scale-110 hidden md:flex"
+            className="cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-primary text-gray-800 hover:text-white p-2 rounded-full z-10 shadow-md transition-all hover:scale-110 hidden md:flex"
             aria-label="Previous categories"
           >
             <FaArrowLeft size={20} />
@@ -75,7 +75,7 @@ const CategorySlider = ({ categories, productCounts = {} }) => {
         {showRightArrow && (
           <button
             onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-primary text-gray-800 hover:text-white p-2 rounded-full z-10 shadow-md transition-all hover:scale-110 hidden md:flex"
+            className="cursor-pointer absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-primary text-gray-800 hover:text-white p-2 rounded-full z-10 shadow-md transition-all hover:scale-110 hidden md:flex"
             aria-label="Next categories"
           >
             <FaArrowRight size={20} />

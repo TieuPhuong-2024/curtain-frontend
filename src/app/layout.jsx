@@ -2,6 +2,7 @@ import {Quicksand} from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import FloatingContact from "@/components/FloatingContact";
 import { AuthProvider } from '@/lib/AuthContext';
 import "./styles/cozy-theme.css";
 import { ToastContainer } from 'react-toastify';
@@ -31,6 +32,7 @@ export default function RootLayout({children}) {
                     {children}
                 </main>
                 <Footer/>
+                <FloatingContact />
                 <ToastContainer position="top-center" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
             </AuthProvider>
         </body>
