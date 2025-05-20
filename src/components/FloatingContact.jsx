@@ -3,9 +3,11 @@
 import { FaPhone, FaYoutube } from 'react-icons/fa';
 import { SiZalo } from 'react-icons/si';
 import { useState, useEffect } from 'react';
+import { useMediaQuery } from 'react-responsive';
 
 const FloatingContact = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const isMobile = useMediaQuery({ maxWidth: 768 }); // Check if device is mobile
 
   useEffect(() => {
     const toggleVisibility = () => {
@@ -28,17 +30,34 @@ const FloatingContact = () => {
   };
 
   return (
-    <div className={`fixed right-6 bottom-24 z-50 flex flex-col gap-4 transition-all duration-300 ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+    <div className={`fixed right-4 sm:right-6 bottom-20 sm:bottom-24 z-50 flex flex-col gap-3 sm:gap-4 transition-all duration-300 ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      <style jsx global>{`
+        @media (max-width: 768px) {
+          .fixed.right-4 {
+            right: 1rem;
+          }
+          /* Thêm hiệu ứng khi chạm vào nút trên mobile */
+          @media (hover: none) {
+            a:active {
+              transform: scale(0.95) !important;
+              opacity: 0.9 !important;
+            }
+          }
+        }
+      `}</style>
       {/* Phone Button */}
       <a
         href="tel:+84937543809"
         className="w-12 h-12 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-lg transform hover:scale-110 transition-all duration-200 group relative"
         aria-label="Gọi điện thoại"
+        title="Gọi: 0937 543 809"
       >
         <FaPhone className="text-xl" />
-        <span className="absolute right-full mr-3 px-3 py-1 bg-gray-800 text-white text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-          0937 543 809
-        </span>
+        {!isMobile && (
+          <span className="absolute right-full mr-3 px-3 py-1 bg-gray-800 text-white text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+            0937 543 809
+          </span>
+        )}
       </a>
 
       {/* Zalo Button */}
@@ -48,11 +67,14 @@ const FloatingContact = () => {
         rel="noopener noreferrer"
         className="w-12 h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg transform hover:scale-110 transition-all duration-200 group relative"
         aria-label="Nhắn tin Zalo"
+        title="Chat Zalo"
       >
         <SiZalo className="text-2xl" />
-        <span className="absolute right-full mr-3 px-3 py-1 bg-gray-800 text-white text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-          Chat Zalo
-        </span>
+        {!isMobile && (
+          <span className="absolute right-full mr-3 px-3 py-1 bg-gray-800 text-white text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+            Chat Zalo
+          </span>
+        )}
       </a>
 
       {/* YouTube Button */}
@@ -62,11 +84,14 @@ const FloatingContact = () => {
         rel="noopener noreferrer"
         className="w-12 h-12 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-lg transform hover:scale-110 transition-all duration-200 group relative"
         aria-label="Kênh YouTube"
+        title="Kênh YouTube"
       >
         <FaYoutube className="text-2xl" />
-        <span className="absolute right-full mr-3 px-3 py-1 bg-gray-800 text-white text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-          Kênh YouTube
-        </span>
+        {!isMobile && (
+          <span className="absolute right-full mr-3 px-3 py-1 bg-gray-800 text-white text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+            Kênh YouTube
+          </span>
+        )}
       </a>
 
       {/* Back to Top Button - Only shows when scrolled down */}
