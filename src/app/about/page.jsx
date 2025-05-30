@@ -1,9 +1,17 @@
+import StructuredData, { createAboutPageSchema } from '@/components/StructureData';
 import Image from 'next/image';
 import { FaCheck, FaMedal, FaUsers, FaLightbulb } from 'react-icons/fa';
 
 export default function AboutPage() {
   return (
     <div className="container mx-auto px-4 py-8">
+      <StructuredData
+        data={createAboutPageSchema({
+          title: 'Giới thiệu Tuấn Rèm',
+          description: 'Tuấn Rèm là đơn vị chuyên lắp đặt rèm cửa uy tín và chất lượng tại Việt Nam.',
+        })}
+      />
+
       <h1 className="text-3xl font-bold mb-2">Về Chúng Tôi</h1>
       <p className="text-gray-600 mb-8">
         Câu chuyện về Tuấn Rèm và những giá trị chúng tôi mang lại

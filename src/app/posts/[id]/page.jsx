@@ -8,6 +8,8 @@ import { getPostById, getPosts } from '@/lib/api';
 import PostCard from '@/components/PostCard';
 import { renderCKEditorContent } from '@/utils/ckeditorConverter';
 import '@/app/styles/content-styles.css';
+import StructuredData, { createArticleSchema, createBreadcrumbSchema } from '@/components/StructureData';
+import { ROUTES_PATH } from '@/utils/constant';
 
 export default function PostDetail({ params }) {
   const postId = use(params).id;
@@ -76,6 +78,23 @@ export default function PostDetail({ params }) {
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+      <StructuredData
+        data={createBreadcrumbSchema([
+          { name: 'Trang chủ', url: `${process.env.NEXT_PUBLIC_URL}` },
+          { name: 'Bài viết', url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}` },
+          { name: post.title, url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}/${post._id}` }
+        ])} />
+      <StructuredData
+        data={createArticleSchema({
+          title: post.title,
+          url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}/${post._id}`,
+          image: post.featuredImage,
+          datePublished: post.createdAt,
+          dateModified: post.updatedAt,
+          description: post.summary,
+          articleBody: post.content,
+        })}
+      />
       {/* Navigation link */}
       <div className="mb-6">
         <Link href="/posts" className="text-blue-600 hover:underline flex items-center">

@@ -1,11 +1,13 @@
 'use client';
 
 import '../styles/cozy-theme.css';
-import {useEffect, useState} from 'react';
-import {useSearchParams} from 'next/navigation';
-import {getCurtains, getCategories, getColors} from '@/lib/api';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { getCurtains, getCategories, getColors } from '@/lib/api';
 import CurtainCard from '@/components/CurtainCard';
-import {FaFilter, FaTimes} from 'react-icons/fa';
+import { FaFilter, FaTimes } from 'react-icons/fa';
+import StructuredData, { createBreadcrumbSchema, createProductSchema } from '@/components/StructureData';
+import { ROUTES_PATH } from '@/utils/constant';
 
 export default function ProductsPage() {
     const searchParams = useSearchParams();
@@ -19,7 +21,7 @@ export default function ProductsPage() {
     // Filter states
     const [selectedCategory, setSelectedCategory] = useState(categoryParam || '');
     const [selectedColors, setSelectedColors] = useState([]);
-    const [priceRange, setPriceRange] = useState({min: 0, max: 10000000});
+    const [priceRange, setPriceRange] = useState({ min: 0, max: 10000000 });
     const [categories, setCategories] = useState([]);
 
     const [colors, setColors] = useState([]); // State for colors
@@ -33,7 +35,7 @@ export default function ProductsPage() {
                     getCategories(),
                     getColors()
                 ]);
-                
+
                 setCurtains(curtainsData);
                 setCategories(categoriesData);
                 setColors(colorsData || []); // Store colors from database
@@ -77,20 +79,20 @@ export default function ProductsPage() {
     const clearFilters = () => {
         setSelectedCategory('');
         setSelectedColors([]);
-        setPriceRange({min: 0, max: 10000000});
+        setPriceRange({ min: 0, max: 10000000 });
     };
 
     const filteredCurtains = curtains.filter(curtain => {
         // Xử lý trường hợp category có thể là object
         const curtainCategoryId = typeof curtain.category === 'object' ? curtain.category?._id : curtain.category;
         const matchesCategory = selectedCategory === '' || curtainCategoryId === selectedCategory;
-        
+
         // Xử lý trường hợp color có thể null hoặc case sensitivity
         const curtainColorObject = curtain.color || {}; // curtain.color is an object, provide fallback
-        const matchesColor = selectedColors.length === 0 || 
+        const matchesColor = selectedColors.length === 0 ||
             selectedColors.some(selectedColorName => // selectedColorName is a string from the filter
                 curtainColorObject.name?.toLowerCase() === selectedColorName.toLowerCase());
-                
+
         const matchesPrice = curtain.price >= priceRange.min && curtain.price <= priceRange.max;
 
         return matchesCategory && matchesColor && matchesPrice;
@@ -98,6 +100,40 @@ export default function ProductsPage() {
 
     return (
         <div className="container mx-auto px-4 py-8">
+            {/* Structured Data */}
+            <StructuredData
+                data={createBreadcrumbSchema([
+                    { name: 'Trang chủ', url: `${process.env.NEXT_PUBLIC_URL}` },
+                    { name: 'Sản phẩm', url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.PRODUCTS}` },
+                ])} />
+            <StructuredData
+                data={{
+                    '@context': 'https://schema.org',
+                    '@type': 'CollectionPage',
+                    name: 'Sản phẩm - Tuấn Rèm',
+                    description:
+                        'Khám phá các mẫu rèm cửa chất lượng cao của Tuấn Rèm – đa dạng kiểu dáng, chất liệu và màu sắc phù hợp cho mọi không gian.',
+                    url: `${process.env.NEXT_PUBLIC_URL}/products`,
+                    mainEntity: {
+                        '@type': 'ItemList',
+                        itemListElement: curtains.map((curtain, index) => ({
+                            '@type': 'ListItem',
+                            position: index + 1,
+                            url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.PRODUCTS}/${curtain.id}`,
+                            item: createProductSchema({
+                                name: curtain.name,
+                                description: curtain.description,
+                                images: Array.isArray(curtain.images) ? curtain.images : [curtain.images],
+                                price: curtain.price,
+                                inStock: curtain.inStock,
+                                url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.PRODUCTS}/${curtain.id}`,
+                            }),
+                        })),
+                    },
+                }}
+            />
+
+            {/* UI */}
             <h1 className="text-3xl font-bold mb-2">Sản Phẩm Rèm Cửa</h1>
             <p className="text-gray-600 mb-8">Khám phá bộ sưu tập rèm cửa đa dạng cho không gian của bạn</p>
 
@@ -108,7 +144,7 @@ export default function ProductsPage() {
                         onClick={() => setFilterOpen(!filterOpen)}
                         className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-md"
                     >
-                        {filterOpen ? <FaTimes/> : <FaFilter/>} {filterOpen ? 'Đóng bộ lọc' : 'Bộ lọc'}
+                        {filterOpen ? <FaTimes /> : <FaFilter />} {filterOpen ? 'Đóng bộ lọc' : 'Bộ lọc'}
                     </button>
                 </div>
 
@@ -167,11 +203,10 @@ export default function ProductsPage() {
                                             setSelectedColors([...selectedColors, color.name]);
                                         }
                                     }}
-                                    className={`px-3 py-1 rounded-full text-sm ${
-                                        selectedColors.includes(color.name)
-                                            ? 'bg-indigo-600 text-white'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                    }`}
+                                    className={`px-3 py-1 rounded-full text-sm ${selectedColors.includes(color.name)
+                                        ? 'bg-indigo-600 text-white'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                        }`}
                                 >
                                     {color.name}
                                 </button>
@@ -189,7 +224,7 @@ export default function ProductsPage() {
                                 max="10000000"
                                 step="500000"
                                 value={priceRange.max}
-                                onChange={(e) => setPriceRange({...priceRange, max: Number(e.target.value)})}
+                                onChange={(e) => setPriceRange({ ...priceRange, max: Number(e.target.value) })}
                                 className="w-full"
                             />
                             <div className="flex justify-between text-sm">
@@ -219,7 +254,7 @@ export default function ProductsPage() {
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             {filteredCurtains.map((curtain) => (
-                                <CurtainCard key={curtain._id} curtain={curtain}/>
+                                <CurtainCard key={curtain._id} curtain={curtain} />
                             ))}
                         </div>
                     )}

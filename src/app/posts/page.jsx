@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { getPosts } from '@/lib/api';
 import PostCard from '@/components/PostCard';
+import { ROUTES_PATH } from '@/utils/constant';
+import StructuredData, { createArticleSchemaShort, createBreadcrumbSchema } from '@/components/StructureData';
 
 export default function Posts() {
   const [posts, setPosts] = useState([]);
@@ -21,7 +23,7 @@ export default function Posts() {
       const response = await getPosts(currentPage, 9, 'published', selectedTag);
       setPosts(response.posts);
       setTotalPages(response.pagination.pages);
-      
+
       // Extract all unique tags from posts
       const tags = [];
       response.posts.forEach(post => {
@@ -48,6 +50,35 @@ export default function Posts() {
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+      {/* Breadcrumbs Structured Data */}
+      <StructuredData
+        data={createBreadcrumbSchema([
+          { name: 'Trang chủ', url: `${process.env.NEXT_PUBLIC_URL}` },
+          { name: 'Công trình', url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}` },
+        ])}
+      />
+      <StructuredData
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'CollectionPage',
+          name: 'Blog - Tuấn Rèm',
+          description: 'Tổng hợp các bài viết mới nhất từ Tuấn Rèm về rèm cửa, mẹo trang trí nội thất và công trình thực tế.',
+          url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}`,
+          mainEntity: {
+            '@type': 'ItemList',
+            itemListElement: posts.map((post, index) => ({
+              '@type': 'ListItem',
+              position: index + 1,
+              url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}/${post._id || post.id}`,
+              item: createArticleSchemaShort({
+                title: post.title,
+                description: post.summary,
+                image: post.featuredImage,
+              }),
+            })),
+          },
+        }}
+      />
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Blog</h1>
         <p className="text-gray-600">Các bài viết mới nhất</p>
@@ -59,23 +90,21 @@ export default function Posts() {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setSelectedTag('')}
-              className={`px-3 py-1 rounded-full text-sm ${
-                selectedTag === ''
+              className={`px-3 py-1 rounded-full text-sm ${selectedTag === ''
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
+                }`}
             >
               Tất cả
             </button>
-            {allTags.map((tag) => (
+            {allTags.map(tag => (
               <button
                 key={tag}
                 onClick={() => setSelectedTag(tag)}
-                className={`px-3 py-1 rounded-full text-sm ${
-                  selectedTag === tag
+                className={`px-3 py-1 rounded-full text-sm ${selectedTag === tag
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+                  }`}
               >
                 {tag}
               </button>
@@ -89,9 +118,7 @@ export default function Posts() {
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       ) : error ? (
-        <div className="bg-red-100 text-red-700 p-4 rounded">
-          {error}
-        </div>
+        <div className="bg-red-100 text-red-700 p-4 rounded">{error}</div>
       ) : (
         <>
           {posts.length === 0 ? (
@@ -100,7 +127,7 @@ export default function Posts() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {posts.map((post) => (
+              {posts.map(post => (
                 <PostCard key={post._id} post={post} />
               ))}
             </div>
@@ -110,15 +137,14 @@ export default function Posts() {
           {totalPages > 1 && (
             <div className="flex justify-center mt-12">
               <div className="flex space-x-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`px-4 py-2 rounded ${
-                      currentPage === page
+                    className={`px-4 py-2 rounded ${currentPage === page
                         ? 'bg-blue-600 text-white'
                         : 'bg-white text-gray-700 hover:bg-gray-100'
-                    }`}
+                      }`}
                   >
                     {page}
                   </button>
