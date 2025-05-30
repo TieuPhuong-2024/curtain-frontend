@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { getCurtains, getCategories } from '@/lib/api';
 import CurtainCard from '@/components/CurtainCard';
-import { FaSearch, FaFilter, FaTimes } from 'react-icons/fa';
+import { FaFilter, FaTimes } from 'react-icons/fa';
 import Link from 'next/link';
 
 export default function SearchPage() {
