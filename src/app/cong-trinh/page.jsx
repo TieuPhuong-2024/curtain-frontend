@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { getProjects, getProjectsByType } from '../../lib/api';
 import Image from 'next/image';
 import { FaSearch, FaHardHat, FaBuilding, FaStar, FaArrowRight } from 'react-icons/fa';
-import StructuredData, { createBreadcrumbSchema } from '@/components/StructureData';
+import StructuredData, { createArticleSchemaShort, createBreadcrumbSchema } from '@/components/StructureData';
 import { ROUTES_PATH, SITE_NAME } from '@/utils/constant';
 
 export default function ThiCongLapRemPage() {
