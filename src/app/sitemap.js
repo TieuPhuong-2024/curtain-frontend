@@ -1,40 +1,40 @@
 import { ROUTES_PATH } from "@/utils/constant"
-const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-const backendUrl = process.env.BACKEND_URL || 'https://curtain-backend.onrender.com';
+const frontendUrl = process.env.NEXT_PUBLIC_URL;
+const backendUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const staticRoutes = [
     {
-        url: `${process.env.NEXT_PUBLIC_URL}`,
+        url: frontendUrl,
         lastModified: new Date(),
         changeFrequency: 'yearly',
         priority: 1,
     },
     {
-        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.ABOUT}`,
+        url: `${frontendUrl}/${ROUTES_PATH.ABOUT}`,
         lastModified: new Date(),
         changeFrequency: 'yearly',
         priority: 0.8,
     },
     {
-        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.CONG_TRINH}`,
+        url: `${frontendUrl}/${ROUTES_PATH.CONG_TRINH}`,
         lastModified: new Date(),
         changeFrequency: 'weekly',
         priority: 0.8,
     },
     {
-        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.CONTACT}`,
+        url: `${frontendUrl}/${ROUTES_PATH.CONTACT}`,
         lastModified: new Date(),
         changeFrequency: 'yearly',
         priority: 0.5,
     },
     {
-        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}`,
+        url: `${frontendUrl}/${ROUTES_PATH.POSTS}`,
         lastModified: new Date(),
         changeFrequency: 'yearly',
         priority: 0.5,
     },
     {
-        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.PRODUCTS}`,
+        url: `${frontendUrl}/${ROUTES_PATH.PRODUCTS}`,
         lastModified: new Date(),
         changeFrequency: 'yearly',
         priority: 0.5,
