@@ -84,15 +84,15 @@ async function fetchAndMapRoutes(apiUrl, pathPrefix) {
 
 export default async function sitemap() {
     const productRoutes = await fetchAndMapRoutes(
-        `${process.env.BACKEND_URL}/api/curtains`,
+        `${process.env.NEXT_PUBLIC_API_URL}/curtains`,
         'products'
     );
     const postRoutes = await fetchAndMapRoutes(
-        `${process.env.BACKEND_URL}/api/posts`,
+        `${process.env.NEXT_PUBLIC_API_URL}/posts`,
         'posts'
     );
     const projectRoutes = await fetchAndMapRoutes(
-        `${process.env.BACKEND_URL}/api/projects`,
+        `${process.env.NEXT_PUBLIC_API_URL}/projects`,
         'cong-trinh'
     );
 
