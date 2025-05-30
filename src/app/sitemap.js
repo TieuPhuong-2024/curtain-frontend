@@ -1,5 +1,5 @@
 import { ROUTES_PATH } from "@/utils/constant"
-const baseUrl = baseUrl || 'https://remcuathuduc.shop'
+const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://remcuathuduc.shop'
 
 const staticRoutes = [
     {
