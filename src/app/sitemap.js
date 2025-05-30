@@ -1,38 +1,39 @@
 import { ROUTES_PATH } from "@/utils/constant"
+const baseUrl = baseUrl || 'https://remcuathuduc.shop'
 
 const staticRoutes = [
     {
-        url: process.env.NEXT_PUBLIC_URL,
+        url: baseUrl,
         lastModified: new Date(),
         changeFrequency: 'yearly',
         priority: 1,
     },
     {
-        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.ABOUT}`,
+        url: `${baseUrl}/${ROUTES_PATH.ABOUT}`,
         lastModified: new Date(),
         changeFrequency: 'yearly',
         priority: 0.8,
     },
     {
-        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.CONG_TRINH}`,
+        url: `${baseUrl}/${ROUTES_PATH.CONG_TRINH}`,
         lastModified: new Date(),
         changeFrequency: 'weekly',
         priority: 0.8,
     },
     {
-        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.CONTACT}`,
+        url: `${baseUrl}/${ROUTES_PATH.CONTACT}`,
         lastModified: new Date(),
         changeFrequency: 'yearly',
         priority: 0.5,
     },
     {
-        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}`,
+        url: `${baseUrl}/${ROUTES_PATH.POSTS}`,
         lastModified: new Date(),
         changeFrequency: 'yearly',
         priority: 0.5,
     },
     {
-        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.PRODUCTS}`,
+        url: `${baseUrl}/${ROUTES_PATH.PRODUCTS}`,
         lastModified: new Date(),
         changeFrequency: 'yearly',
         priority: 0.5,
@@ -72,7 +73,7 @@ async function fetchAndMapRoutes(apiUrl, pathPrefix) {
         }
 
         return itemsToMap.map((item) => ({
-            url: `${process.env.NEXT_PUBLIC_URL}/${pathPrefix}/${item._id}`,
+            url: `${baseUrl}/${pathPrefix}/${item._id}`,
             lastModified: item.updatedAt || item.createdAt || new Date(),
             images: [item.mainImage || item.featuredImage || item.thumbnail]
         }));
