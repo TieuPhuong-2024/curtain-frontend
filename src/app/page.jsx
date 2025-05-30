@@ -11,7 +11,10 @@ import CurtainCard from '@/components/CurtainCard';
 import BannerSlider from '@/components/BannerSlider';
 import CategorySlider from '@/components/CategorySlider';
 import { SITE_DESCRIPTION, SITE_NAME } from '@/utils/constant';
-import StructuredData, { createOrganizationSchema, createWebPageSchema } from '@/components/StructureData';
+import StructuredData, {
+  createOrganizationSchema,
+  createWebPageSchema,
+} from '@/components/StructureData';
 
 export default function Home() {
   const [featuredCurtains, setFeaturedCurtains] = useState([]);
@@ -29,24 +32,27 @@ export default function Home() {
   const organizationSchema = createOrganizationSchema({
     name: SITE_NAME,
     url: process.env.NEXT_PUBLIC_URL,
-    logo: `${process.env.NEXT_PUBLIC_URL}/logo-2.png`,
+    logo: `${process.env.NEXT_PUBLIC_URL}/logo.png`,
     description: SITE_DESCRIPTION,
     address: {
-      street: 'Địa chỉ của bạn',
-      city: 'Hà Nội',
-      region: 'Hà Nội',
+      street: '15/7A Tân Lập - Đông Hoà - Dĩ An - Bình Dương',
+      city: 'Dĩ An',
+      region: 'Bình Dương',
       country: 'VN',
     },
-    phone: '+84xxxxxxxxx',
-    email: 'contact@tuanrem.com',
-    sameAs: ['https://facebook.com/tuanrem', 'https://instagram.com/tuanrem'],
+    phone: '+84-937-543-809',
+    email: 'tuanremgiare@gmail.com',
+    sameAs: [
+      'https://www.facebook.com/NguyenTuanthht12',
+      'https://www.youtube.com/@Tu%E1%BA%A5nR%C3%A8mB%C3%ACnhD%C6%B0%C6%A1ng',
+    ],
   });
 
   const webPageSchema = createWebPageSchema({
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
     url: process.env.NEXT_PUBLIC_URL,
-    image: `${process.env.NEXT_PUBLIC_URL}/opengraph-image.jpg`,
+    image: `${process.env.NEXT_PUBLIC_URL}/logo.png`,
   });
 
   useEffect(() => {
