@@ -24,7 +24,7 @@ export const metadata = {
     default: SITE_NAME,
   },
   description: SITE_DESCRIPTION,
-  keywords: 'rèm cửa, rèm cửa cao cấp, rèm cửa sổ, rèm phòng khách, rèm phòng ngủ',
+  keywords: process.env.NEXT_PUPLIC_SEO_KEYWORDS,
   url: `${process.env.NEXT_PUBLIC_URL}`,
 
   // Add the following SEO-related metadata
@@ -35,7 +35,7 @@ export const metadata = {
     SITE_NAME: SITE_NAME,
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_URL}/opengraph-image.jpg`,
+        url: `${process.env.NEXT_PUBLIC_URL}/logo.png`,
         width: 1200,
         height: 630,
         alt: SITE_NAME,
@@ -48,7 +48,7 @@ export const metadata = {
     description: SITE_DESCRIPTION,
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_URL}/opengraph-image.jpg`,
+        url: `${process.env.NEXT_PUBLIC_URL}/logo.png`,
       },
     ],
   },
