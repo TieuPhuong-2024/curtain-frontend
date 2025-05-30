@@ -1,6 +1,6 @@
 import { ROUTES_PATH } from "@/utils/constant"
 const frontendUrl = process.env.NEXT_PUBLIC_URL;
-const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+const backendUrl = process.env.BACKEND_URL || 'https://curtain-backend.onrender.com';
 
 const staticRoutes = [
     {
