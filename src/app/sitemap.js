@@ -1,6 +1,6 @@
 import { ROUTES_PATH } from "@/utils/constant"
 const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-const backendUrl = 'https://curtain-backend.onrender.com' || 'https://curtain-backend.onrender.com';
+const backendUrl = process.env.BACKEND_URL || 'https://curtain-backend.onrender.com';
 
 const staticRoutes = [
     {
