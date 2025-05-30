@@ -1,40 +1,38 @@
 import { ROUTES_PATH } from "@/utils/constant"
-const frontendUrl = process.env.NEXT_PUBLIC_URL;
-const backendUrl = process.env.BACKEND_URL || 'https://curtain-backend.onrender.com';
 
 const staticRoutes = [
     {
-        url: frontendUrl,
+        url: process.env.NEXT_PUBLIC_URL,
         lastModified: new Date(),
         changeFrequency: 'yearly',
         priority: 1,
     },
     {
-        url: `${frontendUrl}/${ROUTES_PATH.ABOUT}`,
+        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.ABOUT}`,
         lastModified: new Date(),
         changeFrequency: 'yearly',
         priority: 0.8,
     },
     {
-        url: `${frontendUrl}/${ROUTES_PATH.CONG_TRINH}`,
+        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.CONG_TRINH}`,
         lastModified: new Date(),
         changeFrequency: 'weekly',
         priority: 0.8,
     },
     {
-        url: `${frontendUrl}/${ROUTES_PATH.CONTACT}`,
+        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.CONTACT}`,
         lastModified: new Date(),
         changeFrequency: 'yearly',
         priority: 0.5,
     },
     {
-        url: `${frontendUrl}/${ROUTES_PATH.POSTS}`,
+        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}`,
         lastModified: new Date(),
         changeFrequency: 'yearly',
         priority: 0.5,
     },
     {
-        url: `${frontendUrl}/${ROUTES_PATH.PRODUCTS}`,
+        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.PRODUCTS}`,
         lastModified: new Date(),
         changeFrequency: 'yearly',
         priority: 0.5,
@@ -74,7 +72,7 @@ async function fetchAndMapRoutes(apiUrl, pathPrefix) {
         }
 
         return itemsToMap.map((item) => ({
-            url: `${frontendUrl}/${pathPrefix}/${item._id}`,
+            url: `${process.env.NEXT_PUBLIC_URL}/${pathPrefix}/${item._id}`,
             lastModified: item.updatedAt || item.createdAt || new Date(),
             images: [item.mainImage || item.featuredImage || item.thumbnail]
         }));
@@ -86,15 +84,15 @@ async function fetchAndMapRoutes(apiUrl, pathPrefix) {
 
 export default async function sitemap() {
     const productRoutes = await fetchAndMapRoutes(
-        `${backendUrl}/api/curtains`,
+        `${process.env.BACKEND_URL}/api/curtains`,
         'products'
     );
     const postRoutes = await fetchAndMapRoutes(
-        `${backendUrl}/api/posts`,
+        `${process.env.BACKEND_URL}/api/posts`,
         'posts'
     );
     const projectRoutes = await fetchAndMapRoutes(
-        `${backendUrl}/api/projects`,
+        `${process.env.BACKEND_URL}/api/projects`,
         'cong-trinh'
     );
 
