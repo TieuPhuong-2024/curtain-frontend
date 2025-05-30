@@ -2,6 +2,7 @@
 
 import StructuredData, { createBreadcrumbSchema, createContactPageSchema } from '@/components/StructureData';
 import { createContact } from '@/lib/api';
+import { ROUTES_PATH } from '@/utils/constant';
 import { useState } from 'react';
 import { FaClock, FaEnvelope, FaMapMarkerAlt, FaPhone } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
