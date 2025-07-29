@@ -17,7 +17,7 @@ export default function AdminLayout({children}) {
     useEffect(() => {
         // Check if user is not an admin
         if (!loading && (!user || userRole !== 'admin')) {
-            router.push('/');
+            logout();
         }
     }, [user, userRole, loading, router]);
 
