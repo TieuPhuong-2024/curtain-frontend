@@ -16,6 +16,15 @@ import { createCategory, getCategories } from '@/lib/categoryApi';
 import { createColor, getColorById, getColors, updateColor } from '@/lib/colorApi';
 
 export default function EditCurtain({ params }) {
+  const [priceType, setPriceType] = useState('fixed');
+  const [priceData, setPriceData] = useState({
+    value: '',
+    min: '',
+    max: '',
+    old: '',
+    new: ''
+  });
+
   const router = useRouter();
   const { id } = use(params);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,7 +41,6 @@ export default function EditCurtain({ params }) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    price: '',
     category: '',
     material: '',
     color: '',
@@ -184,7 +192,6 @@ export default function EditCurtain({ params }) {
       setFormData({
         name: curtainData.name || '',
         description: curtainData.description || '',
-        price: curtainData.price || '',
         category: curtainData.category?._id || curtainData.category || '',
         material: curtainData.material || '',
         color: curtainData.color?._id || curtainData.color || '', // Ensure we use the ID
@@ -326,7 +333,6 @@ export default function EditCurtain({ params }) {
     if (
       !formData.name ||
       !formData.description ||
-      !formData.price ||
       !formData.category ||
       !formData.material ||
       !formData.color ||
@@ -363,7 +369,12 @@ export default function EditCurtain({ params }) {
       // Chuẩn bị dữ liệu gửi đến API
       const curtainData = {
         ...formData,
-        price: parseFloat(formData.price),
+        price: {
+          type: priceType,
+          ...(priceType === 'fixed' && { value: parseFloat(priceData.value) }),
+          ...(priceType === 'range' && { min: parseFloat(priceData.min), max: parseFloat(priceData.max) }),
+          ...(priceType === 'discount' && { old: parseFloat(priceData.old), new: parseFloat(priceData.new) }),
+        },
         size: {
           width: parseFloat(formData.width),
           height: parseFloat(formData.height),
@@ -606,17 +617,76 @@ export default function EditCurtain({ params }) {
             {/* Giá */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Giá (VNĐ) <span className="text-red-500">*</span>
+                Loại giá <span className="text-red-500">*</span>
               </label>
-              <input
-                type="number"
-                name="price"
-                className="w-full p-2 border border-gray-300 rounded-md"
-                value={formData.price}
-                onChange={handleChange}
-                min="0"
-                required
-              />
+              <select
+                value={priceType}
+                onChange={e => setPriceType(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md mb-2"
+              >
+                <option value="fixed">Giá cố định</option>
+                <option value="range">Khoảng giá</option>
+                <option value="discount">Giá giảm</option>
+                <option value="contact">Liên hệ</option>
+              </select>
+              {priceType === 'fixed' && (
+                <input
+                  type="number"
+                  placeholder="Giá (VNĐ)"
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  value={priceData.value}
+                  onChange={e => setPriceData({ ...priceData, value: e.target.value })}
+                  min="0"
+                  required
+                />
+              )}
+              {priceType === 'range' && (
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    placeholder="Giá thấp nhất"
+                    className="w-1/2 p-2 border border-gray-300 rounded-md"
+                    value={priceData.min}
+                    onChange={e => setPriceData({ ...priceData, min: e.target.value })}
+                    min="0"
+                    required
+                  />
+                  <input
+                    type="number"
+                    placeholder="Giá cao nhất"
+                    className="w-1/2 p-2 border border-gray-300 rounded-md"
+                    value={priceData.max}
+                    onChange={e => setPriceData({ ...priceData, max: e.target.value })}
+                    min="0"
+                    required
+                  />
+                </div>
+              )}
+              {priceType === 'discount' && (
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    placeholder="Giá cũ"
+                    className="w-1/2 p-2 border border-gray-300 rounded-md"
+                    value={priceData.old}
+                    onChange={e => setPriceData({ ...priceData, old: e.target.value })}
+                    min="0"
+                    required
+                  />
+                  <input
+                    type="number"
+                    placeholder="Giá mới"
+                    className="w-1/2 p-2 border border-gray-300 rounded-md"
+                    value={priceData.new}
+                    onChange={e => setPriceData({ ...priceData, new: e.target.value })}
+                    min="0"
+                    required
+                  />
+                </div>
+              )}
+              {priceType === 'contact' && (
+                <div className="text-gray-500 italic">Giá sẽ hiển thị là "Liên hệ"</div>
+              )}
             </div>
 
             {/* Chất liệu */}
@@ -840,11 +910,10 @@ export default function EditCurtain({ params }) {
                 {imageList.map(img => (
                   <div key={img._id} className="relative group">
                     <div
-                      className={`relative h-32 border rounded-md overflow-hidden ${
-                        formData.mainImage === img.url
-                          ? 'border-2 border-blue-500'
-                          : 'border-gray-300'
-                      }`}
+                      className={`relative h-32 border rounded-md overflow-hidden ${formData.mainImage === img.url
+                        ? 'border-2 border-blue-500'
+                        : 'border-gray-300'
+                        }`}
                     >
                       <img
                         src={img.preview || img.url}

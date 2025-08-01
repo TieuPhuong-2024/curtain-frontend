@@ -6,6 +6,7 @@ import { FaEye, FaShoppingCart, FaHeart } from 'react-icons/fa';
 import { useState, useEffect } from 'react';
 import { favoriteService } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import ProductPrice from './ProductPrice';
 
 export default function CurtainCard({ curtain }) {
     const { user } = useAuth();
@@ -201,10 +202,11 @@ export default function CurtainCard({ curtain }) {
                 </h3>
                 <div className="flex justify-between items-center">
                     <p className="font-bold text-sm sm:text-base text-primary">
-                        {new Intl.NumberFormat('vi-VN', {
+                        {/* {new Intl.NumberFormat('vi-VN', {
                             style: 'currency',
                             currency: 'VND'
-                        }).format(price)}
+                        }).format(price)} */}
+                        <ProductPrice price={price} />
                     </p>
                     <div className="flex items-center gap-1 sm:gap-2">
                         <div

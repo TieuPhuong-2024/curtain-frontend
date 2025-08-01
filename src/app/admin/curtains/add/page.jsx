@@ -8,6 +8,15 @@ import { createCurtain, uploadImage, getColors, createColor, getColorById, updat
 import { getCategories, createCategory } from '@/lib/categoryApi';
 
 export default function AddCurtain() {
+    const [priceType, setPriceType] = useState('fixed');
+    const [priceData, setPriceData] = useState({
+        value: '',
+        min: '',
+        max: '',
+        old: '',
+        new: ''
+    });
+
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
@@ -22,7 +31,6 @@ export default function AddCurtain() {
     const [formData, setFormData] = useState({
         name: '',
         description: '',
-        price: '',
         category: '',
         material: '',
         color: '',
@@ -44,7 +52,7 @@ export default function AddCurtain() {
     const [isEditingColor, setIsEditingColor] = useState(false);
     const [currentColorId, setCurrentColorId] = useState(null);
     const [selectedColor, setSelectedColor] = useState(null);
-    
+
     // State for Add Category
     const [showAddCategory, setShowAddCategory] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState('');
@@ -74,40 +82,40 @@ export default function AddCurtain() {
     // Function to handle adding a new category
     const handleAddCategory = async () => {
         if (!newCategoryName.trim()) return;
-        
+
         setIsAddingCategory(true);
         setError(null);
-        
+
         try {
             let imageUrl = '';
-            
+
             // Upload image if selected
             if (categoryImage) {
                 const uploadResult = await uploadImage(categoryImage);
                 imageUrl = uploadResult.url;
             }
-            
+
             // Create new category with image
-            const newCategory = await createCategory({ 
+            const newCategory = await createCategory({
                 name: newCategoryName.trim(),
-                image: imageUrl 
+                image: imageUrl
             });
-            
+
             // Add new category to the list
             setCategories(prev => [...prev, newCategory]);
-            
+
             // Auto-select the newly created category
             setFormData(prev => ({
                 ...prev,
                 category: newCategory._id
             }));
-            
+
             // Reset form
             setNewCategoryName('');
             setCategoryImage(null);
             setCategoryImagePreview('');
             setShowAddCategory(false);
-            
+
         } catch (error) {
             console.error('Error adding category:', error);
             setError('Có lỗi xảy ra khi thêm danh mục mới. Vui lòng thử lại.');
@@ -243,7 +251,6 @@ export default function AddCurtain() {
         if (
             !formData.name ||
             !formData.description ||
-            !formData.price ||
             !formData.category ||
             !formData.material ||
             !formData.color ||
@@ -280,7 +287,12 @@ export default function AddCurtain() {
             // Chuẩn bị dữ liệu gửi đến API
             const curtainData = {
                 ...formData,
-                price: parseFloat(formData.price),
+                price: {
+                    type: priceType,
+                    ...(priceType === 'fixed' && { value: parseFloat(priceData.value) }),
+                    ...(priceType === 'range' && { min: parseFloat(priceData.min), max: parseFloat(priceData.max) }),
+                    ...(priceType === 'discount' && { old: parseFloat(priceData.old), new: parseFloat(priceData.new) }),
+                },
                 size: {
                     width: parseFloat(formData.width),
                     height: parseFloat(formData.height)
@@ -497,17 +509,76 @@ export default function AddCurtain() {
                         {/* Giá */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Giá (VNĐ) <span className="text-red-500">*</span>
+                                Loại giá <span className="text-red-500">*</span>
                             </label>
-                            <input
-                                type="number"
-                                name="price"
-                                className="w-full p-2 border border-gray-300 rounded-md"
-                                value={formData.price}
-                                onChange={handleChange}
-                                min="0"
-                                required
-                            />
+                            <select
+                                value={priceType}
+                                onChange={e => setPriceType(e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md mb-2"
+                            >
+                                <option value="fixed">Giá cố định</option>
+                                <option value="range">Khoảng giá</option>
+                                <option value="discount">Giá giảm</option>
+                                <option value="contact">Liên hệ</option>
+                            </select>
+                            {priceType === 'fixed' && (
+                                <input
+                                    type="number"
+                                    placeholder="Giá (VNĐ)"
+                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                    value={priceData.value}
+                                    onChange={e => setPriceData({ ...priceData, value: e.target.value })}
+                                    min="0"
+                                    required
+                                />
+                            )}
+                            {priceType === 'range' && (
+                                <div className="flex gap-2">
+                                    <input
+                                        type="number"
+                                        placeholder="Giá thấp nhất"
+                                        className="w-1/2 p-2 border border-gray-300 rounded-md"
+                                        value={priceData.min}
+                                        onChange={e => setPriceData({ ...priceData, min: e.target.value })}
+                                        min="0"
+                                        required
+                                    />
+                                    <input
+                                        type="number"
+                                        placeholder="Giá cao nhất"
+                                        className="w-1/2 p-2 border border-gray-300 rounded-md"
+                                        value={priceData.max}
+                                        onChange={e => setPriceData({ ...priceData, max: e.target.value })}
+                                        min="0"
+                                        required
+                                    />
+                                </div>
+                            )}
+                            {priceType === 'discount' && (
+                                <div className="flex gap-2">
+                                    <input
+                                        type="number"
+                                        placeholder="Giá cũ"
+                                        className="w-1/2 p-2 border border-gray-300 rounded-md"
+                                        value={priceData.old}
+                                        onChange={e => setPriceData({ ...priceData, old: e.target.value })}
+                                        min="0"
+                                        required
+                                    />
+                                    <input
+                                        type="number"
+                                        placeholder="Giá mới"
+                                        className="w-1/2 p-2 border border-gray-300 rounded-md"
+                                        value={priceData.new}
+                                        onChange={e => setPriceData({ ...priceData, new: e.target.value })}
+                                        min="0"
+                                        required
+                                    />
+                                </div>
+                            )}
+                            {priceType === 'contact' && (
+                                <div className="text-gray-500 italic">Giá sẽ hiển thị là "Liên hệ"</div>
+                            )}
                         </div>
 
                         {/* Chất liệu */}
