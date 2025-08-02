@@ -4,11 +4,13 @@ import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import CategoryCard from './CategoryCard';
+import { useEffect } from 'react';
 
 const CategorySlider = ({ categories, productCounts = {} }) => {
   const sliderRef = useRef(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(true);
+  const [showRightArrow, setShowRightArrow] = useState(false);
+  const [isCentered, setIsCentered] = useState(false);
 
   // Function to handle slider scroll
   const scroll = (direction) => {
@@ -23,10 +25,24 @@ const CategorySlider = ({ categories, productCounts = {} }) => {
   const handleScroll = () => {
     if (sliderRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
-      setShowLeftArrow(scrollLeft > 0);
-      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
+      // Nếu không thể scroll (scrollWidth <= clientWidth), ẩn cả hai arrow
+      if (scrollWidth <= clientWidth) {
+        setShowLeftArrow(false);
+        setShowRightArrow(false);
+        setIsCentered(true);
+      } else {
+        setShowLeftArrow(scrollLeft > 0);
+        setShowRightArrow(scrollLeft < scrollWidth - clientWidth);
+        setIsCentered(false);
+      }
     }
   };
+
+  useEffect(() => {
+    handleScroll();
+    window.addEventListener('resize', handleScroll);
+    return () => window.removeEventListener('resize', handleScroll);
+  }, [categories]);
 
   if (!categories || categories.length === 0) {
     return <div className="text-center py-12 text-lg">Chưa có danh mục nào.</div>;
@@ -53,9 +69,7 @@ const CategorySlider = ({ categories, productCounts = {} }) => {
         {/* Categories slider container */}
         <div
           ref={sliderRef}
-          className={`flex overflow-x-auto gap-4 py-4 px-4 md:px-2 hide-scrollbar ${
-            categories.length === 1 ? 'justify-center' : ''
-          }`}
+          className={`flex overflow-x-auto gap-4 py-4 px-4 md:px-2 hide-scrollbar${isCentered ? ' justify-center items-center' : ''}`}
           onScroll={handleScroll}
         >
           {categories.map(category => (
