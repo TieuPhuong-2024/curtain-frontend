@@ -250,11 +250,19 @@ export default function Home() {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div
+              className={
+                featuredCurtains.length < 3
+                  ? "flex justify-center gap-8 flex-wrap"
+                  : "grid grid-cols-1 md:grid-cols-3 gap-8"
+              }
+            >
               {featuredCurtains.map(curtain => (
-                <CurtainCard key={curtain._id} curtain={curtain} />
+                <div className="max-w-md w-full">
+                  <CurtainCard key={curtain._id} curtain={curtain} />
+                </div>
               ))}
-              <div className="flex justify-center items-center col-span-1 md:col-span-3 mt-8">
+              <div className="flex justify-center items-center w-full mt-8">
                 <Link
                   href="/products"
                   className="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors inline-flex items-center"
