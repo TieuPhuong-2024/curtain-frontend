@@ -286,13 +286,13 @@ export default function ProductDetailPage({ params }) {
                     <span className="text-[#5b4636] font-semibold">Chất liệu: </span>
                     <span className="ml-2">{material}</span>
                   </div>
-                  <div className="flex items-center">
+                  {/* <div className="flex items-center">
                     <FaRuler className="text-[#a67c52] mr-2 flex-shrink-0" />
                     <span className="text-[#5b4636] font-semibold">Kích thước: </span>
                     <span className="ml-2">
                       {size.width}cm x {size.height}cm
                     </span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
               {inStock ? (

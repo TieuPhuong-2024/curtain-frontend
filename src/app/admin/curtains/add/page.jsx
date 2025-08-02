@@ -650,7 +650,7 @@ export default function AddCurtain() {
                         </div>
 
                         {/* Kích thước - Chiều rộng */}
-                        <div>
+                        {/* <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Chiều rộng (cm) <span className="text-red-500">*</span>
                             </label>
@@ -663,10 +663,10 @@ export default function AddCurtain() {
                                 min="0"
                                 required
                             />
-                        </div>
+                        </div> */}
 
                         {/* Kích thước - Chiều cao */}
-                        <div>
+                        {/* <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Chiều cao (cm) <span className="text-red-500">*</span>
                             </label>
@@ -679,7 +679,7 @@ export default function AddCurtain() {
                                 min="0"
                                 required
                             />
-                        </div>
+                        </div> */}
 
                         {/* Hình ảnh chính */}
                         <div>
