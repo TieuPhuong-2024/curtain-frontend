@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FaEdit, FaPlus, FaSearch, FaTrash, FaEye, FaFileExcel } from 'react-icons/fa';
 import { deleteCurtain, getCategories, getCurtains } from '@/lib/api';
 import * as XLSX from 'xlsx';
+import ProductPrice from '@/components/ProductPrice';
 
 export default function CurtainsList() {
     const [categories, setCategories] = useState([]);
@@ -205,10 +206,9 @@ export default function CurtainsList() {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="text-sm text-gray-900">
-                                                    {new Intl.NumberFormat('vi-VN', {
-                                                        style: 'currency',
-                                                        currency: 'VND'
-                                                    }).format(curtain.price)}
+                                                    {
+                                                        <ProductPrice price={curtain.price} />
+                                                    }
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">

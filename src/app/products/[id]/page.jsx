@@ -11,6 +11,7 @@ import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import StructuredData, { createBreadcrumbSchema, createProductSchema } from '@/components/StructureData';
 import { ROUTES_PATH } from '@/utils/constant';
+import ProductPrice from '@/components/ProductPrice';
 
 export default function ProductDetailPage({ params }) {
   const { id } = use(params);
@@ -255,9 +256,9 @@ export default function ProductDetailPage({ params }) {
                 </span>
               </div>
               <div className="text-xl sm:text-2xl font-bold text-[#a67c52] mb-4 mt-2">
-                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
-                  price
-                )}
+                {
+                  <ProductPrice price={price} />
+                }
               </div>
               <div className="mb-6">
                 <p className="text-[#5b4636] mb-4 text-sm sm:text-base">{description}</p>

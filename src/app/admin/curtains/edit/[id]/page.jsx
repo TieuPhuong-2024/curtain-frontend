@@ -201,6 +201,17 @@ export default function EditCurtain({ params }) {
         inStock: curtainData.inStock !== undefined ? curtainData.inStock : true,
       });
 
+      // --- Load price data ---
+      const price = curtainData.price || {};
+      setPriceType(price.type || 'fixed');
+      setPriceData({
+        value: price.value || '',
+        min: price.min || '',
+        max: price.max || '',
+        old: price.old || '',
+        new: price.new || ''
+      });
+
       setIsLoading(false);
     } catch (error) {
       console.error('Error fetching curtain:', error);
@@ -337,7 +348,11 @@ export default function EditCurtain({ params }) {
       !formData.material ||
       !formData.color ||
       !formData.width ||
-      !formData.height
+      !formData.height ||
+      (priceType === 'fixed' && !priceData.value) ||
+      (priceType === 'range' && (!priceData.min || !priceData.max)) ||
+      (priceType === 'discount' && (!priceData.old || !priceData.new)) ||
+      (priceType === 'contact' && !formData.mainImage)
     ) {
       setError('Vui lòng điền đầy đủ thông tin sản phẩm');
       return;
