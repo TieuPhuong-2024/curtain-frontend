@@ -38,10 +38,10 @@ const CategorySlider = ({ categories, productCounts = {} }) => {
     }
   };
 
-  // Gọi handleScroll khi mount và khi categories thay đổi
   useEffect(() => {
     handleScroll();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    window.addEventListener('resize', handleScroll);
+    return () => window.removeEventListener('resize', handleScroll);
   }, [categories]);
 
   if (!categories || categories.length === 0) {
