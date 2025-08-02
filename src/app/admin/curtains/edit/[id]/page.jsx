@@ -44,8 +44,6 @@ export default function EditCurtain({ params }) {
     category: '',
     material: '',
     color: '',
-    width: '',
-    height: '',
     mainImage: '',
     inStock: true,
   });
@@ -195,8 +193,6 @@ export default function EditCurtain({ params }) {
         category: curtainData.category?._id || curtainData.category || '',
         material: curtainData.material || '',
         color: curtainData.color?._id || curtainData.color || '', // Ensure we use the ID
-        width: curtainData.size?.width || '',
-        height: curtainData.size?.height || '',
         mainImage: curtainData.mainImage || curtainData.image || '',
         inStock: curtainData.inStock !== undefined ? curtainData.inStock : true,
       });
@@ -347,12 +343,9 @@ export default function EditCurtain({ params }) {
       !formData.category ||
       !formData.material ||
       !formData.color ||
-      !formData.width ||
-      !formData.height ||
       (priceType === 'fixed' && !priceData.value) ||
       (priceType === 'range' && (!priceData.min || !priceData.max)) ||
-      (priceType === 'discount' && (!priceData.old || !priceData.new)) ||
-      (priceType === 'contact' && !formData.mainImage)
+      (priceType === 'discount' && (!priceData.old || !priceData.new))
     ) {
       setError('Vui lòng điền đầy đủ thông tin sản phẩm');
       return;
@@ -389,10 +382,6 @@ export default function EditCurtain({ params }) {
           ...(priceType === 'fixed' && { value: parseFloat(priceData.value) }),
           ...(priceType === 'range' && { min: parseFloat(priceData.min), max: parseFloat(priceData.max) }),
           ...(priceType === 'discount' && { old: parseFloat(priceData.old), new: parseFloat(priceData.new) }),
-        },
-        size: {
-          width: parseFloat(formData.width),
-          height: parseFloat(formData.height),
         },
         mainImage: mainImageUrl,
       };
@@ -771,38 +760,6 @@ export default function EditCurtain({ params }) {
                 </div>
               )}
             </div>
-
-            {/* Kích thước - Chiều rộng */}
-            {/* <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Chiều rộng (cm) <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                name="width"
-                className="w-full p-2 border border-gray-300 rounded-md"
-                value={formData.width}
-                onChange={handleChange}
-                min="0"
-                required
-              />
-            </div> */}
-
-            {/* Kích thước - Chiều cao */}
-            {/* <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Chiều cao (cm) <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                name="height"
-                className="w-full p-2 border border-gray-300 rounded-md"
-                value={formData.height}
-                onChange={handleChange}
-                min="0"
-                required
-              />
-            </div> */}
 
             {/* Hình ảnh chính */}
             <div>
