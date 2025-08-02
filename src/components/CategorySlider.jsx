@@ -10,6 +10,7 @@ const CategorySlider = ({ categories, productCounts = {} }) => {
   const sliderRef = useRef(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
+  const [isCentered, setIsCentered] = useState(false);
 
   // Function to handle slider scroll
   const scroll = (direction) => {
@@ -28,9 +29,11 @@ const CategorySlider = ({ categories, productCounts = {} }) => {
       if (scrollWidth <= clientWidth) {
         setShowLeftArrow(false);
         setShowRightArrow(false);
+        setIsCentered(true);
       } else {
         setShowLeftArrow(scrollLeft > 0);
         setShowRightArrow(scrollLeft < scrollWidth - clientWidth);
+        setIsCentered(false);
       }
     }
   };
@@ -66,8 +69,7 @@ const CategorySlider = ({ categories, productCounts = {} }) => {
         {/* Categories slider container */}
         <div
           ref={sliderRef}
-          className={`flex overflow-x-auto gap-4 py-4 px-4 md:px-2 hide-scrollbar ${categories.length === 1 ? 'justify-center' : ''
-            }`}
+          className={`flex overflow-x-auto gap-4 py-4 px-4 md:px-2 hide-scrollbar${isCentered ? ' justify-center items-center' : ''}`}
           onScroll={handleScroll}
         >
           {categories.map(category => (
