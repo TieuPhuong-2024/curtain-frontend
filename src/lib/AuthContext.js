@@ -1,10 +1,10 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { 
-  auth, 
+import {
+  auth,
   db,
-  signInWithEmailAndPassword, 
+  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
   googleProvider,
@@ -34,7 +34,7 @@ export function AuthProvider({ children }) {
     try {
       const userDocRef = doc(db, 'users', uid);
       const userDoc = await getDoc(userDocRef);
-      
+
       if (userDoc.exists()) {
         setUserRole(userDoc.data().role || 'user');
         return userDoc.data().role || 'user';
@@ -55,7 +55,7 @@ export function AuthProvider({ children }) {
       console.error("Error fetching user role:", error);
       // Default to 'user' on error and don't fail
       setUserRole('user');
-      return 'user'; 
+      return 'user';
     }
   };
 
@@ -64,30 +64,18 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
       if (authUser) {
         setUser(authUser);
-        try {
-          const role = await fetchUserRole(authUser.uid);
-          
-          // Redirect based on role
-          if (window.location.pathname.startsWith('/admin') && role !== 'admin') {
-            router.push('/'); // Redirect to home if trying to access admin without permission
-          }
-        } catch (error) {
-          console.error("Error in auth state change:", error);
-          // Set default role even on error
-          setUserRole('user');
-        }
+        const role = await fetchUserRole(authUser.uid);
+        setUserRole(role);
+        // Luôn cập nhật cookie khi đăng nhập
+        document.cookie = `user-role=${role}; path=/`;
       } else {
         setUser(null);
         setUserRole(null);
-        
-        // Redirect away from admin routes if not authenticated
-        if (window.location.pathname.startsWith('/admin')) {
-          router.push('/login');
-        }
+        // Xóa cookie khi logout hoặc hết phiên
+        document.cookie = 'user-role=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
       }
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, [router]);
 
@@ -97,7 +85,7 @@ export function AuthProvider({ children }) {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       try {
         const role = await fetchUserRole(userCredential.user.uid);
-        
+
         // Set user-role cookie
         document.cookie = `user-role=${role}; path=/`;
         // Redirect based on role
@@ -113,7 +101,7 @@ export function AuthProvider({ children }) {
         // Continue with login even if role fetch fails
         router.push('/');
       }
-      
+
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -124,7 +112,7 @@ export function AuthProvider({ children }) {
   const register = async (email, password, displayName) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
+
       // Save user info in Firestore with default role
       try {
         await setDoc(doc(db, 'users', userCredential.user.uid), {
@@ -133,14 +121,14 @@ export function AuthProvider({ children }) {
           role: 'user',
           createdAt: new Date().toISOString()
         });
-        
+
         setUserRole('user');
       } catch (docError) {
         console.error("Error creating user document:", docError);
         // Continue even if document creation fails
         setUserRole('user');
       }
-      
+
       router.push('/');
       return { success: true };
     } catch (error) {
@@ -153,12 +141,12 @@ export function AuthProvider({ children }) {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const uid = result.user.uid;
-      
+
       // Check if user exists in Firestore
       try {
         const userDocRef = doc(db, 'users', uid);
         const userDoc = await getDoc(userDocRef);
-        
+
         if (!userDoc.exists()) {
           // First time login, create a user document
           try {
@@ -197,7 +185,7 @@ export function AuthProvider({ children }) {
         document.cookie = `user-role=user; path=/`;
         router.push('/');
       }
-      
+
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -208,7 +196,9 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await signOut(auth);
-      router.push('/');
+      // Xóa cookie user-role
+      document.cookie = 'user-role=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+      router.push('/login');
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };

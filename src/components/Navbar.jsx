@@ -71,10 +71,10 @@ export default function Navbar() {
         const handleResize = () => {
             setIsWideScreen(window.innerWidth >= 1220);
         };
-        
+
         // Initial check
         handleResize();
-        
+
         window.addEventListener('resize', handleResize);
         return () => {
             window.removeEventListener('resize', handleResize);
@@ -98,8 +98,8 @@ export default function Navbar() {
 
     return (
         <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled
-                ? 'bg-white/95 backdrop-blur-sm shadow-md py-2'
-                : 'bg-white py-4'
+            ? 'bg-white/95 backdrop-blur-sm shadow-md py-2'
+            : 'bg-white py-4'
             }`}>
             <div className="container-custom">
                 <div className="flex justify-between items-center">
@@ -110,10 +110,10 @@ export default function Navbar() {
                             className="flex items-center mr-1 xs:mr-2 sm:mr-4 md:mr-5 lg:mr-6 xl:mr-8 whitespace-nowrap flex-shrink-0 group"
                         >
                             <div className={`${scrolled ? 'bg-white shadow-md' : 'bg-white/90 shadow-sm'} rounded-lg p-1 xs:p-1.5 transition-all duration-300 group-hover:shadow-lg group-hover:scale-105`}>
-                                <img 
-                                    src="/images/logo-2.png" 
-                                    alt="Tuấn Rèm" 
-                                    className="h-7 xs:h-8 sm:h-9 md:h-11 lg:h-14 w-auto object-contain drop-shadow-sm" 
+                                <img
+                                    src="/images/logo-2.png"
+                                    alt="Tuấn Rèm"
+                                    className="h-7 xs:h-8 sm:h-9 md:h-11 lg:h-14 w-auto object-contain drop-shadow-sm"
                                 />
                             </div>
                         </Link>
@@ -139,7 +139,16 @@ export default function Navbar() {
                                 Liên hệ
                             </Link>
                             {isAdmin && (
-                                <Link href="/admin" className="text-text-primary hover:text-primary transition-colors whitespace-nowrap text-xs lg:text-sm xl:text-base font-medium">
+                                <Link
+                                    href="/admin"
+                                    className="text-text-primary hover:text-primary transition-colors whitespace-nowrap text-xs lg:text-sm xl:text-base font-medium"
+                                    onClick={e => {
+                                        if (!user || userRole !== 'admin') {
+                                            e.preventDefault();
+                                            logout();
+                                        }
+                                    }}
+                                >
                                     Quản trị
                                 </Link>
                             )}
@@ -168,7 +177,7 @@ export default function Navbar() {
                         {/* Action buttons */}
                         <div className="flex items-center ml-1 sm:ml-2 lg:ml-2 xl:ml-6">
                             <ActionButton href="/favorites" icon={<FaHeart />} label="Yêu thích" badge={0} />
-                            <ActionButton href="/cart" icon={<FaShoppingCart />} label="Giỏ hàng" badge={0} />
+                            {/* <ActionButton href="/cart" icon={<FaShoppingCart />} label="Giỏ hàng" badge={0} /> */}
 
                             {user ? (
                                 <>

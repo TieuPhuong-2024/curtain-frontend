@@ -11,6 +11,7 @@ import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import StructuredData, { createBreadcrumbSchema, createProductSchema } from '@/components/StructureData';
 import { ROUTES_PATH } from '@/utils/constant';
+import ProductPrice from '@/components/ProductPrice';
 
 export default function ProductDetailPage({ params }) {
   const { id } = use(params);
@@ -255,9 +256,9 @@ export default function ProductDetailPage({ params }) {
                 </span>
               </div>
               <div className="text-xl sm:text-2xl font-bold text-[#a67c52] mb-4 mt-2">
-                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
-                  price
-                )}
+                {
+                  <ProductPrice price={price} />
+                }
               </div>
               <div className="mb-6">
                 <p className="text-[#5b4636] mb-4 text-sm sm:text-base">{description}</p>
@@ -285,13 +286,13 @@ export default function ProductDetailPage({ params }) {
                     <span className="text-[#5b4636] font-semibold">Chất liệu: </span>
                     <span className="ml-2">{material}</span>
                   </div>
-                  <div className="flex items-center">
+                  {/* <div className="flex items-center">
                     <FaRuler className="text-[#a67c52] mr-2 flex-shrink-0" />
                     <span className="text-[#5b4636] font-semibold">Kích thước: </span>
                     <span className="ml-2">
                       {size.width}cm x {size.height}cm
                     </span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
               {inStock ? (
@@ -325,7 +326,7 @@ export default function ProductDetailPage({ params }) {
                 <div className="flex flex-col items-start gap-3 mb-6">
                   {/* Quantity control - Mobile optimized */}
                   <div className="flex items-center w-full">
-                    <div className="flex-1 sm:flex-none">
+                    {/* <div className="flex-1 sm:flex-none">
                       <div className="flex items-center border border-[#e7cba9] rounded-l-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow h-12 sm:h-10">
                         <button
                           onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -345,16 +346,16 @@ export default function ProductDetailPage({ params }) {
                           +
                         </button>
                       </div>
-                    </div>
+                    </div> */}
 
                     {/* Add to cart button */}
-                    <button
+                    {/* <button
                       onClick={handleAddToCart}
                       className="cursor-pointer flex-1 h-12 sm:h-10 flex items-center justify-center px-4 py-2.5 bg-[#d6a77a] hover:bg-[#a67c52] text-white font-medium rounded-r-lg transition-colors shadow-sm hover:shadow-md"
                     >
                       <FaShoppingCart className="mr-2" />
                       <span>Thêm vào giỏ hàng</span>
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               )}

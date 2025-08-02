@@ -93,7 +93,32 @@ export default function ProductsPage() {
             selectedColors.some(selectedColorName => // selectedColorName is a string from the filter
                 curtainColorObject.name?.toLowerCase() === selectedColorName.toLowerCase());
 
-        const matchesPrice = curtain.price >= priceRange.min && curtain.price <= priceRange.max;
+        // const matchesPrice = curtain.price >= priceRange.min && curtain.price <= priceRange.max;
+        let matchesPrice = false;
+        const price = curtain.price || {};
+
+        switch (price.type) {
+            case 'fixed':
+                matchesPrice = typeof price.value === 'number' &&
+                    price.value >= priceRange.min &&
+                    price.value <= priceRange.max;
+                break;
+            case 'range':
+                matchesPrice = typeof price.min === 'number' && typeof price.max === 'number' &&
+                    price.max >= priceRange.min &&
+                    price.min <= priceRange.max;
+                break;
+            case 'discount':
+                matchesPrice = typeof price.new === 'number' &&
+                    price.new >= priceRange.min &&
+                    price.new <= priceRange.max;
+                break;
+            case 'contact':
+                matchesPrice = true; // luôn hiển thị nếu là liên hệ
+                break;
+            default:
+                matchesPrice = false;
+        }
 
         return matchesCategory && matchesColor && matchesPrice;
     });
