@@ -183,7 +183,7 @@ export default function CurtainCard({ curtain }) {
                         <FaEye size={16} className="sm:text-lg" />
                         <span className="text-xs sm:text-sm hidden sm:inline">Chi tiết</span>
                     </Link>
-                    <button
+                    {/* <button
                         className="cursor-pointer bg-white text-gray-700 p-2 sm:px-3 sm:py-2 rounded-md flex items-center gap-1 sm:gap-2 hover:bg-indigo-100 transition-colors duration-300"
                         title="Thêm vào giỏ hàng"
                         onClick={(e) => {
@@ -193,7 +193,7 @@ export default function CurtainCard({ curtain }) {
                     >
                         <FaShoppingCart size={16} className="sm:text-lg" />
                         <span className="text-xs sm:text-sm hidden sm:inline">Giỏ hàng</span>
-                    </button>
+                    </button> */}
                 </div>
             </div>
             <div className="p-3 sm:p-4">

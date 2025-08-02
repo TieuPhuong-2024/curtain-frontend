@@ -177,7 +177,7 @@ export default function Navbar() {
                         {/* Action buttons */}
                         <div className="flex items-center ml-1 sm:ml-2 lg:ml-2 xl:ml-6">
                             <ActionButton href="/favorites" icon={<FaHeart />} label="Yêu thích" badge={0} />
-                            <ActionButton href="/cart" icon={<FaShoppingCart />} label="Giỏ hàng" badge={0} />
+                            {/* <ActionButton href="/cart" icon={<FaShoppingCart />} label="Giỏ hàng" badge={0} /> */}
 
                             {user ? (
                                 <>
