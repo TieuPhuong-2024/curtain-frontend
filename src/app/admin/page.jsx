@@ -74,7 +74,7 @@ export default function AdminDashboard() {
                             </div>
                         </div>
 
-                        <div className="bg-white p-6 rounded-lg shadow-md">
+                        {/* <div className="bg-white p-6 rounded-lg shadow-md">
                             <div className="flex items-center">
                                 <FaShoppingCart className="text-yellow-500 text-3xl mr-4"/>
                                 <div>
@@ -82,7 +82,7 @@ export default function AdminDashboard() {
                                     <h3 className="text-2xl font-bold">{stats.lowStock}</h3>
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
 
                         <Link href="/admin/curtains" className="bg-white p-6 rounded-lg shadow-md hover:bg-gray-50">
                             <div className="flex justify-center items-center h-full">
