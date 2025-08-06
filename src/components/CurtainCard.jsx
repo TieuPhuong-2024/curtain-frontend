@@ -31,9 +31,6 @@ export default function CurtainCard({ curtain }) {
     };
 
     useEffect(() => {
-        fetchFavoriteStatus();
-        fetchFavoriteCount();
-
         checkTouch();
         window.addEventListener('touchstart', () => setIsTouchDevice(true), { once: true });
 

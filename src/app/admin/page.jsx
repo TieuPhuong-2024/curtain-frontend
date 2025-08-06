@@ -74,16 +74,6 @@ export default function AdminDashboard() {
                             </div>
                         </div>
 
-                        {/* <div className="bg-white p-6 rounded-lg shadow-md">
-                            <div className="flex items-center">
-                                <FaShoppingCart className="text-yellow-500 text-3xl mr-4"/>
-                                <div>
-                                    <p className="text-gray-500">Hàng Sắp Hết</p>
-                                    <h3 className="text-2xl font-bold">{stats.lowStock}</h3>
-                                </div>
-                            </div>
-                        </div> */}
-
                         <Link href="/admin/curtains" className="bg-white p-6 rounded-lg shadow-md hover:bg-gray-50">
                             <div className="flex justify-center items-center h-full">
                                 <span className="text-blue-600 font-medium">Quản Lý Sản Phẩm →</span>
