@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaBars, FaHome, FaInfoCircle, FaPhone, FaTimes, FaSearch, FaUser, FaSignInAlt, FaSignOutAlt, FaBlog } from 'react-icons/fa';
+import { FaBars, FaHome, FaInfoCircle, FaPhone, FaTimes, FaSearch, FaUser, FaSignInAlt, FaSignOutAlt, FaBlog, FaShoppingCart } from 'react-icons/fa';
 import { useAuth } from '@/lib/AuthContext';
+import { usePathname } from 'next/navigation';
 
 // Action Button Component
 const ActionButton = ({ href, icon, label, badge, onClick }) => {
@@ -44,7 +45,47 @@ export default function Navbar() {
     const [searchQuery, setSearchQuery] = useState('');
     const [isWideScreen, setIsWideScreen] = useState(true);
     const { user, userRole, logout, isAdmin } = useAuth();
+    const pathname = usePathname() || '';
     const router = useRouter();
+
+    const navItems = [
+        {
+            href: '/',
+            label: 'Trang chủ',
+            icon: <FaHome className="mr-2" />,
+            match: (path) => path === '/' || path === '/index',
+        },
+        {
+            href: '/about',
+            label: 'Giới thiệu',
+            icon: <FaInfoCircle className="mr-2" />,
+            match: (path) => path.startsWith('/about'),
+        },
+        {
+            href: '/products',
+            label: 'Sản phẩm',
+            icon: <FaShoppingCart className="mr-2" />,
+            match: (path) => path.startsWith('/products'),
+        },
+        {
+            href: '/cong-trinh',
+            label: 'Công trình',
+            icon: <FaInfoCircle className="mr-2" />,
+            match: (path) => path.startsWith('/cong-trinh'),
+        },
+        {
+            href: '/posts',
+            label: 'Blog',
+            icon: <FaBlog className="mr-2" />,
+            match: (path) => path.startsWith('/posts'),
+        },
+        {
+            href: '/contact',
+            label: 'Liên hệ',
+            icon: <FaPhone className="mr-2" />,
+            match: (path) => path.startsWith('/contact'),
+        },
+    ]
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
@@ -52,6 +93,7 @@ export default function Navbar() {
 
     // Effect để theo dõi cuộn và thay đổi style navbar
     useEffect(() => {
+        console.log('path name: ', pathname);
         const handleScroll = () => {
             const isScrolled = window.scrollY > 20;
             if (isScrolled !== scrolled) {
@@ -119,39 +161,20 @@ export default function Navbar() {
                         </Link>
 
                         {/* Desktop Navigation - Hidden on smaller screens and when not wide enough */}
-                        <div className={`hidden ${isWideScreen ? 'lg:flex' : 'xl:flex'} space-x-1.5 sm:space-x-2 md:space-x-3 lg:space-x-3.5 xl:space-x-5 2xl:space-x-8`}>
-                            <Link href="/" className="text-text-primary hover:text-primary transition-colors whitespace-nowrap text-xs lg:text-sm xl:text-base font-medium">
-                                Trang chủ
-                            </Link>
-                            <Link href="/products" className="text-text-primary hover:text-primary transition-colors whitespace-nowrap text-xs lg:text-sm xl:text-base font-medium">
-                                Sản phẩm
-                            </Link>
-                            <Link href="/cong-trinh" className="text-text-primary hover:text-primary transition-colors whitespace-nowrap text-xs lg:text-sm xl:text-base font-medium">
-                                Công trình
-                            </Link>
-                            <Link href="/posts" className="text-text-primary hover:text-primary transition-colors whitespace-nowrap text-xs lg:text-sm xl:text-base font-medium">
-                                Blog
-                            </Link>
-                            <Link href="/about" className="text-text-primary hover:text-primary transition-colors whitespace-nowrap text-xs lg:text-sm xl:text-base font-medium">
-                                Giới thiệu
-                            </Link>
-                            <Link href="/contact" className="text-text-primary hover:text-primary transition-colors whitespace-nowrap text-xs lg:text-sm xl:text-base font-medium">
-                                Liên hệ
-                            </Link>
-                            {isAdmin && (
-                                <Link
-                                    href="/admin"
-                                    className="text-text-primary hover:text-primary transition-colors whitespace-nowrap text-xs lg:text-sm xl:text-base font-medium"
-                                    onClick={e => {
-                                        if (!user || userRole !== 'admin') {
-                                            e.preventDefault();
-                                            logout();
-                                        }
-                                    }}
-                                >
-                                    Quản trị
-                                </Link>
-                            )}
+                        <div className={`hidden ${isWideScreen ? 'lg:flex' : 'xl:flex'} space-x-4`}>
+                            {navItems.map(({ href, label, match }) => {
+                                const isActive = match(pathname)
+                                return (
+                                    <Link
+                                        key={href}
+                                        href={href}
+                                        className={`text-sm font-medium transition-colors whitespace-nowrap ${isActive ? 'text-primary underline font-bold' : 'text-text-primary hover:text-primary'
+                                            }`}
+                                    >
+                                        {label}
+                                    </Link>
+                                )
+                            })}
                         </div>
                     </div>
 
@@ -221,32 +244,31 @@ export default function Navbar() {
             {/* Mobile Menu */}
             <div className={`${isOpen ? 'block' : 'hidden'} ${isWideScreen ? 'lg:hidden' : 'xl:hidden'} bg-white shadow-lg max-h-[calc(100vh-70px)] overflow-y-auto`}>
                 <div className="px-4 py-2 space-y-1">
-                    <Link href="/" className="block py-2 text-text-primary hover:text-primary" onClick={() => setIsOpen(false)}>
-                        <span className="inline-flex items-center font-medium"><FaHome className="mr-2" /> Trang chủ</span>
-                    </Link>
-                    <Link href="/about" className="block py-2 text-text-primary hover:text-primary" onClick={() => setIsOpen(false)}>
-                        <span className="inline-flex items-center font-medium"><FaInfoCircle className="mr-2" /> Giới thiệu</span>
-                    </Link>
-                    <Link href="/products" className="block py-2 text-text-primary hover:text-primary" onClick={() => setIsOpen(false)}>
-                        <span className="inline-flex items-center font-medium"><FaShoppingCart className="mr-2" /> Sản phẩm</span>
-                    </Link>
-                    <Link href="/cong-trinh" className="block py-2 text-text-primary hover:text-primary" onClick={() => setIsOpen(false)}>
-                        <span className="inline-flex items-center font-medium"><FaInfoCircle className="mr-2" /> Công trình</span>
-                    </Link>
-                    <Link href="/posts" className="block py-2 text-text-primary hover:text-primary" onClick={() => setIsOpen(false)}>
-                        <span className="inline-flex items-center font-medium"><FaBlog className="mr-2" /> Blog</span>
-                    </Link>
-                    <Link href="/contact" className="block py-2 text-text-primary hover:text-primary" onClick={() => setIsOpen(false)}>
-                        <span className="inline-flex items-center font-medium"><FaPhone className="mr-2" /> Liên hệ</span>
-                    </Link>
+                    {navItems.map(({ href, label, icon, match }) => {
+                        const isActive = match(pathname)
+                        return (
+                            <Link
+                                key={href}
+                                href={href}
+                                onClick={() => setIsOpen(false)}
+                                className={`block py-2 transition-colors text-text-primary hover:text-primary ${isActive ? 'text-primary underline font-bold' : 'text-text-primary hover:text-primary'
+                                    }`}
+                            >
+                                <span className="inline-flex items-center font-medium">
+                                    {icon}
+                                    <span>{label}</span>
+                                </span>
+                            </Link>
+                        )
+                    })}
                     {isAdmin && (
-                        <Link href="/admin" className="block py-2 text-text-primary hover:text-primary" onClick={() => setIsOpen(false)}>
+                        <Link href="/admin" className={`block py-2 text-text-primary hover:text-primary ${pathname.startsWith('/admin') ? 'font-bold underline' : ''}`} onClick={() => setIsOpen(false)}>
                             <span className="inline-flex items-center font-medium"><FaUser className="mr-2" /> Quản trị</span>
                         </Link>
                     )}
                     {user ? (
                         <>
-                            <Link href="/account" className="block py-2 text-text-primary hover:text-primary" onClick={() => setIsOpen(false)}>
+                            <Link href="/account" className={`block py-2 text-text-primary hover:text-primary ${pathname.startsWith('/account') ? 'font-bold underline' : ''}`} onClick={() => setIsOpen(false)}>
                                 <span className="inline-flex items-center font-medium"><FaUser className="mr-2" /> Tài khoản</span>
                             </Link>
                             <button
@@ -260,7 +282,7 @@ export default function Navbar() {
                             </button>
                         </>
                     ) : (
-                        <Link href="/login" className="block py-2 text-text-primary hover:text-primary" onClick={() => setIsOpen(false)}>
+                        <Link href="/login" className={`block py-2 text-text-primary hover:text-primary ${pathname.startsWith('/login') ? 'font-bold underline' : ''}`} onClick={() => setIsOpen(false)}>
                             <span className="inline-flex items-center font-medium"><FaSignInAlt className="mr-2" /> Đăng nhập</span>
                         </Link>
                     )}
