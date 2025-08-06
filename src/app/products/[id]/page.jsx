@@ -5,8 +5,7 @@ import { use, useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getCurtainById, getImagesByCurtainId } from '@/lib/api';
-import { FaArrowLeft, FaPalette, FaRuler, FaShoppingCart, FaTag, FaImages } from 'react-icons/fa';
-import { toast } from 'react-toastify';
+import { FaArrowLeft, FaPalette, FaTag, FaImages } from 'react-icons/fa';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import StructuredData, { createBreadcrumbSchema, createProductSchema } from '@/components/StructureData';
@@ -21,7 +20,6 @@ export default function ProductDetailPage({ params }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -62,11 +60,6 @@ export default function ProductDetailPage({ params }) {
 
     fetchData();
   }, [id]);
-
-  const handleAddToCart = () => {
-    toast.success(`Đã thêm ${quantity} sản phẩm vào giỏ hàng`);
-    // Implement cart functionality
-  };
 
   // Chọn một hình ảnh
   const handleSelectImage = imageUrl => {
@@ -286,13 +279,6 @@ export default function ProductDetailPage({ params }) {
                     <span className="text-[#5b4636] font-semibold">Chất liệu: </span>
                     <span className="ml-2">{material}</span>
                   </div>
-                  {/* <div className="flex items-center">
-                    <FaRuler className="text-[#a67c52] mr-2 flex-shrink-0" />
-                    <span className="text-[#5b4636] font-semibold">Kích thước: </span>
-                    <span className="ml-2">
-                      {size.width}cm x {size.height}cm
-                    </span>
-                  </div> */}
                 </div>
               </div>
               {inStock ? (
@@ -320,43 +306,6 @@ export default function ProductDetailPage({ params }) {
                     </svg>
                     Hết hàng
                   </span>
-                </div>
-              )}
-              {inStock && (
-                <div className="flex flex-col items-start gap-3 mb-6">
-                  {/* Quantity control - Mobile optimized */}
-                  <div className="flex items-center w-full">
-                    {/* <div className="flex-1 sm:flex-none">
-                      <div className="flex items-center border border-[#e7cba9] rounded-l-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow h-12 sm:h-10">
-                        <button
-                          onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                          className="cursor-pointer h-full w-12 sm:w-10 flex items-center justify-center bg-[#f8f5f1] hover:bg-[#efe8df] text-[#a67c52] font-medium text-xl border-r border-[#e7cba9] transition-colors"
-                          aria-label="Giảm số lượng"
-                        >
-                          -
-                        </button>
-                        <span className="px-4 py-2 min-w-[3rem] text-center font-medium">
-                          {quantity}
-                        </span>
-                        <button
-                          onClick={() => setQuantity(quantity + 1)}
-                          className="cursor-pointer h-full w-12 sm:w-10 flex items-center justify-center bg-[#f8f5f1] hover:bg-[#efe8df] text-[#a67c52] font-medium text-xl border-l border-[#e7cba9] transition-colors"
-                          aria-label="Tăng số lượng"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div> */}
-
-                    {/* Add to cart button */}
-                    {/* <button
-                      onClick={handleAddToCart}
-                      className="cursor-pointer flex-1 h-12 sm:h-10 flex items-center justify-center px-4 py-2.5 bg-[#d6a77a] hover:bg-[#a67c52] text-white font-medium rounded-r-lg transition-colors shadow-sm hover:shadow-md"
-                    >
-                      <FaShoppingCart className="mr-2" />
-                      <span>Thêm vào giỏ hàng</span>
-                    </button> */}
-                  </div>
                 </div>
               )}
               <div className="mt-8 pt-4 border-t border-[#e7cba9]">

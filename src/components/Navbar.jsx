@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaBars, FaHome, FaInfoCircle, FaPhone, FaShoppingCart, FaTimes, FaSearch, FaUser, FaHeart, FaSignInAlt, FaSignOutAlt, FaBlog } from 'react-icons/fa';
+import { FaBars, FaHome, FaInfoCircle, FaPhone, FaTimes, FaSearch, FaUser, FaSignInAlt, FaSignOutAlt, FaBlog } from 'react-icons/fa';
 import { useAuth } from '@/lib/AuthContext';
 
 // Action Button Component
@@ -176,9 +176,6 @@ export default function Navbar() {
 
                         {/* Action buttons */}
                         <div className="flex items-center ml-1 sm:ml-2 lg:ml-2 xl:ml-6">
-                            <ActionButton href="/favorites" icon={<FaHeart />} label="Yêu thích" badge={0} />
-                            {/* <ActionButton href="/cart" icon={<FaShoppingCart />} label="Giỏ hàng" badge={0} /> */}
-
                             {user ? (
                                 <>
                                     <ActionButton
@@ -204,12 +201,6 @@ export default function Navbar() {
 
                     {/* Mobile icons */}
                     <div className={`${isWideScreen ? 'lg:hidden' : 'xl:hidden'} flex items-center space-x-0.5 xs:space-x-1 sm:space-x-2`}>
-                        <Link href="/favorites" className="p-1 xs:p-1.5 sm:p-2 text-text-primary hover:text-primary">
-                            <FaHeart className="text-sm xs:text-base sm:text-lg" />
-                        </Link>
-                        {/* <Link href="/cart" className="p-1 xs:p-1.5 sm:p-2 text-text-primary hover:text-primary">
-                            <FaShoppingCart className="text-sm xs:text-base sm:text-lg" />
-                        </Link> */}
                         {user && (
                             <Link href="/account" className="p-1 xs:p-1.5 sm:p-2 text-text-primary hover:text-primary">
                                 <FaUser className="text-sm xs:text-base sm:text-lg" />
@@ -236,9 +227,9 @@ export default function Navbar() {
                     <Link href="/about" className="block py-2 text-text-primary hover:text-primary" onClick={() => setIsOpen(false)}>
                         <span className="inline-flex items-center font-medium"><FaInfoCircle className="mr-2" /> Giới thiệu</span>
                     </Link>
-                    {/* <Link href="/products" className="block py-2 text-text-primary hover:text-primary" onClick={() => setIsOpen(false)}>
+                    <Link href="/products" className="block py-2 text-text-primary hover:text-primary" onClick={() => setIsOpen(false)}>
                         <span className="inline-flex items-center font-medium"><FaShoppingCart className="mr-2" /> Sản phẩm</span>
-                    </Link> */}
+                    </Link>
                     <Link href="/cong-trinh" className="block py-2 text-text-primary hover:text-primary" onClick={() => setIsOpen(false)}>
                         <span className="inline-flex items-center font-medium"><FaInfoCircle className="mr-2" /> Công trình</span>
                     </Link>
@@ -273,13 +264,6 @@ export default function Navbar() {
                             <span className="inline-flex items-center font-medium"><FaSignInAlt className="mr-2" /> Đăng nhập</span>
                         </Link>
                     )}
-
-                    <Link href="/favorites" className="block py-2 text-text-primary hover:text-primary" onClick={() => setIsOpen(false)}>
-                        <span className="inline-flex items-center font-medium"><FaHeart className="mr-2" /> Yêu thích</span>
-                    </Link>
-                    {/* <Link href="/cart" className="block py-2 text-text-primary hover:text-primary" onClick={() => setIsOpen(false)}>
-                        <span className="inline-flex items-center font-medium"><FaShoppingCart className="mr-2" /> Giỏ hàng</span>
-                    </Link> */}
                 </div>
 
                 {/* Mobile search */}
