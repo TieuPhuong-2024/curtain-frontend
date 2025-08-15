@@ -56,12 +56,6 @@ export default function Navbar() {
             match: (path) => path === '/' || path === '/index',
         },
         {
-            href: '/about',
-            label: 'Giới thiệu',
-            icon: <FaInfoCircle className="mr-2" />,
-            match: (path) => path.startsWith('/about'),
-        },
-        {
             href: '/products',
             label: 'Sản phẩm',
             icon: <FaShoppingCart className="mr-2" />,
@@ -85,6 +79,12 @@ export default function Navbar() {
             icon: <FaPhone className="mr-2" />,
             match: (path) => path.startsWith('/contact'),
         },
+        {
+            href: '/about',
+            label: 'Giới thiệu',
+            icon: <FaInfoCircle className="mr-2" />,
+            match: (path) => path.startsWith('/about'),
+        }
     ]
 
     const toggleMenu = () => {
