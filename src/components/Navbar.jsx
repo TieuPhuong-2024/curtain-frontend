@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaBars, FaHome, FaInfoCircle, FaPhone, FaTimes, FaSearch, FaUser, FaSignInAlt, FaSignOutAlt, FaBlog, FaShoppingCart } from 'react-icons/fa';
+import { FaBars, FaHome, FaInfoCircle, FaPhone, FaTimes, FaSearch, FaUser, FaSignInAlt, FaSignOutAlt, FaBlog, FaShoppingCart, FaCog } from 'react-icons/fa';
 import { useAuth } from '@/lib/AuthContext';
 import { usePathname } from 'next/navigation';
 
@@ -230,11 +230,6 @@ export default function Navbar() {
 
                     {/* Mobile icons */}
                     <div className={`${isWideScreen ? 'lg:hidden' : 'xl:hidden'} flex items-center space-x-0.5 xs:space-x-1 sm:space-x-2`}>
-                        {user && (
-                            <Link href="/account" className="p-1 xs:p-1.5 sm:p-2 text-text-primary hover:text-primary">
-                                <FaUser className="text-sm xs:text-base sm:text-lg" />
-                            </Link>
-                        )}
                         <button
                             onClick={toggleMenu}
                             className="cursor-pointer p-1 xs:p-1.5 sm:p-2 text-text-primary hover:text-primary focus:outline-none"
@@ -269,7 +264,7 @@ export default function Navbar() {
                     })}
                     {isAdmin && (
                         <Link href="/admin" className={`block py-2 text-text-primary hover:text-primary font-medium ${pathname.startsWith('/admin') ? 'text-primary font-bold' : ''}`} onClick={() => setIsOpen(false)}>
-                            <span className={`inline-flex items-center ${pathname.startsWith('/admin') ? 'underline' : ''}`}><FaUser className="mr-2" /> Quản trị</span>
+                            <span className={`inline-flex items-center ${pathname.startsWith('/admin') ? 'underline' : ''}`}><FaCog className="mr-2" /> Quản trị</span>
                         </Link>
                     )}
                     {user ? (
