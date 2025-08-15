@@ -222,7 +222,7 @@ export default function ProductDetailPage({ params }) {
                       .filter(img => img.url !== mainImage)
                       .map((image, index) => (
                         <div
-                          key={index}
+                          key={image.url || `image-${index}`}
                           className={`relative w-16 h-16 sm:w-20 sm:h-20 min-w-[4rem] sm:min-w-[5rem] cursor-pointer rounded-md overflow-hidden border-2 shadow-sm ${selectedImage === image.url ? 'border-[#a67c52]' : 'border-transparent'
                             }`}
                           onClick={() => handleSelectImage(image.url)}

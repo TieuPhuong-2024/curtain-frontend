@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { auth } from './firebase';
+import { signOut } from './firebase';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -20,6 +21,19 @@ api.interceptors.request.use(async (config) => {
     }
     return config;
 }, (error) => Promise.reject(error));
+
+// Thêm response interceptor để xử lý token hết hạn
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      // Token hết hạn, logout user
+      await signOut(auth);
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Upload API instance for multipart/form-data
 const uploadApi = axios.create({

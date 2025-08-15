@@ -258,8 +258,8 @@ export default function Home() {
               }
             >
               {featuredCurtains.map(curtain => (
-                <div className="max-w-md w-full">
-                  <CurtainCard key={curtain._id} curtain={curtain} />
+                <div key={curtain._id} className="max-w-md w-full">
+                  <CurtainCard curtain={curtain} />
                 </div>
               ))}
               <div className="flex justify-center items-center w-full mt-8">

@@ -251,10 +251,10 @@ export default function Navbar() {
                                 key={href}
                                 href={href}
                                 onClick={() => setIsOpen(false)}
-                                className={`block py-2 transition-colors text-text-primary hover:text-primary ${isActive ? 'text-primary underline font-bold' : 'text-text-primary hover:text-primary'
+                                className={`block py-2 transition-colors font-medium ${isActive ? 'text-primary font-bold' : 'text-text-primary hover:text-primary'
                                     }`}
                             >
-                                <span className="inline-flex items-center font-medium">
+                                <span className={`inline-flex items-center ${isActive ? 'underline' : ''}`}>
                                     {icon}
                                     <span>{label}</span>
                                 </span>
@@ -262,14 +262,14 @@ export default function Navbar() {
                         )
                     })}
                     {isAdmin && (
-                        <Link href="/admin" className={`block py-2 text-text-primary hover:text-primary ${pathname.startsWith('/admin') ? 'font-bold underline' : ''}`} onClick={() => setIsOpen(false)}>
-                            <span className="inline-flex items-center font-medium"><FaUser className="mr-2" /> Quản trị</span>
+                        <Link href="/admin" className={`block py-2 text-text-primary hover:text-primary font-medium ${pathname.startsWith('/admin') ? 'text-primary font-bold' : ''}`} onClick={() => setIsOpen(false)}>
+                            <span className={`inline-flex items-center ${pathname.startsWith('/admin') ? 'underline' : ''}`}><FaUser className="mr-2" /> Quản trị</span>
                         </Link>
                     )}
                     {user ? (
                         <>
-                            <Link href="/account" className={`block py-2 text-text-primary hover:text-primary ${pathname.startsWith('/account') ? 'font-bold underline' : ''}`} onClick={() => setIsOpen(false)}>
-                                <span className="inline-flex items-center font-medium"><FaUser className="mr-2" /> Tài khoản</span>
+                            <Link href="/account" className={`block py-2 text-text-primary hover:text-primary font-medium ${pathname.startsWith('/account') ? 'text-primary font-bold' : ''}`} onClick={() => setIsOpen(false)}>
+                                <span className={`inline-flex items-center ${pathname.startsWith('/account') ? 'underline' : ''}`}><FaUser className="mr-2" /> Tài khoản</span>
                             </Link>
                             <button
                                 onClick={() => {
@@ -282,8 +282,8 @@ export default function Navbar() {
                             </button>
                         </>
                     ) : (
-                        <Link href="/login" className={`block py-2 text-text-primary hover:text-primary ${pathname.startsWith('/login') ? 'font-bold underline' : ''}`} onClick={() => setIsOpen(false)}>
-                            <span className="inline-flex items-center font-medium"><FaSignInAlt className="mr-2" /> Đăng nhập</span>
+                        <Link href="/login" className={`block py-2 text-text-primary hover:text-primary font-medium ${pathname.startsWith('/login') ? 'text-primary font-bold' : ''}`} onClick={() => setIsOpen(false)}>
+                            <span className={`inline-flex items-center ${pathname.startsWith('/login') ? 'underline' : ''}`}><FaSignInAlt className="mr-2" /> Đăng nhập</span>
                         </Link>
                     )}
                 </div>
