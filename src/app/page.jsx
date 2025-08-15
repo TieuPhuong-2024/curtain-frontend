@@ -113,19 +113,20 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="cozy-bg min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-white via-secondary/50 to-primary-light/20">
       <StructuredData data={organizationSchema} />
       <StructuredData data={webPageSchema} />
       {/* Banner Slider Section */}
       {loadingBanners ? (
-        <section className="relative h-[70vh] flex items-center justify-center bg-gray-200">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Đang tải banner...</p>
+        <section className="relative h-[80vh] flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+          <div className="absolute inset-0 bg-[url('/images/pattern-curtain.svg')] opacity-5"></div>
+          <div className="text-center relative z-10">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-3 border-b-3 border-primary mx-auto mb-6 shadow-lg"></div>
+            <p className="text-text-primary text-lg font-medium">Đang tải banner...</p>
           </div>
         </section>
       ) : bannerError ? (
-        <section className="relative h-[70vh] flex items-center">
+        <section className="relative h-[80vh] flex items-center overflow-hidden">
           <div className="absolute inset-0 z-0">
             <Image
               src="/images/hero-curtain.jpg"
@@ -133,21 +134,22 @@ export default function Home() {
               fill
               style={{ objectFit: 'cover' }}
               priority
-              className="cozy-img w-full h-full"
+              className="scale-105 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-black opacity-40"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/20"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent"></div>
           </div>
 
           <div className="container mx-auto px-4 z-10 text-white">
-            <div className="max-w-2xl cozy-card bg-opacity-90">
-              <h1 className="cozy-title mb-4 text-4xl md:text-5xl">
+            <div className="max-w-3xl backdrop-blur-sm bg-white/10 rounded-2xl p-8 md:p-12 border border-white/20 shadow-2xl">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent leading-tight">
                 Rèm Cửa Cao Cấp Cho Không Gian Của Bạn
               </h1>
-              <p className="text-xl mb-8">
+              <p className="text-lg md:text-xl lg:text-2xl mb-8 text-white/90 leading-relaxed">
                 Khám phá bộ sưu tập rèm cửa đa dạng với chất lượng tốt nhất và giá cả hợp lý
               </p>
-              <Link href="/products" className="cozy-btn font-semibold inline-flex items-center">
-                Xem sản phẩm <FaArrowRight className="ml-2" />
+              <Link href="/products" className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary to-accent text-white font-semibold rounded-full hover:from-accent hover:to-primary transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                Xem sản phẩm <FaArrowRight className="ml-3" />
               </Link>
             </div>
           </div>
@@ -157,15 +159,31 @@ export default function Home() {
       )}
 
       {/* Categories Section */}
-      <section className="py-16 bg-[#f3e6d8]">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Danh Mục Rèm Cửa</h2>
+      <section className="py-20 bg-gradient-to-br from-white via-secondary/30 to-primary-light/10 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/images/pattern-curtain.svg')] opacity-3"></div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-text-primary mb-6 relative">
+              Danh Mục Rèm Cửa
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-primary to-accent rounded-full"></div>
+            </h2>
+            <p className="text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed">
+              Khám phá đa dạng các loại rèm cửa phù hợp với mọi không gian và phong cách
+            </p>
+          </div>
           {loadingCategories ? (
-            <div className="text-center py-12">Đang tải danh mục...</div>
+            <div className="text-center py-16">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-text-primary">Đang tải danh mục...</p>
+            </div>
           ) : categoryError ? (
-            <div className="text-center text-red-500 py-12">{categoryError}</div>
+            <div className="text-center text-error py-16 bg-red-50 rounded-xl border border-red-100">
+              <p className="text-lg">{categoryError}</p>
+            </div>
           ) : categories.length === 0 ? (
-            <div className="text-center py-12">Chưa có danh mục nào.</div>
+            <div className="text-center py-16 bg-gray-50 rounded-xl">
+              <p className="text-text-secondary text-lg">Chưa có danh mục nào.</p>
+            </div>
           ) : (
             <CategorySlider categories={categories} productCounts={productCounts} />
           )}
@@ -173,53 +191,109 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl font-bold mb-6">Tại Sao Chọn Chúng Tôi?</h2>
-              <p className="text-gray-600 mb-8">
-                Với hơn 20 năm kinh nghiệm, chúng tôi tự hào cung cấp các sản phẩm rèm cửa chất
-                lượng cao, được thiết kế để nâng tầm không gian sống của bạn.
-              </p>
+      <section className="py-20 bg-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-white via-primary-light/5 to-white"></div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div className="order-2 lg:order-1">
+              <div className="mb-8">
+                <h2 className="text-4xl md:text-5xl font-bold text-text-primary mb-6 leading-tight">
+                  Tại Sao Chọn Chúng Tôi?
+                </h2>
+                <p className="text-lg text-text-secondary leading-relaxed">
+                  Với hơn 20 năm kinh nghiệm, chúng tôi tự hào cung cấp các sản phẩm rèm cửa chất
+                  lượng cao, được thiết kế để nâng tầm không gian sống của bạn.
+                </p>
+              </div>
 
-              <ul className="space-y-4">
-                <li className="flex items-start">
-                  <FaCheck className="text-green-500 mt-1 mr-3" />
-                  <span>Chất liệu cao cấp, bền đẹp theo thời gian</span>
-                </li>
-                <li className="flex items-start">
-                  <FaCheck className="text-green-500 mt-1 mr-3" />
-                  <span>Đa dạng mẫu mã, phù hợp với mọi phong cách</span>
-                </li>
-                <li className="flex items-start">
-                  <FaCheck className="text-green-500 mt-1 mr-3" />
-                  <span>Dịch vụ tư vấn, đo đạc và lắp đặt tận nhà</span>
-                </li>
-                <li className="flex items-start">
-                  <FaCheck className="text-green-500 mt-1 mr-3" />
-                  <span>Bảo hành dài hạn và hỗ trợ sau bán hàng</span>
-                </li>
-              </ul>
+              <div className="space-y-6">
+                <div className="flex items-start p-4 bg-gradient-to-r from-success/10 to-success/5 rounded-xl border border-success/20">
+                  <div className="flex-shrink-0 w-12 h-12 bg-success rounded-full flex items-center justify-center mr-4">
+                    <FaCheck className="text-white text-lg" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-text-primary mb-1">Chất liệu cao cấp</h3>
+                    <p className="text-text-secondary">Bền đẹp theo thời gian, không phai màu</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl border border-primary/20">
+                  <div className="flex-shrink-0 w-12 h-12 bg-primary rounded-full flex items-center justify-center mr-4">
+                    <FaCheck className="text-white text-lg" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-text-primary mb-1">Đa dạng mẫu mã</h3>
+                    <p className="text-text-secondary">Phù hợp với mọi phong cách và không gian</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start p-4 bg-gradient-to-r from-accent/10 to-accent/5 rounded-xl border border-accent/20">
+                  <div className="flex-shrink-0 w-12 h-12 bg-accent rounded-full flex items-center justify-center mr-4">
+                    <FaCheck className="text-white text-lg" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-text-primary mb-1">Dịch vụ tận tâm</h3>
+                    <p className="text-text-secondary">Tư vấn, đo đạc và lắp đặt tại nhà</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start p-4 bg-gradient-to-r from-primary-dark/10 to-primary-dark/5 rounded-xl border border-primary-dark/20">
+                  <div className="flex-shrink-0 w-12 h-12 bg-primary-dark rounded-full flex items-center justify-center mr-4">
+                    <FaCheck className="text-white text-lg" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-text-primary mb-1">Bảo hành dài hạn</h3>
+                    <p className="text-text-secondary">Hỗ trợ sau bán hàng tận tình</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="order-1 lg:order-2">
+              <div className="relative">
+                <div className="w-full h-96 bg-gradient-to-br from-primary-light/20 to-accent/20 rounded-2xl flex items-center justify-center">
+                  <div className="text-center p-8">
+                    <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                      <FaCheck className="text-white text-3xl" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-text-primary mb-2">Chất lượng đảm bảo</h3>
+                    <p className="text-text-secondary">Cam kết 100% sự hài lòng</p>
+                  </div>
+                </div>
+                <div className="absolute -top-4 -right-4 w-16 h-16 bg-accent rounded-full opacity-80"></div>
+                <div className="absolute -bottom-4 -left-4 w-12 h-12 bg-primary rounded-full opacity-60"></div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Sản phẩm nổi bật */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Sản Phẩm Nổi Bật</h2>
+      <section className="py-20 bg-gradient-to-br from-white via-gray-50/50 to-primary-light/5 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/images/pattern-curtain.svg')] opacity-2"></div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-text-primary mb-6 relative">
+              Sản Phẩm Nổi Bật
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-primary to-accent rounded-full"></div>
+            </h2>
+            <p className="text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed">
+              Khám phá những sản phẩm rèm cửa được yêu thích nhất với thiết kế hiện đại và chất lượng vượt trội
+            </p>
+          </div>
           {loading ? (
-            <div className="flex justify-center items-center h-64">
+            <div className="flex justify-center items-center h-80">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Đang tải sản phẩm...</p>
+                <div className="animate-spin rounded-full h-16 w-16 border-t-3 border-b-3 border-primary mx-auto mb-6"></div>
+                <p className="text-text-primary text-lg font-medium">Đang tải sản phẩm...</p>
               </div>
             </div>
           ) : error ? (
-            <div className="text-center py-12 bg-red-50 rounded-lg">
-              <p className="text-red-500 mb-4">{error}</p>
+            <div className="text-center py-16 bg-gradient-to-br from-red-50 to-red-100/50 rounded-2xl border border-red-200">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-red-500 text-2xl">⚠</span>
+              </div>
+              <p className="text-red-600 mb-6 text-lg">{error}</p>
               <button
                 onClick={() => {
                   setLoading(true);
@@ -234,67 +308,126 @@ export default function Home() {
                       setLoading(false);
                     });
                 }}
-                className="cursor-pointer px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
+                className="cursor-pointer px-6 py-3 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all duration-300 hover:shadow-lg transform hover:scale-105"
               >
                 Thử lại
               </button>
             </div>
           ) : featuredCurtains.length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <p className="text-gray-500 mb-2">Chưa có sản phẩm nổi bật</p>
+            <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl border border-gray-200">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-gray-400 text-2xl">📦</span>
+              </div>
+              <p className="text-text-secondary mb-4 text-lg">Chưa có sản phẩm nổi bật</p>
               <Link
                 href="/products"
-                className="text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary to-accent text-white font-medium rounded-full hover:from-accent hover:to-primary transition-all duration-300 hover:shadow-lg transform hover:scale-105"
               >
-                Xem tất cả sản phẩm <FaArrowRight className="ml-1" />
+                Xem tất cả sản phẩm <FaArrowRight className="ml-2" />
               </Link>
             </div>
           ) : (
-            <div
-              className={
+            <>
+              <div className={`${
                 featuredCurtains.length < 3
                   ? "flex justify-center gap-8 flex-wrap"
-                  : "grid grid-cols-1 md:grid-cols-3 gap-8"
-              }
-            >
-              {featuredCurtains.map(curtain => (
-                <div key={curtain._id} className="max-w-md w-full">
-                  <CurtainCard curtain={curtain} />
-                </div>
-              ))}
-              <div className="flex justify-center items-center w-full mt-8">
+                  : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              } mb-12`}>
+                {featuredCurtains.map(curtain => (
+                  <div key={curtain._id} className="group">
+                    <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden border border-gray-100">
+                      <CurtainCard curtain={curtain} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="text-center">
                 <Link
                   href="/products"
-                  className="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors inline-flex items-center"
+                  className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary to-accent text-white font-semibold rounded-full hover:from-accent hover:to-primary transition-all duration-300 hover:shadow-lg transform hover:scale-105"
                 >
-                  Xem tất cả sản phẩm <FaArrowRight className="ml-2" />
+                  Xem tất cả sản phẩm <FaArrowRight className="ml-3" />
                 </Link>
               </div>
-            </div>
+            </>
           )}
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-[#f9f3ea] text-[#5d4938] relative">
+      <section className="py-24 bg-gradient-to-br from-primary-dark via-primary to-accent relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/images/pattern-curtain.svg')] opacity-5"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent"></div>
+        
+        {/* Floating decorative elements */}
+        <div className="absolute top-10 left-10 w-20 h-20 bg-white/5 rounded-full blur-xl"></div>
+        <div className="absolute bottom-10 right-10 w-32 h-32 bg-accent/10 rounded-full blur-xl"></div>
+        <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-primary-light/10 rounded-full blur-lg"></div>
+
         <div className="container mx-auto px-4 text-center relative z-10">
-          <h2 className="text-3xl font-bold mb-5">Sẵn Sàng Làm Mới Không Gian Của Bạn?</h2>
-          <p className="text-lg mb-12 max-w-2xl mx-auto">
-            Liên hệ ngay với chúng tôi để được tư vấn miễn phí và nhận báo giá tốt nhất
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-y-4 sm:gap-y-0 sm:gap-x-6">
-            <Link
-              href="/contact"
-              className="w-60 mx-auto sm:mx-0 bg-[#f9f3ea] text-[#5d4938] hover:bg-[#f0e9df] border border-[#d1c3b3] px-6 py-3 rounded-md font-medium transition-colors duration-300"
-            >
-              Liên hệ ngay
-            </Link>
-            <Link
-              href="/products"
-              className="w-60 mx-auto sm:mx-0 bg-transparent text-[#5d4938] hover:bg-[#f0e9df] border border-[#d1c3b3] px-6 py-3 rounded-md font-medium transition-colors duration-300"
-            >
-              Khám phá sản phẩm
-            </Link>
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight text-white drop-shadow-lg">
+              Sẵn Sàng Làm Mới 
+              <span className="block text-white drop-shadow-lg">
+                Không Gian Của Bạn?
+              </span>
+            </h2>
+            <p className="text-xl md:text-2xl mb-12 max-w-3xl mx-auto leading-relaxed text-white drop-shadow-md">
+              Liên hệ ngay với chúng tôi để được tư vấn miễn phí và nhận báo giá tốt nhất
+            </p>
+            
+            <div className="flex flex-col sm:flex-row justify-center gap-6 max-w-2xl mx-auto mb-16">
+              <Link
+                href="/contact"
+                className="group px-8 py-4 bg-white text-primary-dark font-semibold rounded-full hover:bg-primary-light hover:text-primary-dark transition-all duration-300 hover:shadow-xl transform hover:scale-105 flex items-center justify-center shadow-lg"
+              >
+                <span className="mr-2 text-lg">📞</span>
+                <span className="text-lg">Liên hệ ngay</span>
+                <div className="ml-2 transform group-hover:translate-x-1 transition-transform text-lg">→</div>
+              </Link>
+              <Link
+                href="/products"
+                className="group px-8 py-4 bg-transparent text-white border-2 border-white font-semibold rounded-full hover:bg-white hover:text-primary-dark transition-all duration-300 hover:shadow-xl transform hover:scale-105 flex items-center justify-center backdrop-blur-sm"
+              >
+                <span className="mr-2 text-lg">🏠</span>
+                <span className="text-lg">Khám phá sản phẩm</span>
+                <div className="ml-2 transform group-hover:translate-x-1 transition-transform text-lg">→</div>
+              </Link>
+            </div>
+
+            {/* Trust indicators */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+              <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+                <div className="flex items-center text-white">
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mr-3">
+                    <span className="text-xl">⭐</span>
+                  </div>
+                  <div className="text-left">
+                    <div className="font-bold text-lg">20+</div>
+                    <div className="text-sm opacity-90">năm kinh nghiệm</div>
+                  </div>
+                </div>
+                <div className="flex items-center text-white">
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mr-3">
+                    <span className="text-xl">🏆</span>
+                  </div>
+                  <div className="text-left">
+                    <div className="font-bold text-lg">1000+</div>
+                    <div className="text-sm opacity-90">khách hàng hài lòng</div>
+                  </div>
+                </div>
+                <div className="flex items-center text-white">
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mr-3">
+                    <span className="text-xl">🚚</span>
+                  </div>
+                  <div className="text-left">
+                    <div className="font-bold text-lg">Toàn quốc</div>
+                    <div className="text-sm opacity-90">Giao hàng miễn phí</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

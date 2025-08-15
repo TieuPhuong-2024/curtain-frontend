@@ -139,9 +139,9 @@ export default function Navbar() {
     };
 
     return (
-        <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled
-            ? 'bg-white/95 backdrop-blur-sm shadow-md py-2'
-            : 'bg-white py-4'
+        <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrolled
+            ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-primary/10 py-2'
+            : 'bg-white/98 backdrop-blur-sm shadow-sm py-4'
             }`}>
             <div className="container-custom">
                 <div className="flex justify-between items-center">
@@ -161,17 +161,23 @@ export default function Navbar() {
                         </Link>
 
                         {/* Desktop Navigation - Hidden on smaller screens and when not wide enough */}
-                        <div className={`hidden ${isWideScreen ? 'lg:flex' : 'xl:flex'} space-x-4`}>
+                        <div className={`hidden ${isWideScreen ? 'lg:flex' : 'xl:flex'} space-x-6 lg:space-x-8`}>
                             {navItems.map(({ href, label, match }) => {
                                 const isActive = match(pathname)
                                 return (
                                     <Link
                                         key={href}
                                         href={href}
-                                        className={`text-sm font-medium transition-colors whitespace-nowrap ${isActive ? 'text-primary underline font-bold' : 'text-text-primary hover:text-primary'
+                                        className={`text-sm lg:text-base font-medium transition-all duration-300 whitespace-nowrap px-3 py-2 rounded-lg relative overflow-hidden group ${isActive 
+                                            ? 'text-primary bg-primary/5 font-semibold' 
+                                            : 'text-text-primary hover:text-primary hover:bg-primary/5'
                                             }`}
                                     >
-                                        {label}
+                                        <span className="relative z-10">{label}</span>
+                                        {isActive && (
+                                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+                                        )}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     </Link>
                                 )
                             })}
@@ -181,17 +187,17 @@ export default function Navbar() {
                     {/* Desktop Right Side (Search & Actions) */}
                     <div className={`hidden ${isWideScreen ? 'lg:flex' : 'xl:flex'} items-center`}>
                         {/* Search form */}
-                        <form onSubmit={handleSearch} className="relative ml-1 sm:ml-2 xl:ml-4">
+                        <form onSubmit={handleSearch} className="relative ml-1 sm:ml-2 xl:ml-6">
                             <input
                                 type="text"
                                 placeholder="Tìm kiếm sản phẩm..."
-                                className="w-24 xs:w-28 sm:w-32 md:w-36 lg:w-40 xl:w-56 pl-2 lg:pl-3 xl:pl-4 pr-7 lg:pr-8 xl:pr-10 py-1 lg:py-1.5 xl:py-2 border rounded-full text-xs lg:text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                                className="w-24 xs:w-28 sm:w-32 md:w-36 lg:w-40 xl:w-64 pl-4 lg:pl-5 xl:pl-6 pr-8 lg:pr-10 xl:pr-12 py-2 lg:py-2.5 xl:py-3 border border-gray-200 rounded-full text-xs lg:text-sm bg-gray-50/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all duration-300 shadow-sm hover:shadow-md"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                             <button
                                 type="submit"
-                                className="cursor-pointer absolute right-2 xl:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary"
+                                className="cursor-pointer absolute right-3 xl:right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary transition-colors duration-200 p-1 hover:bg-primary/10 rounded-full"
                             >
                                 <FaSearch className="text-xs lg:text-sm" />
                             </button>
@@ -242,7 +248,7 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Menu */}
-            <div className={`${isOpen ? 'block' : 'hidden'} ${isWideScreen ? 'lg:hidden' : 'xl:hidden'} bg-white shadow-lg max-h-[calc(100vh-70px)] overflow-y-auto`}>
+            <div className={`${isOpen ? 'block' : 'hidden'} ${isWideScreen ? 'lg:hidden' : 'xl:hidden'} bg-white/95 backdrop-blur-lg shadow-xl border-b border-primary/10 max-h-[calc(100vh-70px)] overflow-y-auto`}>
                 <div className="px-4 py-2 space-y-1">
                     {navItems.map(({ href, label, icon, match }) => {
                         const isActive = match(pathname)
@@ -289,7 +295,7 @@ export default function Navbar() {
                 </div>
 
                 {/* Mobile search */}
-                <div className="px-4 py-3 border-t">
+                <div className="px-4 py-3 border-t border-gray-100">
                     <form onSubmit={handleSearch} className="relative">
                         <input
                             type="text"
