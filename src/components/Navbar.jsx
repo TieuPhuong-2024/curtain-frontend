@@ -87,6 +87,16 @@ export default function Navbar() {
         }
     ]
 
+    // Add admin menu for admin
+    const adminNavItems = [
+        {
+            href: '/admin',
+            label: 'Quản trị',
+            icon: <FaCog className="mr-2" />,
+            match: (path) => path.startsWith('/admin'),
+        }
+    ];
+
     const toggleMenu = () => {
         setIsOpen(!isOpen);
     };
@@ -168,8 +178,8 @@ export default function Navbar() {
                                     <Link
                                         key={href}
                                         href={href}
-                                        className={`text-sm lg:text-base font-medium transition-all duration-300 whitespace-nowrap px-3 py-2 rounded-lg relative overflow-hidden group ${isActive 
-                                            ? 'text-primary bg-primary/5 font-semibold' 
+                                        className={`text-sm lg:text-base font-medium transition-all duration-300 whitespace-nowrap px-3 py-2 rounded-lg relative overflow-hidden group ${isActive
+                                            ? 'text-primary bg-primary/5 font-semibold'
                                             : 'text-text-primary hover:text-primary hover:bg-primary/5'
                                             }`}
                                     >
@@ -181,6 +191,23 @@ export default function Navbar() {
                                     </Link>
                                 )
                             })}
+                            
+                            {/* Hiển thị menu Quản trị cho admin trong desktop navigation */}
+                            {isAdmin && (
+                                <Link
+                                    href="/admin"
+                                    className={`text-sm lg:text-base font-medium transition-all duration-300 whitespace-nowrap px-3 py-2 rounded-lg relative overflow-hidden group ${pathname.startsWith('/admin') 
+                                        ? 'text-primary bg-primary/5 font-semibold' 
+                                        : 'text-text-primary hover:text-primary hover:bg-primary/5'
+                                        }`}
+                                >
+                                    <span className="relative z-10">Quản trị</span>
+                                    {pathname.startsWith('/admin') && (
+                                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+                                    )}
+                                    <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                </Link>
+                            )}
                         </div>
                     </div>
 

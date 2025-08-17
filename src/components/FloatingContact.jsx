@@ -11,11 +11,6 @@ const FloatingContact = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 }); // Check if device is mobile
   const pathname = usePathname();
   
-  // Ẩn FloatingContact trong trang admin
-  if (pathname?.startsWith('/admin')) {
-    return null;
-  }
-
   useEffect(() => {
     const toggleVisibility = () => {
       if (window.pageYOffset > 300) {
@@ -28,6 +23,11 @@ const FloatingContact = () => {
     window.addEventListener('scroll', toggleVisibility);
     return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
+
+  // ✅ Di chuyển điều kiện return xuống sau tất cả Hooks
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   const scrollToTop = () => {
     window.scrollTo({
