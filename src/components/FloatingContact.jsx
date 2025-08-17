@@ -4,10 +4,17 @@ import { FaPhone, FaYoutube } from 'react-icons/fa';
 import { SiZalo } from 'react-icons/si';
 import { useState, useEffect } from 'react';
 import { useMediaQuery } from 'react-responsive';
+import { usePathname } from 'next/navigation';
 
 const FloatingContact = () => {
   const [isVisible, setIsVisible] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 768 }); // Check if device is mobile
+  const pathname = usePathname();
+  
+  // Ẩn FloatingContact trong trang admin
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   useEffect(() => {
     const toggleVisibility = () => {
