@@ -4,6 +4,7 @@ import {useEffect, useState, useCallback, useRef} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {FaArrowLeft, FaArrowRight} from 'react-icons/fa';
+import styles from '@/styles/modules/BannerSlider.module.css';
 
 export default function BannerSlider({banners}) {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -75,26 +76,16 @@ export default function BannerSlider({banners}) {
     if (!banners || banners.length === 0) {
         return (
             <div className="relative h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] flex items-center overflow-hidden max-h-[800px]">
-                <div className="absolute inset-0 z-0">
-                    <Image
-                        src="/images/hero-curtain.jpg"
-                        alt="Rèm cửa cao cấp"
-                        fill
-                        style={{objectFit: 'cover'}}
-                        priority
-                        className="scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/10"></div>
-                </div>
+                <div className="absolute inset-0 z-0 bg-[#c9bfb4]" aria-hidden="true" />
 
-                <div className="container-custom z-10 text-white">
-                    <div className="max-w-2xl p-4 sm:p-6 md:p-8 rounded-lg backdrop-blur-sm bg-black/5 slide-up">
-                        <h1 className="text-gradient text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6">Rèm Cửa Cao Cấp Cho Không Gian Của Bạn</h1>
-                        <p className="text-base sm:text-lg md:text-xl mb-6 md:mb-8 opacity-90">
-                            Khám phá bộ sưu tập rèm cửa đa dạng với chất lượng tốt nhất và giá cả hợp lý
+                <div className="container-custom z-10">
+                    <div className={styles.slideContent}>
+                        <h1 className={styles.slideTitle}>Rèm cửa cho không gian của bạn</h1>
+                        <p className={styles.slideDescription}>
+                            Xem mẫu vải, chọn màu, rồi hẹn đo và lắp tại nhà.
                         </p>
-                        <Link href="/products" className="btn-primary inline-flex items-center">
-                            Xem sản phẩm <FaArrowRight className="ml-2"/>
+                        <Link href="/products" className={styles.slideButton}>
+                            Xem sản phẩm <FaArrowRight className={styles.slideButtonIcon}/>
                         </Link>
                     </div>
                 </div>
@@ -130,17 +121,15 @@ export default function BannerSlider({banners}) {
                 </div>
             ))}
 
-            <div className="container-custom z-10 text-white">
-                <div className={`max-w-xs sm:max-w-sm md:max-w-xl lg:max-w-2xl p-3 sm:p-4 md:p-6 lg:p-8 rounded-lg backdrop-blur-sm bg-black/5 transition-all duration-700 ${
-                    transitioning ? 'opacity-0 transform translate-y-10' : 'opacity-100 transform translate-y-0'
-                } ml-12 xs:ml-14 sm:ml-16 md:ml-16 lg:ml-20 xl:ml-0`}>
-                    <h1 className="text-gradient text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 sm:mb-3 md:mb-4 lg:mb-6">{currentBanner.title}</h1>
+            <div className="container-custom z-10">
+                <div className={`${styles.slideContent} ${transitioning ? styles.slideContentHidden : ''}`}>
+                    <h1 className={styles.slideTitle}>{currentBanner.title}</h1>
                     {currentBanner.description && (
-                        <p className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl mb-3 sm:mb-4 md:mb-6 lg:mb-8 opacity-90">{currentBanner.description}</p>
+                        <p className={styles.slideDescription}>{currentBanner.description}</p>
                     )}
                     {currentBanner.link && (
-                        <Link href={currentBanner.link} className="btn-primary inline-flex items-center text-xs sm:text-sm md:text-base">
-                            Xem thêm <FaArrowRight className="ml-2 text-xs sm:text-sm md:text-base" />
+                        <Link href={currentBanner.link} className={styles.slideButton}>
+                            Xem thêm <FaArrowRight className={styles.slideButtonIcon} />
                         </Link>
                     )}
                 </div>

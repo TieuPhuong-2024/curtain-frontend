@@ -270,11 +270,28 @@ export default function ProductsPage() {
                     ) : error ? (
                         <div className="bg-red-100 text-red-700 p-4 rounded-md">{error}</div>
                     ) : filteredCurtains.length === 0 ? (
-                        <div className="text-center py-12">
-                            <p className="text-gray-500 mb-4">Không tìm thấy sản phẩm phù hợp với bộ lọc.</p>
-                            <button onClick={clearFilters} className="text-indigo-600 font-medium hover:underline">
-                                Xóa bộ lọc
-                            </button>
+                        <div className="text-center py-12 max-w-md mx-auto">
+                            {curtains.length === 0 ? (
+                                <>
+                                    <p className="text-[#5b4636] mb-2 text-lg">Mẫu rèm đang được cập nhật trên web.</p>
+                                    <p className="text-[#7d6e5d] mb-6">Gọi hoặc nhắn Zalo để xem catalogue và hẹn đo tại nhà.</p>
+                                    <div className="flex flex-col sm:flex-row justify-center gap-3">
+                                        <a href="tel:+84937543809" className="inline-flex items-center justify-center px-6 py-3 bg-[#8a6642] text-white font-semibold rounded-full">
+                                            Gọi 0937 543 809
+                                        </a>
+                                        <a href="https://zalo.me/0937543809" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center px-6 py-3 border border-[#8a6642] text-[#8a6642] font-semibold rounded-full">
+                                            Nhắn Zalo
+                                        </a>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <p className="text-[#5b4636] mb-4">Không có mẫu nào khớp bộ lọc.</p>
+                                    <button onClick={clearFilters} className="font-semibold text-[#8a6642] underline">
+                                        Xóa bộ lọc
+                                    </button>
+                                </>
+                            )}
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

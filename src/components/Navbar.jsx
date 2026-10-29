@@ -6,30 +6,31 @@ import { useRouter } from 'next/navigation';
 import { FaBars, FaHome, FaInfoCircle, FaPhone, FaTimes, FaSearch, FaUser, FaSignInAlt, FaSignOutAlt, FaBlog, FaShoppingCart, FaCog } from 'react-icons/fa';
 import { useAuth } from '@/lib/AuthContext';
 import { usePathname } from 'next/navigation';
+import styles from '@/styles/modules/Navbar.module.css';
 
 // Action Button Component
 const ActionButton = ({ href, icon, label, badge, onClick }) => {
     return (
-        <div className="relative mx-0.5 sm:mx-1 md:mx-1 lg:mx-1.5 xl:mx-2">
+        <div className={styles.actionButton}>
             {onClick ? (
                 <button
                     onClick={onClick}
-                    className="cursor-pointer flex flex-col items-center justify-center p-1 lg:p-1.5 xl:p-2 text-text-primary hover:text-primary transition-colors w-7 xs:w-8 sm:w-10 lg:w-12 xl:w-14"
+                    className={styles.actionButton}
                 >
-                    <span className="text-sm lg:text-base xl:text-lg">{icon}</span>
-                    <span className="text-[8px] sm:text-[9px] lg:text-[10px] xl:text-xs mt-0.5 xl:mt-1 whitespace-nowrap font-medium">{label}</span>
+                    <span className={styles.actionIcon}>{icon}</span>
+                    <span className={styles.actionLabel}>{label}</span>
                     {badge > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-primary text-white text-xs w-4 h-4 md:w-5 md:h-5 flex items-center justify-center rounded-full">
+                        <span className={styles.actionBadge}>
                             {badge}
                         </span>
                     )}
                 </button>
             ) : (
-                <Link href={href} className="flex flex-col items-center justify-center p-1 lg:p-1.5 xl:p-2 text-text-primary hover:text-primary transition-colors w-7 xs:w-8 sm:w-10 lg:w-12 xl:w-14">
-                    <span className="text-sm lg:text-base xl:text-lg">{icon}</span>
-                    <span className="text-[8px] sm:text-[9px] lg:text-[10px] xl:text-xs mt-0.5 xl:mt-1 whitespace-nowrap font-medium">{label}</span>
+                <Link href={href} className={styles.actionButtonLink}>
+                    <span className={styles.actionIcon}>{icon}</span>
+                    <span className={styles.actionLabel}>{label}</span>
                     {badge > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-primary text-white text-xs w-4 h-4 md:w-5 md:h-5 flex items-center justify-center rounded-full">
+                        <span className={styles.actionBadge}>
                             {badge}
                         </span>
                     )}
@@ -149,25 +150,20 @@ export default function Navbar() {
     };
 
     return (
-        <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-primary/10 py-2'
-            : 'bg-white/98 backdrop-blur-sm shadow-sm py-4'
-            }`}>
-            <div className="container-custom">
+        <nav className={`${styles.navbar} ${scrolled ? styles.navbarScrolled : ''}`}>
+            <div className={styles.navbarContainer}>
                 <div className="flex justify-between items-center">
                     {/* Left side with logo and navigation */}
                     <div className="flex items-center">
                         <Link
                             href="/"
-                            className="flex items-center mr-1 xs:mr-2 sm:mr-4 md:mr-5 lg:mr-6 xl:mr-8 whitespace-nowrap flex-shrink-0 group"
+                            className={styles.logo}
                         >
-                            <div className={`${scrolled ? 'bg-white shadow-md' : 'bg-white/90 shadow-sm'} rounded-lg p-1 xs:p-1.5 transition-all duration-300 group-hover:shadow-lg group-hover:scale-105`}>
-                                <img
-                                    src="/images/logo-2.png"
-                                    alt="Tuấn Rèm"
-                                    className="h-7 xs:h-8 sm:h-9 md:h-11 lg:h-14 w-auto object-contain drop-shadow-sm"
-                                />
-                            </div>
+                            <img
+                                src="/images/logo-2.png"
+                                alt="Tuấn Rèm"
+                                className={styles.logoImage}
+                            />
                         </Link>
 
                         {/* Desktop Navigation - Hidden on smaller screens and when not wide enough */}

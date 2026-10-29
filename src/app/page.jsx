@@ -1,7 +1,7 @@
 'use client';
 
 import './styles/cozy-theme.css';
-import Image from 'next/image';
+import styles from '@/styles/modules/Home.module.css';
 import Link from 'next/link';
 import { FaArrowRight, FaCheck } from 'react-icons/fa';
 
@@ -113,42 +113,31 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-secondary/50 to-primary-light/20">
+    <div className={styles.container}>
       <StructuredData data={organizationSchema} />
       <StructuredData data={webPageSchema} />
       {/* Banner Slider Section */}
       {loadingBanners ? (
-        <section className="relative h-[80vh] flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
-          <div className="absolute inset-0 bg-[url('/images/pattern-curtain.svg')] opacity-5"></div>
-          <div className="text-center relative z-10">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-3 border-b-3 border-primary mx-auto mb-6 shadow-lg"></div>
-            <p className="text-text-primary text-lg font-medium">Đang tải banner...</p>
+        <section className={styles.bannerSection}>
+          <div className={styles.bannerPattern}></div>
+          <div className={styles.bannerLoading}>
+            <div className={styles.loadingSpinner}></div>
+            <p className={styles.loadingText}>Đang tải banner...</p>
           </div>
         </section>
       ) : bannerError ? (
-        <section className="relative h-[80vh] flex items-center overflow-hidden">
-          <div className="absolute inset-0 z-0">
-            <Image
-              src="/images/hero-curtain.jpg"
-              alt="Rèm cửa cao cấp"
-              fill
-              style={{ objectFit: 'cover' }}
-              priority
-              className="scale-105 transition-transform duration-700"
-            />
-            <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/20"></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent"></div>
-          </div>
+        <section className={styles.fallbackBanner}>
+          <div className="absolute inset-0 z-0 bg-[#c9bfb4]" aria-hidden="true" />
 
           <div className="container mx-auto px-4 z-10 text-white">
-            <div className="max-w-3xl backdrop-blur-sm bg-white/10 rounded-2xl p-8 md:p-12 border border-white/20 shadow-2xl">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent leading-tight">
-                Rèm Cửa Cao Cấp Cho Không Gian Của Bạn
+            <div className={styles.fallbackContent}>
+              <h1 className={styles.fallbackTitle}>
+                Rèm cửa cho không gian của bạn
               </h1>
-              <p className="text-lg md:text-xl lg:text-2xl mb-8 text-white/90 leading-relaxed">
-                Khám phá bộ sưu tập rèm cửa đa dạng với chất lượng tốt nhất và giá cả hợp lý
+              <p className={styles.fallbackDescription}>
+                Xem mẫu vải, chọn màu, rồi hẹn đo và lắp tại nhà.
               </p>
-              <Link href="/products" className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary to-accent text-white font-semibold rounded-full hover:from-accent hover:to-primary transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+              <Link href="/products" className={styles.fallbackButton}>
                 Xem sản phẩm <FaArrowRight className="ml-3" />
               </Link>
             </div>
@@ -159,30 +148,36 @@ export default function Home() {
       )}
 
       {/* Categories Section */}
-      <section className="py-20 bg-gradient-to-br from-white via-secondary/30 to-primary-light/10 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/images/pattern-curtain.svg')] opacity-3"></div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-text-primary mb-6 relative">
+      <section className={styles.categoriesSection}>
+        <div className={styles.categoriesPattern}></div>
+        <div className={styles.categoriesContainer}>
+          <div className={styles.categoriesHeader}>
+            <h2 className={styles.categoriesTitle}>
               Danh Mục Rèm Cửa
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-primary to-accent rounded-full"></div>
             </h2>
-            <p className="text-lg text-text-secondary max-w-2xl mx-auto leading-relaxed">
+            <p className={styles.categoriesDescription}>
               Khám phá đa dạng các loại rèm cửa phù hợp với mọi không gian và phong cách
             </p>
           </div>
           {loadingCategories ? (
-            <div className="text-center py-16">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+            <div className={styles.categoriesLoading}>
+              <div className={styles.categoriesSpinner}></div>
               <p className="text-text-primary">Đang tải danh mục...</p>
             </div>
           ) : categoryError ? (
-            <div className="text-center text-error py-16 bg-red-50 rounded-xl border border-red-100">
+            <div className={styles.categoriesError}>
               <p className="text-lg">{categoryError}</p>
             </div>
           ) : categories.length === 0 ? (
-            <div className="text-center py-16 bg-gray-50 rounded-xl">
-              <p className="text-text-secondary text-lg">Chưa có danh mục nào.</p>
+            <div className={styles.categoriesEmpty}>
+              <p className="text-lg text-[#5b4636]">Danh mục đang được cập nhật.</p>
+              <p className="mt-2 text-[#7d6e5d]">
+                Gọi{' '}
+                <a href="tel:+84937543809" className="font-semibold text-[#8a6642] underline">
+                  0937 543 809
+                </a>{' '}
+                để xem mẫu và hẹn đo tại nhà.
+              </p>
             </div>
           ) : (
             <CategorySlider categories={categories} productCounts={productCounts} />
@@ -318,13 +313,24 @@ export default function Home() {
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-gray-400 text-2xl">📦</span>
               </div>
-              <p className="text-text-secondary mb-4 text-lg">Chưa có sản phẩm nổi bật</p>
-              <Link
-                href="/products"
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary to-accent text-white font-medium rounded-full hover:from-accent hover:to-primary transition-all duration-300 hover:shadow-lg transform hover:scale-105"
-              >
-                Xem tất cả sản phẩm <FaArrowRight className="ml-2" />
-              </Link>
+              <p className="text-[#5b4636] mb-2 text-lg">Mẫu rèm đang được cập nhật trên web.</p>
+              <p className="text-[#7d6e5d] mb-6">Gọi hoặc nhắn Zalo để xem catalogue và hẹn đo tại nhà.</p>
+              <div className="flex flex-col sm:flex-row justify-center gap-3">
+                <a
+                  href="tel:+84937543809"
+                  className="inline-flex items-center justify-center px-6 py-3 bg-[#8a6642] text-white font-semibold rounded-full"
+                >
+                  Gọi 0937 543 809
+                </a>
+                <a
+                  href="https://zalo.me/0937543809"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center px-6 py-3 border border-[#8a6642] text-[#8a6642] font-semibold rounded-full"
+                >
+                  Nhắn Zalo
+                </a>
+              </div>
             </div>
           ) : (
             <>

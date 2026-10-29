@@ -1,0 +1,124 @@
+/* Footer Styles */
+.footer {
+  background: rgb(31 41 55);
+  color: white;
+}
+
+.footerContainer {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.footerContent {
+  padding: 3rem 0;
+}
+
+.footerGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.footerSection {
+  margin-bottom: 1rem;
+}
+
+.footerTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.footerDescription {
+  color: rgb(209 213 219);
+  margin-bottom: 1rem;
+  line-height: 1.625;
+}
+
+.socialLinks {
+  display: flex;
+  gap: 1rem;
+}
+
+.socialLink {
+  color: rgb(209 213 219);
+  transition: color 0.3s ease;
+}
+
+.socialLink:hover {
+  color: white;
+}
+
+.socialIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.footerLinks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footerLinks li {
+  margin-bottom: 0.5rem;
+}
+
+.footerLink {
+  color: rgb(209 213 219);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footerLink:hover {
+  color: white;
+}
+
+.contactInfo {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.contactInfo li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  color: rgb(209 213 219);
+}
+
+.contactIcon {
+  margin-right: 0.5rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.footerDivider {
+  border-top: 1px solid rgb(55 65 81);
+  margin-top: 2rem;
+  padding-top: 2rem;
+  text-align: center;
+}
+
+.copyright {
+  color: rgb(209 213 219);
+  font-size: 0.875rem;
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+  .footerGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .footerContainer {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .footerContainer {
+    padding: 0 2rem;
+  }
+}

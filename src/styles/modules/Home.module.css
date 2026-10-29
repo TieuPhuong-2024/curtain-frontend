@@ -1,0 +1,340 @@
+/* Home Page Styles */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, white, rgb(var(--color-secondary) / 0.5), rgb(var(--color-primary-light) / 0.2));
+}
+
+/* Banner Section */
+.bannerSection {
+  position: relative;
+  height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom right, rgb(249 250 251), rgb(243 244 246));
+  overflow: hidden;
+}
+
+.bannerPattern {
+  position: absolute;
+  inset: 0;
+  background-image: url('/images/pattern-curtain.svg');
+  opacity: 0.05;
+}
+
+.bannerLoading {
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
+.loadingSpinner {
+  animation: spin 1s linear infinite;
+  border-radius: 9999px;
+  height: 4rem;
+  width: 4rem;
+  border-top: 3px solid rgb(var(--color-primary));
+  border-bottom: 3px solid rgb(var(--color-primary));
+  margin: 0 auto 1.5rem;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+.loadingText {
+  color: rgb(var(--color-text-primary));
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+/* Fallback Banner */
+.fallbackBanner {
+  position: relative;
+  height: 80vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.fallbackImage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  object-fit: cover;
+  transform: scale(1.05);
+  transition: transform 0.7s;
+}
+
+.fallbackOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom right, rgb(0 0 0 / 0.6), rgb(0 0 0 / 0.4), rgb(0 0 0 / 0.2));
+}
+
+.fallbackOverlay2 {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgb(var(--color-primary) / 0.2), transparent);
+}
+
+.fallbackContent {
+  max-width: 36rem;
+  background: #f7f1e8;
+  color: #5b4636;
+  border-radius: 0.75rem;
+  padding: 1.5rem 1.75rem;
+  border: 1px solid #e4d3c0;
+  box-shadow: 0 16px 40px rgba(63, 47, 34, 0.16);
+}
+
+.fallbackTitle {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #3f2f22;
+  line-height: 1.15;
+}
+
+.fallbackDescription {
+  font-size: 1.125rem;
+  margin-bottom: 1.5rem;
+  color: #5b4636;
+  line-height: 1.55;
+}
+
+.fallbackButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.85rem 1.4rem;
+  background: #8a6642;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+.fallbackButton:hover {
+  background: #6f5134;
+}
+
+.fallbackButton:focus-visible {
+  outline: 2px solid #3f2f22;
+  outline-offset: 3px;
+}
+
+/* Categories Section */
+.categoriesSection {
+  padding: 5rem 0;
+  background: linear-gradient(to bottom right, white, rgb(var(--color-secondary) / 0.3), rgb(var(--color-primary-light) / 0.1));
+  position: relative;
+  overflow: hidden;
+}
+
+.categoriesPattern {
+  position: absolute;
+  inset: 0;
+  background-image: url('/images/pattern-curtain.svg');
+  opacity: 0.03;
+}
+
+.categoriesContainer {
+  position: relative;
+  z-index: 10;
+}
+
+.categoriesHeader {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.categoriesTitle {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: rgb(var(--color-text-primary));
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.categoriesTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6rem;
+  height: 0.25rem;
+  background: linear-gradient(to right, rgb(var(--color-primary)), rgb(var(--color-accent)));
+  border-radius: 9999px;
+}
+
+.categoriesDescription {
+  font-size: 1.125rem;
+  color: rgb(var(--color-text-secondary));
+  max-width: 42rem;
+  margin: 0 auto;
+  line-height: 1.625;
+}
+
+.categoriesLoading {
+  text-align: center;
+  padding: 4rem 0;
+}
+
+.categoriesSpinner {
+  animation: spin 1s linear infinite;
+  border-radius: 9999px;
+  height: 3rem;
+  width: 3rem;
+  border-top: 2px solid rgb(var(--color-primary));
+  border-bottom: 2px solid rgb(var(--color-primary));
+  margin: 0 auto 1rem;
+}
+
+.categoriesError {
+  text-align: center;
+  color: rgb(var(--color-error));
+  padding: 4rem 0;
+  background: rgb(254 242 242);
+  border-radius: 0.75rem;
+  border: 1px solid rgb(254 226 226);
+}
+
+.categoriesEmpty {
+  text-align: center;
+  padding: 4rem 0;
+  background: rgb(249 250 251);
+  border-radius: 0.75rem;
+}
+
+/* Features Section */
+.featuresSection {
+  padding: 5rem 0;
+  background: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.featuresBackground {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom right, white, rgb(var(--color-primary-light) / 0.05), white);
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.featuresContent {
+  order: 2;
+}
+
+.featuresTitle {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: rgb(var(--color-text-primary));
+  margin-bottom: 1.5rem;
+  line-height: 1;
+}
+
+.featuresDescription {
+  font-size: 1.125rem;
+  color: rgb(var(--color-text-secondary));
+  margin-bottom: 2rem;
+  line-height: 1.625;
+}
+
+.featuresList {
+  list-style: none;
+  padding: 0;
+}
+
+.featuresItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: rgb(var(--color-primary-light) / 0.1);
+  border-radius: 0.5rem;
+  border-left: 4px solid rgb(var(--color-primary));
+}
+
+.featuresIcon {
+  color: rgb(var(--color-primary));
+  margin-right: 1rem;
+  font-size: 1.25rem;
+}
+
+.featuresText {
+  color: rgb(var(--color-text-primary));
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (min-width: 1024px) {
+  .fallbackTitle {
+    font-size: 3.75rem;
+  }
+  
+  .fallbackDescription {
+    font-size: 1.25rem;
+  }
+  
+  .categoriesTitle {
+    font-size: 3rem;
+  }
+  
+  .featuresGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .featuresContent {
+    order: 1;
+  }
+}
+
+@media (min-width: 768px) {
+  .fallbackTitle {
+    font-size: 3rem;
+  }
+  
+  .fallbackDescription {
+    font-size: 1.25rem;
+  }
+  
+  .categoriesTitle {
+    font-size: 2.5rem;
+  }
+  
+  .featuresTitle {
+    font-size: 2.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .fallbackTitle {
+    font-size: 4.5rem;
+  }
+  
+  .fallbackDescription {
+    font-size: 1.5rem;
+  }
+  
+  .categoriesTitle {
+    font-size: 3.5rem;
+  }
+  
+  .featuresTitle {
+    font-size: 3.5rem;
+  }
+}
+
+/* Animations */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

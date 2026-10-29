@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FaEye } from 'react-icons/fa';
 import { useState, useEffect } from 'react';
 import ProductPrice from './ProductPrice';
+import styles from '@/styles/modules/CurtainCard.module.css';
 
 export default function CurtainCard({ curtain }) {
     const { _id, name, price, mainImage, image, category, color } = curtain;
@@ -54,12 +55,12 @@ export default function CurtainCard({ curtain }) {
 
     return (
         <div
-            className="bg-white rounded-lg overflow-hidden shadow-md card-hover"
+            className={styles.card}
             onMouseEnter={() => !isTouchDevice && setIsHovered(true)}
             onMouseLeave={() => !isTouchDevice && setIsHovered(false)}
             onClick={handleCardClick}
         >
-            <div className="relative h-48 sm:h-56 md:h-64 w-full group">
+            <div className={styles.imageContainer}>
                 <Image
                     src={displayImage}
                     alt={name}
@@ -69,45 +70,42 @@ export default function CurtainCard({ curtain }) {
                         objectFit: 'cover',
                         transition: 'transform 0.5s ease'
                     }}
-                    className={`${isHovered ? 'scale-110' : 'scale-100'}`}
+                    className={`${styles.image} ${isHovered ? styles.imageHovered : styles.imageNormal}`}
                 />
                 {/* Category badge */}
-                <div className="absolute top-2 left-2">
-                    <span className="bg-white bg-opacity-90 text-primary text-xs px-2 py-1 rounded-md">
-                        {categoryName}
-                    </span>
+                <div className={styles.categoryBadge}>
+                    {categoryName}
                 </div>
                 {/* Overlay with actions - shown on hover (desktop) or tap (mobile) */}
                 <div
-                    className={`absolute inset-0 bg-transparent bg-opacity-20 flex items-center justify-center gap-3 transition-opacity duration-300 ${showActions ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                        }`}
+                    className={`${styles.overlay} ${showActions ? styles.overlayVisible : styles.overlayHidden}`}
                     onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside overlay
                 >
                     <Link
                         href={`/products/${_id}`}
-                        className="bg-white text-gray-700 p-2 sm:px-3 sm:py-2 rounded-md flex items-center gap-1 sm:gap-2 hover:bg-indigo-100 transition-colors duration-300"
+                        className={styles.actionButton}
                         title="Xem chi tiết"
                     >
-                        <FaEye size={16} className="sm:text-lg" />
-                        <span className="text-xs sm:text-sm hidden sm:inline">Chi tiết</span>
+                        <FaEye size={16} className={styles.actionIcon} />
+                        <span className={styles.actionText}>Chi tiết</span>
                     </Link>
                 </div>
             </div>
-            <div className="p-3 sm:p-4">
-                <h3 className="font-medium text-sm sm:text-base text-gray-900 mb-1 truncate">
+            <div className={styles.cardContent}>
+                <h3 className={styles.cardTitle}>
                     {name}
                 </h3>
-                <div className="flex justify-between items-center">
+                <div className={styles.cardFooter}>
                     <p className="font-bold text-sm sm:text-base text-primary">
                         <ProductPrice price={price} />
                     </p>
-                    <div className="flex items-center gap-1 sm:gap-2">
+                    <div className={styles.colorIndicator}>
                         <div
-                            className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-gray-300"
+                            className={styles.colorSwatch}
                             style={{ backgroundColor: displayBackgroundColor }}
                             title={displayColorName}
                         />
-                        <span className="text-xs text-gray-600 truncate max-w-[50px] sm:max-w-[100px]">
+                        <span className={styles.colorName}>
                             {displayColorName}
                         </span>
                     </div>
