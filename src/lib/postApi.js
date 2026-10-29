@@ -4,7 +4,7 @@ export const getPosts = async (page = 1, limit = 10, status, tag) => {
     try {
         let url = `/posts?page=${page}&limit=${limit}`;
         if (status) url += `&status=${status}`;
-        if (tag) url += `&tag=${tag}`;
+        if (tag) url += `&tag=${encodeURIComponent(tag)}`;
         
         const response = await api.get(url);
         return response.data;

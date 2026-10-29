@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { getPosts } from '@/lib/api';
 import PostCard from '@/components/PostCard';
 import { ROUTES_PATH } from '@/utils/constant';
@@ -8,51 +9,97 @@ import StructuredData, { createArticleSchemaShort, createBreadcrumbSchema } from
 import listStyles from '@/styles/modules/ContentList.module.css';
 import detailStyles from '@/styles/modules/PostDetail.module.css';
 
-export default function Posts() {
+function collectTags(posts) {
+  const tags = [];
+  posts.forEach((post) => {
+    post.tags?.forEach((tag) => {
+      if (!tags.includes(tag)) {
+        tags.push(tag);
+      }
+    });
+  });
+  return tags;
+}
+
+function PostsContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const selectedTag = searchParams.get('tag') ?? '';
+
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [selectedTag, setSelectedTag] = useState('');
   const [allTags, setAllTags] = useState([]);
 
-  // Fetch posts
-  const fetchPosts = async () => {
-    setLoading(true);
-    try {
-      // Only show published posts on the public-facing page
-      const response = await getPosts(currentPage, 9, 'published', selectedTag);
-      setPosts(response.posts);
-      setTotalPages(response.pagination.pages);
-
-      // Extract all unique tags from posts
-      const tags = [];
-      response.posts.forEach(post => {
-        if (post.tags) {
-          post.tags.forEach(tag => {
-            if (!tags.includes(tag)) {
-              tags.push(tag);
-            }
-          });
-        }
-      });
-      setAllTags(tags);
-    } catch (err) {
-      setError('Không tải được bài viết');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedTag]);
 
   useEffect(() => {
+    let cancelled = false;
+
+    const loadTags = async () => {
+      try {
+        const response = await getPosts(1, 100, 'published');
+        if (!cancelled) {
+          setAllTags(collectTags(response.posts));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadTags();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchPosts = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await getPosts(currentPage, 9, 'published', selectedTag || undefined);
+        if (cancelled) return;
+        setPosts(response.posts);
+        setTotalPages(response.pagination.pages);
+      } catch (err) {
+        if (!cancelled) {
+          setError('Không tải được bài viết');
+          console.error(err);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
     fetchPosts();
+    return () => {
+      cancelled = true;
+    };
   }, [currentPage, selectedTag]);
+
+  const selectTag = useCallback(
+    (tag) => {
+      setCurrentPage(1);
+      if (tag) {
+        router.replace(`/posts?tag=${encodeURIComponent(tag)}`, { scroll: false });
+      } else {
+        router.replace('/posts', { scroll: false });
+      }
+    },
+    [router]
+  );
 
   return (
     <div className={detailStyles.page}>
-      {/* Breadcrumbs Structured Data */}
       <StructuredData
         data={createBreadcrumbSchema([
           { name: 'Trang chủ', url: `${process.env.NEXT_PUBLIC_URL}` },
@@ -64,7 +111,8 @@ export default function Posts() {
           '@context': 'https://schema.org',
           '@type': 'CollectionPage',
           name: 'Blog - Tuấn Rèm',
-          description: 'Tổng hợp các bài viết mới nhất từ Tuấn Rèm về rèm cửa, mẹo trang trí nội thất và công trình thực tế.',
+          description:
+            'Tổng hợp các bài viết mới nhất từ Tuấn Rèm về rèm cửa, mẹo trang trí nội thất và công trình thực tế.',
           url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}`,
           mainEntity: {
             '@type': 'ItemList',
@@ -90,7 +138,7 @@ export default function Posts() {
         <div className={listStyles.chipRow}>
           <button
             type="button"
-            onClick={() => setSelectedTag('')}
+            onClick={() => selectTag('')}
             className={`${listStyles.chip} ${selectedTag === '' ? listStyles.chipActive : ''}`}
           >
             Tất cả
@@ -99,7 +147,7 @@ export default function Posts() {
             <button
               key={tag}
               type="button"
-              onClick={() => setSelectedTag(tag)}
+              onClick={() => selectTag(tag)}
               className={`${listStyles.chip} ${selectedTag === tag ? listStyles.chipActive : ''}`}
             >
               {tag}
@@ -119,7 +167,16 @@ export default function Posts() {
         <>
           {posts.length === 0 ? (
             <div className={listStyles.empty}>
-              <p>Không tìm thấy bài viết nào</p>
+              <p>
+                {selectedTag
+                  ? `Không có bài viết với chủ đề “${selectedTag}”.`
+                  : 'Không tìm thấy bài viết nào'}
+              </p>
+              {selectedTag ? (
+                <button type="button" onClick={() => selectTag('')} className={listStyles.pageBtn}>
+                  Xem tất cả bài viết
+                </button>
+              ) : null}
             </div>
           ) : (
             <div className={listStyles.grid}>
@@ -148,5 +205,22 @@ export default function Posts() {
         </>
       )}
     </div>
+  );
+}
+
+export default function Posts() {
+  return (
+    <Suspense
+      fallback={
+        <div className={detailStyles.page}>
+          <div className={listStyles.loading} role="status">
+            <div className={listStyles.spinner} aria-hidden />
+            <p>Đang tải bài viết…</p>
+          </div>
+        </div>
+      }
+    >
+      <PostsContent />
+    </Suspense>
   );
 }
