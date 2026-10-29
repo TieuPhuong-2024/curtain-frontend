@@ -61,14 +61,14 @@ export default function PostDetailToc({ items, variant = 'desktop' }) {
       <details className={styles.tocMobile}>
         <summary className={styles.detailsSummary}>Mục lục bài viết</summary>
         <div className={styles.detailsBody}>
-          <nav aria-label="Mục lục">{list}</nav>
+          <nav aria-label="Mục lục rút gọn">{list}</nav>
         </div>
       </details>
     );
   }
 
   return (
-    <nav className={styles.tocDesktop} aria-label="Mục lục">
+    <nav className={styles.tocDesktop} aria-label="Mục lục bài viết">
       <div className={styles.tocPanel}>
         <p className={styles.tocTitle}>Mục lục</p>
         {list}

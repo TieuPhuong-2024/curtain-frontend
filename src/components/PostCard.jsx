@@ -3,24 +3,24 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
+import { ROUTES_PATH } from '@/utils/constant';
 
 const PostCard = ({ post, isAdmin = false }) => {
-  
-  // Format date for display
-  const formattedDate = post.createdAt 
+  const formattedDate = post.createdAt
     ? format(new Date(post.createdAt), 'dd/MM/yyyy')
     : '';
 
+  const postId = post._id || post.id;
+  const detailHref = isAdmin
+    ? `/admin/posts/${postId}`
+    : `/${ROUTES_PATH.POSTS}/${postId}`;
 
-  return (
-    <div
-      className="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
-    >
-      {/* Featured image */}
+  const cardInner = (
+    <>
       <div className="relative h-48 w-full">
         {post.featuredImage ? (
-          <Image 
-            src={post.featuredImage} 
+          <Image
+            src={post.featuredImage}
             alt={post.title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -37,32 +37,38 @@ const PostCard = ({ post, isAdmin = false }) => {
           </div>
         )}
       </div>
-      
-      {/* Content */}
+
       <div className="p-4">
-        <h3 className="text-xl font-semibold mb-2 line-clamp-2">{post.title}</h3>
-        
+        <h3 className="text-xl font-semibold mb-2 line-clamp-2 text-[#5b4636]">{post.title}</h3>
+
         {post.summary && (
-          <p className="text-gray-600 mb-4 line-clamp-3">{post.summary}</p>
+          <p className="text-[#7d6e5d] mb-4 line-clamp-3">{post.summary}</p>
         )}
-        
-        <div className="flex justify-between items-center text-sm text-gray-500">
-          <div className="flex items-center">
+
+        <div className="flex justify-between items-center text-sm text-[#7d6e5d] gap-2">
+          <div className="flex flex-wrap items-center min-w-0">
             <span>{formattedDate}</span>
-            <span className="mx-2">•</span>
-            <span>{post.viewCount} lượt xem ({post.uniqueViewCount} độc giả)</span>
+            <span className="mx-2 hidden sm:inline">•</span>
+            <span className="hidden sm:inline">
+              {post.viewCount} lượt xem ({post.uniqueViewCount} độc giả)
+            </span>
           </div>
-          
-          <div className="text-blue-600">
-            {!isAdmin ? (
-              <Link href={`/posts/${post._id}`} className="hover:underline font-medium">Đọc tiếp</Link>
-            ) : (
-              <Link href={`/admin/posts/${post._id}`} className="hover:underline font-medium">Edit</Link>
-            )}
-          </div>
+
+          <span className="text-[#a67c52] font-medium shrink-0 group-hover:underline">
+            {isAdmin ? 'Edit' : 'Đọc tiếp'}
+          </span>
         </div>
       </div>
-    </div>
+    </>
+  );
+
+  return (
+    <Link
+      href={detailHref}
+      className="group block bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a67c52]"
+    >
+      {cardInner}
+    </Link>
   );
 };
 

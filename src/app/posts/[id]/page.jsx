@@ -57,7 +57,12 @@ export default function PostDetail({ params }) {
       return;
     }
 
-    const sanitized = renderCKEditorContent(post.content);
+    const rawContent =
+      typeof post.content === 'string'
+        ? post.content
+        : post.content?.html || post.content?.data || '';
+
+    const sanitized = renderCKEditorContent(rawContent);
     const { html, toc: items } = preparePostContent(sanitized);
     setPreparedHtml(html);
     setToc(items);

@@ -54,7 +54,7 @@ export default function Posts() {
       <StructuredData
         data={createBreadcrumbSchema([
           { name: 'Trang chủ', url: `${process.env.NEXT_PUBLIC_URL}` },
-          { name: 'Công trình', url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}` },
+          { name: 'Blog', url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}` },
         ])}
       />
       <StructuredData

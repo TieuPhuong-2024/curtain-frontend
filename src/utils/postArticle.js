@@ -2,7 +2,7 @@
  * Slug for in-page heading anchors (Vietnamese-friendly via normalize).
  */
 function slugifyHeading(text) {
-  const base = text
+  let base = text
     .trim()
     .toLowerCase()
     .normalize('NFD')
@@ -13,7 +13,13 @@ function slugifyHeading(text) {
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
 
-  return base.slice(0, 72) || 'muc';
+  if (!base) base = 'muc';
+  // CSS #id selectors cannot start with a digit (HTML id can).
+  if (/^[0-9]/.test(base)) {
+    base = `h-${base}`;
+  }
+
+  return base.slice(0, 72);
 }
 
 /**
