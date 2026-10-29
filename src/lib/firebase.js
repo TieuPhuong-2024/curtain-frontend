@@ -8,7 +8,8 @@ import {
   GoogleAuthProvider,
   FacebookAuthProvider,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  sendPasswordResetEmail
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
@@ -44,5 +45,6 @@ export {
   googleProvider,
   facebookProvider,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  sendPasswordResetEmail
 }; 

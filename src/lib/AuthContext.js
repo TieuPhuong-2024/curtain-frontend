@@ -9,7 +9,8 @@ import {
   signInWithPopup,
   googleProvider,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  sendPasswordResetEmail
 } from './firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
@@ -192,6 +193,15 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const resetPassword = async (email) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
   // Logout
   const logout = async () => {
     try {
@@ -212,7 +222,7 @@ export function AuthProvider({ children }) {
     login,
     register,
     loginWithGoogle,
-
+    resetPassword,
     logout,
     isAdmin: userRole === 'admin'
   };
