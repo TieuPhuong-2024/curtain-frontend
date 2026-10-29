@@ -44,16 +44,24 @@ const CategorySlider = ({ categories, productCounts = {} }) => {
     return () => window.removeEventListener('resize', handleScroll);
   }, [categories]);
 
-  if (!categories || categories.length === 0) {
-    return <div className="text-center py-12 text-lg">Chưa có danh mục nào.</div>;
+  const visibleCategories = (categories || []).filter(
+    (c) => c.image && String(c.image).trim() !== ''
+  );
+
+  if (visibleCategories.length === 0) {
+    return (
+      <div className="text-center py-8 text-[#7d6e5d] max-w-md mx-auto">
+        Danh mục đang cập nhật ảnh. Gọi{' '}
+        <a href="tel:+84937543809" className="font-semibold text-[#8a6642] underline">
+          0937 543 809
+        </a>{' '}
+        để xem mẫu vải tại nhà.
+      </div>
+    );
   }
 
   return (
     <>
-      <p className="text-center text-gray-500 max-w-3xl mx-auto mb-8 text-base">
-        Rèm cửa không chỉ là một phụ kiện trang trí đơn thuần, mà còn là yếu tố quan trọng tạo nên không gian lý tưởng cho gia đình bạn.
-      </p>
-
       <div className="relative px-0 md:px-8">
         {/* Left navigation arrow */}
         {showLeftArrow && (
@@ -72,7 +80,7 @@ const CategorySlider = ({ categories, productCounts = {} }) => {
           className={`flex overflow-x-auto gap-4 py-4 px-4 md:px-2 hide-scrollbar${isCentered ? ' justify-center items-center' : ''}`}
           onScroll={handleScroll}
         >
-          {categories.map(category => (
+          {visibleCategories.map(category => (
             <div
               key={category._id}
               className="flex-shrink-0 w-[250px] md:w-[280px]"
@@ -100,9 +108,9 @@ const CategorySlider = ({ categories, productCounts = {} }) => {
       <div className="text-center mt-8">
         <Link
           href="/products"
-          className="inline-flex items-center text-primary hover:text-primary-dark font-medium transition-colors"
+          className="inline-flex items-center text-[#8a6642] hover:text-[#6f5134] font-semibold transition-colors"
         >
-          Xem tất cả danh mục <FaArrowRight className="ml-2" size={14} />
+          Xem tất cả danh mục
         </Link>
       </div>
 
