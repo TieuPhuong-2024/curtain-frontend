@@ -6,39 +6,42 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import { getPostById, getPosts } from '@/lib/api';
 import PostCard from '@/components/PostCard';
+import PostDetailToc from '@/components/posts/PostDetailToc';
+import PostDetailAside from '@/components/posts/PostDetailAside';
 import { renderCKEditorContent } from '@/utils/ckeditorConverter';
+import { preparePostContent, getReadingMinutes } from '@/utils/postArticle';
 import '@/app/styles/content-styles.css';
 import StructuredData, { createArticleSchema, createBreadcrumbSchema } from '@/components/StructureData';
 import { ROUTES_PATH } from '@/utils/constant';
+import styles from '@/styles/modules/PostDetail.module.css';
 
 export default function PostDetail({ params }) {
   const postId = use(params).id;
 
   const [post, setPost] = useState(null);
   const [relatedPosts, setRelatedPosts] = useState([]);
+  const [preparedHtml, setPreparedHtml] = useState('');
+  const [toc, setToc] = useState([]);
+  const [readingMinutes, setReadingMinutes] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch post data
   useEffect(() => {
     const fetchPost = async () => {
       try {
         const fetchedPost = await getPostById(postId);
         setPost(fetchedPost);
 
-        // Fetch related posts with the same tags
-        if (fetchedPost.tags && fetchedPost.tags.length > 0) {
-          // Use the first tag to find related posts
+        if (fetchedPost.tags?.length > 0) {
           const tag = fetchedPost.tags[0];
           const response = await getPosts(1, 3, 'published', tag);
-          // Filter out the current post
-          const filtered = response.posts.filter(p => p._id !== postId);
+          const filtered = response.posts.filter((p) => p._id !== postId);
           setRelatedPosts(filtered);
         }
 
         setLoading(false);
       } catch (err) {
-        setError('Failed to load post');
+        setError('Không tải được bài viết');
         console.error(err);
         setLoading(false);
       }
@@ -47,7 +50,20 @@ export default function PostDetail({ params }) {
     fetchPost();
   }, [postId]);
 
-  // Format date
+  useEffect(() => {
+    if (!post?.content) {
+      setPreparedHtml('');
+      setToc([]);
+      return;
+    }
+
+    const sanitized = renderCKEditorContent(post.content);
+    const { html, toc: items } = preparePostContent(sanitized);
+    setPreparedHtml(html);
+    setToc(items);
+    setReadingMinutes(getReadingMinutes(sanitized));
+  }, [post?.content]);
+
   const formatDate = (dateString) => {
     if (!dateString) return '';
     return format(new Date(dateString), 'dd/MM/yyyy');
@@ -55,35 +71,38 @@ export default function PostDetail({ params }) {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className={styles.loading} role="status" aria-live="polite">
+        <div className={styles.spinner} aria-hidden="true" />
+        <p>Đang tải bài viết…</p>
       </div>
     );
   }
 
   if (error || !post) {
     return (
-      <div className="max-w-4xl mx-auto py-10 px-4">
-        <div className="bg-red-100 text-red-700 p-4 rounded">
-          {error || 'Không tìm thấy bài viết'}
-        </div>
-        <div className="mt-4">
-          <Link href="/posts" className="text-blue-600 hover:underline">
-            Quay lại trang bài viết
-          </Link>
-        </div>
+      <div className={styles.page}>
+        <div className={styles.errorBox}>{error || 'Không tìm thấy bài viết'}</div>
+        <Link href={`/${ROUTES_PATH.POSTS}`} className={styles.errorBack}>
+          Về danh sách blog
+        </Link>
       </div>
     );
   }
 
+  const postsUrl = `/${ROUTES_PATH.POSTS}`;
+
   return (
-    <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <div className={styles.page}>
       <StructuredData
         data={createBreadcrumbSchema([
           { name: 'Trang chủ', url: `${process.env.NEXT_PUBLIC_URL}` },
-          { name: 'Bài viết', url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}` },
-          { name: post.title, url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}/${post._id}` }
-        ])} />
+          { name: 'Blog', url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}` },
+          {
+            name: post.title,
+            url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}/${post._id}`,
+          },
+        ])}
+      />
       <StructuredData
         data={createArticleSchema({
           title: post.title,
@@ -95,80 +114,84 @@ export default function PostDetail({ params }) {
           articleBody: post.content,
         })}
       />
-      {/* Navigation link */}
-      <div className="mb-6">
-        <Link href="/posts" className="text-blue-600 hover:underline flex items-center">
-          ← Quay lại
-        </Link>
-      </div>
 
-      {/* Article header */}
-      <article className="max-w-4xl mx-auto">
-        <header className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
+      <nav className={styles.breadcrumb} aria-label="Đường dẫn">
+        <Link href="/">Trang chủ</Link>
+        <span aria-hidden="true">/</span>
+        <Link href={postsUrl}>Blog</Link>
+        <span aria-hidden="true">/</span>
+        <span className={styles.breadcrumbCurrent}>{post.title}</span>
+      </nav>
 
-          {post.summary && (
-            <p className="text-xl text-gray-600 mb-6">{post.summary}</p>
+      {post.featuredImage && (
+        <div className={styles.hero}>
+          <Image
+            src={post.featuredImage}
+            alt={post.title}
+            fill
+            className={styles.heroImage}
+            priority
+            sizes="(max-width: 1024px) 100vw, 72rem"
+          />
+          <div className={styles.heroFade} aria-hidden="true" />
+        </div>
+      )}
+
+      <header className={styles.header}>
+        <h1 className={styles.title}>{post.title}</h1>
+        {post.summary && <p className={styles.lead}>{post.summary}</p>}
+        <div className={styles.meta}>
+          <span className={styles.metaItem}>Đăng {formatDate(post.createdAt)}</span>
+          <span className={styles.metaItem}>Khoảng {readingMinutes} phút đọc</span>
+          {post.viewCount != null && (
+            <span className={styles.metaItem}>{post.viewCount} lượt xem</span>
           )}
+        </div>
+      </header>
 
-          <div className="flex items-center text-gray-500 text-sm">
-            <span>Đăng ngày {formatDate(post.createdAt)}</span>
-            <span className="mx-2">•</span>
-            <span>{post.viewCount} lượt xem ({post.uniqueViewCount} độc giả)</span>
-          </div>
-        </header>
+      <div className={styles.layout}>
+        <article className={styles.article}>
+          <PostDetailToc items={toc} variant="mobile" />
 
-        {/* Featured image */}
-        {post.featuredImage && (
-          <div className="relative h-[400px] w-full mb-8 rounded-lg overflow-hidden">
-            <Image
-              src={post.featuredImage}
-              alt={post.title}
-              fill
-              className="object-cover"
-              priority
+          <div className={`${styles.body} post-content`}>
+            <div
+              className="ck-content"
+              dangerouslySetInnerHTML={{ __html: preparedHtml }}
             />
           </div>
-        )}
 
-        {/* Post content */}
-        <div className="prose prose-lg max-w-none mb-12 post-content">
-          <div
-            className="ck-content"
-            dangerouslySetInnerHTML={{ __html: renderCKEditorContent(post.content) }}
-          />
-        </div>
+          {post.tags?.length > 0 && (
+            <footer className={styles.tags}>
+              <p className={styles.tagsLabel}>Chủ đề</p>
+              <div className={styles.tagList}>
+                {post.tags.map((tag) => (
+                  <Link
+                    key={tag}
+                    href={`${postsUrl}?tag=${encodeURIComponent(tag)}`}
+                    className={styles.tag}
+                  >
+                    {tag}
+                  </Link>
+                ))}
+              </div>
+            </footer>
+          )}
+        </article>
 
-        {/* Tags */}
-        {post.tags && post.tags.length > 0 && (
-          <div className="mb-12">
-            <div className="flex flex-wrap gap-2">
-              {post.tags.map((tag) => (
-                <Link
-                  key={tag}
-                  href={`/posts?tag=${tag}`}
-                  className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm hover:bg-gray-300"
-                >
-                  {tag}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-      </article>
+        <PostDetailAside toc={toc} />
+      </div>
 
-      {/* Related posts */}
       {relatedPosts.length > 0 && (
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold mb-6">Related Posts</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <section className={styles.related} aria-labelledby="related-posts-heading">
+          <h2 id="related-posts-heading" className={styles.relatedTitle}>
+            Bài viết liên quan
+          </h2>
+          <div className={styles.relatedGrid}>
             {relatedPosts.map((relatedPost) => (
-              <Link key={relatedPost._id} href={`/posts/${relatedPost._id}`}>
-                <PostCard post={relatedPost} />
-              </Link>
+              <PostCard key={relatedPost._id} post={relatedPost} />
             ))}
           </div>
-        </div>
+        </section>
       )}
     </div>
   );

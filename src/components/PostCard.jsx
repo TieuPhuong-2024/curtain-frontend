@@ -55,7 +55,7 @@ const PostCard = ({ post, isAdmin = false }) => {
           
           <div className="text-blue-600">
             {!isAdmin ? (
-              <Link href={`/posts/${post._id}`} className="hover:underline font-medium">Read more</Link>
+              <Link href={`/posts/${post._id}`} className="hover:underline font-medium">Đọc tiếp</Link>
             ) : (
               <Link href={`/admin/posts/${post._id}`} className="hover:underline font-medium">Edit</Link>
             )}
