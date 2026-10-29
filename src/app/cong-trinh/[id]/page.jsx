@@ -1,230 +1,222 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import Image from 'next/image';
-import { getProjectById } from '../../../lib/api';
 import Link from 'next/link';
-import { FaMapMarkerAlt, FaArrowLeft, FaImages } from 'react-icons/fa';
+import { FaImages, FaMapMarkerAlt } from 'react-icons/fa';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
+import { getProjectById } from '@/lib/api';
 import { renderCKEditorContent } from '@/utils/ckeditorConverter';
+import { preparePostContent } from '@/utils/postArticle';
+import PostDetailToc from '@/components/posts/PostDetailToc';
+import PostDetailAside from '@/components/posts/PostDetailAside';
 import '@/app/styles/content-styles.css';
 import StructuredData, { createArticleSchema, createBreadcrumbSchema } from '@/components/StructureData';
 import { ROUTES_PATH } from '@/utils/constant';
+import styles from '@/styles/modules/PostDetail.module.css';
+import projectStyles from '@/styles/modules/ProjectDetail.module.css';
 
 export default function ProjectDetailPage() {
-  const router = useRouter();
   const params = useParams();
   const projectId = params?.id;
 
   const [project, setProject] = useState(null);
+  const [preparedHtml, setPreparedHtml] = useState('');
+  const [toc, setToc] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
-    if (projectId) {
-      const fetchProjectDetails = async () => {
-        try {
-          setLoading(true);
-          const projectData = await getProjectById(projectId);
-          setProject(projectData);
-          setLoading(false);
-        } catch (err) {
-          console.error('Error fetching project details:', err);
-          setError(
-            'Không thể tải dữ liệu công trình. Công trình có thể không tồn tại hoặc đã có lỗi xảy ra.'
-          );
-          setLoading(false);
-        }
-      };
-      fetchProjectDetails();
-    }
+    if (!projectId) return;
+
+    const fetchProjectDetails = async () => {
+      try {
+        setLoading(true);
+        const projectData = await getProjectById(projectId);
+        setProject(projectData);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching project details:', err);
+        setError('Không tải được công trình.');
+        setLoading(false);
+      }
+    };
+
+    fetchProjectDetails();
   }, [projectId]);
+
+  useEffect(() => {
+    if (!project?.detailedContent) {
+      setPreparedHtml('');
+      setToc([]);
+      return;
+    }
+
+    const raw =
+      typeof project.detailedContent === 'string'
+        ? project.detailedContent
+        : project.detailedContent?.html || project.detailedContent?.data || '';
+
+    const sanitized = renderCKEditorContent(raw);
+    const { html, toc: items } = preparePostContent(sanitized);
+    setPreparedHtml(html);
+    setToc(items);
+  }, [project?.detailedContent]);
+
+  const slides = project?.thumbnail ? [{ type: 'image', src: project.thumbnail }] : [];
+
+  const openLightbox = () => {
+    if (!project?.thumbnail) return;
+    setLightboxOpen(true);
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+    document.body.style.overflow = 'auto';
+  };
 
   if (loading) {
     return (
-      <div className="container mx-auto py-20 px-4 text-center min-h-screen">
-        <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-        <p className="mt-4 text-xl text-gray-700">Đang tải chi tiết công trình...</p>
+      <div className={styles.loading} role="status" aria-live="polite">
+        <div className={styles.spinner} aria-hidden="true" />
+        <p>Đang tải công trình…</p>
       </div>
     );
   }
 
-  if (error) {
+  if (error || !project) {
     return (
-      <div className="container mx-auto py-20 px-4 text-center min-h-screen">
-        <p className="text-2xl text-red-600 mb-6">{error}</p>
-        <button
-          onClick={() => router.back()}
-          className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition font-medium flex items-center mx-auto"
-        >
-          <FaArrowLeft className="mr-2" /> Quay lại
-        </button>
-      </div>
-    );
-  }
-
-  if (!project) {
-    return (
-      <div className="container mx-auto py-20 px-4 text-center min-h-screen">
-        <p className="text-2xl text-gray-700 mb-6">Không tìm thấy công trình.</p>
-        <Link
-          href="/cong-trinh"
-          className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition font-medium flex items-center mx-auto"
-        >
-          <FaArrowLeft className="mr-2" /> Xem tất cả công trình
+      <div className={styles.page}>
+        <div className={styles.errorBox}>{error || 'Không tìm thấy công trình'}</div>
+        <Link href={`/${ROUTES_PATH.CONG_TRINH}`} className={styles.errorBack}>
+          Về danh sách công trình
         </Link>
       </div>
     );
   }
 
-  const slides = [];
-  if (project.thumbnail) {
-    slides.push({ type: 'image', src: project.thumbnail });
-  }
-
-  const handleOpenLightbox = (type, idx) => {
-    if (project.thumbnail) {
-      setLightboxIndex(0);
-      setLightboxOpen(true);
-      document.body.style.overflow = 'hidden';
-    }
-  };
-
-  const handleCloseLightbox = () => {
-    setLightboxOpen(false);
-    document.body.style.overflow = 'auto';
-  };
+  const listUrl = `/${ROUTES_PATH.CONG_TRINH}`;
 
   return (
-    <main className="min-h-screen bg-gray-50 py-12">
+    <div className={styles.page}>
+      <StructuredData
+        data={createBreadcrumbSchema([
+          { name: 'Trang chủ', url: `${process.env.NEXT_PUBLIC_URL}` },
+          { name: 'Công trình', url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.CONG_TRINH}` },
+          {
+            name: project.title,
+            url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.CONG_TRINH}/${project._id}`,
+          },
+        ])}
+      />
+      <StructuredData
+        data={createArticleSchema({
+          title: project.title,
+          url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.CONG_TRINH}/${project._id}`,
+          image: project.thumbnail,
+          datePublished: project.createdAt,
+          dateModified: project.updatedAt,
+          description: project.shortDescription,
+          articleBody: project.detailedContent,
+        })}
+      />
 
-      {/* Structured Data for SEO */}
-      {project && (
-        <>
-          <StructuredData
-            data={createBreadcrumbSchema([
-              { name: 'Trang chủ', url: `${process.env.NEXT_PUBLIC_URL}` },
-              { name: 'Công trình', url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.CONG_TRINH}` },
-              { name: project.title, url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.CONG_TRINH}/${project._id}` }
-            ])} />
-          <StructuredData
-            data={createArticleSchema({
-              title: project.title,
-              url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.CONG_TRINH}/${project._id}`,
-              image: project.thumbnail,
-              datePublished: project.createdAt,
-              dateModified: project.updatedAt,
-              description: project.shortDescription,
-              articleBody: project.detailedContent,
-            })} />
-        </>
+      <nav className={styles.breadcrumb} aria-label="Đường dẫn">
+        <Link href="/">Trang chủ</Link>
+        <span aria-hidden="true">/</span>
+        <Link href={listUrl}>Công trình</Link>
+        <span aria-hidden="true">/</span>
+        <span className={styles.breadcrumbCurrent}>{project.title}</span>
+      </nav>
 
-      )}
-      <div className="container mx-auto px-4">
+      {project.thumbnail && (
         <button
-          onClick={() => router.push('/cong-trinh')}
-          className="cursor-pointer mb-8 inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors font-medium"
+          type="button"
+          className={projectStyles.galleryHero}
+          onClick={openLightbox}
+          aria-label="Xem ảnh công trình phóng to"
         >
-          <FaArrowLeft className="mr-2" /> Quay lại danh sách công trình
+          <Image
+            src={project.thumbnail}
+            alt={project.title}
+            fill
+            className={projectStyles.galleryImage}
+            priority
+            sizes="(max-width: 1024px) 100vw, 72rem"
+          />
+          <span className={projectStyles.galleryOverlay}>
+            <span className={projectStyles.galleryHint}>
+              <FaImages className="inline mr-2" aria-hidden />
+              Xem ảnh lớn
+            </span>
+          </span>
         </button>
+      )}
 
-        <article className="bg-white shadow-xl rounded-lg overflow-hidden">
-          {/* Image Gallery Section */}
-          {project.thumbnail && (
-            <div
-              className="relative h-80 md:h-96 lg:h-[500px] w-full cursor-pointer group"
-              onClick={() => handleOpenLightbox('image', 0)}
-            >
-              <Image
-                src={project.thumbnail}
-                alt={`${project.title} - Ảnh thumbnail`}
-                fill
-                style={{ objectFit: 'cover' }}
-                className="group-hover:opacity-90 transition-opacity duration-300"
-                priority
-                sizes="100vw"
-              />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <FaImages className="text-white text-4xl" />
-              </div>
-            </div>
+      <header className={styles.header}>
+        <h1 className={styles.title}>{project.title}</h1>
+        {project.shortDescription && <p className={styles.lead}>{project.shortDescription}</p>}
+        <div className={projectStyles.metaRow}>
+          {project.type && <span className={projectStyles.typeBadge}>{project.type}</span>}
+          {project.location && (
+            <span className={projectStyles.locationMeta}>
+              <FaMapMarkerAlt aria-hidden />
+              {project.location}
+            </span>
           )}
+        </div>
+      </header>
 
-          <div className="p-6 md:p-10">
-            <h1 className="text-3xl md:text-4xl font-bold text-blue-900 mb-4">{project.title}</h1>
+      <div className={styles.layout}>
+        <article className={styles.article}>
+          {toc.length > 0 && <PostDetailToc items={toc} variant="mobile" />}
 
-            <div className="flex flex-wrap items-center text-gray-600 mb-6 space-x-4 text-sm">
-              <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">
-                {project.type}
-              </span>
-              {project.location && (
-                <div className="flex items-center">
-                  <FaMapMarkerAlt className="mr-1 text-gray-500" /> {project.location}
-                </div>
-              )}
+          {preparedHtml ? (
+            <div className={`${styles.body} post-content`}>
+              <div className="ck-content" dangerouslySetInnerHTML={{ __html: preparedHtml }} />
             </div>
-
-            {project.shortDescription && (
-              <p className="text-gray-600 text-md italic leading-relaxed mb-6">
-                {project.shortDescription}
-              </p>
-            )}
-
-            {/* Cong trinh content */}
-            <div className="prose prose-lg max-w-none mb-12 post-content">
-              <div
-                className="ck-content"
-                dangerouslySetInnerHTML={{ __html: renderCKEditorContent(project.detailedContent) }}
-              />
-            </div>
-
-            <div className="pt-8 border-t border-gray-200 text-center">
-              <h3 className="text-xl font-semibold text-blue-800 mb-4">Bạn có dự án tương tự?</h3>
-              <p className="text-gray-700 mb-6 max-w-xl mx-auto">
-                Chúng tôi sẵn sàng tư vấn và thi công rèm cửa cho công trình của bạn với chất lượng
-                tốt nhất.
-              </p>
-              <Link
-                href="/contact"
-                className="inline-block bg-green-500 text-white px-8 py-3 rounded-md hover:bg-green-600 transition font-medium text-lg"
-              >
-                Liên hệ tư vấn ngay
-              </Link>
-            </div>
-          </div>
+          ) : (
+            project.shortDescription && (
+              <div className={`${styles.body} post-content`}>
+                <p>{project.shortDescription}</p>
+              </div>
+            )
+          )}
         </article>
+
+        <PostDetailAside
+          toc={toc}
+          ctaTitle="Bạn có dự án tương tự?"
+          ctaText="Tuấn Rèm khảo sát hiện trạng, tư vấn mẫu rèm và báo giá thi công tận nơi tại Bình Dương và TP.HCM."
+        />
       </div>
 
       <Lightbox
         open={lightboxOpen}
-        close={handleCloseLightbox}
+        close={closeLightbox}
         slides={slides}
-        index={lightboxIndex}
+        index={0}
         render={{
-          slide: ({ slide }) => {
-            if (slide.type === 'image') {
-              return (
-                <img
-                  src={slide.src}
-                  alt="Chi tiết công trình"
-                  style={{
-                    maxWidth: '100%',
-                    maxHeight: '100%',
-                    objectFit: 'contain',
-                    display: 'block',
-                    margin: 'auto',
-                  }}
-                />
-              );
-            }
-            return null;
-          },
+          slide: ({ slide }) =>
+            slide.type === 'image' ? (
+              <img
+                src={slide.src}
+                alt={project.title}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain',
+                  display: 'block',
+                  margin: 'auto',
+                }}
+              />
+            ) : null,
         }}
       />
-    </main>
+    </div>
   );
 }

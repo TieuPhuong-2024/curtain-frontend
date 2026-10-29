@@ -1,0 +1,72 @@
+.galleryHero {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 14rem;
+  max-height: 32rem;
+  border-radius: 1.125rem;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  cursor: pointer;
+  box-shadow: 0 8px 32px rgba(90, 70, 50, 0.12);
+}
+
+.galleryImage {
+  object-fit: cover;
+  transition: opacity 0.25s;
+}
+
+.galleryHero:hover .galleryImage {
+  opacity: 0.92;
+}
+
+.galleryOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(91, 70, 54, 0.15);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.galleryHero:hover .galleryOverlay,
+.galleryHero:focus-visible .galleryOverlay {
+  opacity: 1;
+}
+
+.galleryHint {
+  color: #fffaf6;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  background: rgba(91, 70, 54, 0.75);
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.typeBadge {
+  display: inline-block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #5b4636;
+  background: #f3e6d8;
+  border: 1px solid rgba(166, 124, 82, 0.25);
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+}
+
+.locationMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #7d6e5d);
+}

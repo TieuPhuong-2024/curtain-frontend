@@ -6,6 +6,8 @@ import { getProjects, getProjectsByType } from '../../lib/api';
 import Image from 'next/image';
 import { FaSearch, FaHardHat, FaBuilding, FaStar, FaArrowRight } from 'react-icons/fa';
 import StructuredData, { createArticleSchemaShort, createBreadcrumbSchema } from '@/components/StructureData';
+import ProjectListCard from '@/components/projects/ProjectListCard';
+import listStyles from '@/styles/modules/ContentList.module.css';
 import { ROUTES_PATH, SITE_NAME } from '@/utils/constant';
 
 export default function ThiCongLapRemPage() {
@@ -403,99 +405,14 @@ export default function ThiCongLapRemPage() {
           {/* Projects grid */}
           {!loading && !error && (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              <div className={`${listStyles.grid} mb-12`}>
                 {filteredProjects.length > 0 ? (
                   visibleFilteredProjects.map((project, index) => (
-                    <div
+                    <ProjectListCard
                       key={project._id || project.id}
-                      className="bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-xl group"
-                    >
-                      <div className="relative h-64 overflow-hidden">
-                        {project.thumbnail ? (
-                          <Image
-                            src={project.thumbnail}
-                            alt={project.title}
-                            fill
-                            style={{ objectFit: 'cover' }}
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            priority={index < 3}
-                            className="group-hover:scale-105 transition-transform duration-500"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                            <FaHardHat className="text-gray-400 text-5xl" />
-                          </div>
-                        )}
-                        <div className="absolute top-3 left-3">
-                          <span className="bg-[#7C5C52] text-white text-xs px-3 py-1.5 rounded-full font-medium shadow-md">
-                            {project.type}
-                          </span>
-                        </div>
-                        {project.featured && (
-                          <div className="absolute top-3 right-3">
-                            <span className="bg-amber-500 text-white text-xs px-3 py-1.5 rounded-full font-medium flex items-center shadow-md">
-                              <FaStar className="mr-1.5" /> Nổi bật
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-6">
-                        <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[#5B3A29] transition-colors">
-                          {project.title}
-                        </h3>
-                        <p className="text-gray-700 mb-4 line-clamp-2">
-                          {project.shortDescription || project.description}
-                        </p>
-                        <div className="flex items-center text-gray-600 mb-4 text-sm">
-                          <span className="bg-[#EADFCF] text-[#5B3A29] px-2 py-1 rounded-full flex items-center mr-3 border border-[#D4BFA6]">
-                            <FaBuilding className="mr-1.5" /> {project.type}
-                          </span>
-                          <span className="flex items-center text-gray-500">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4 mr-1.5"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                              />
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                              />
-                            </svg>
-                            {project.location}
-                          </span>
-                        </div>
-                        <Link
-                          href={`/cong-trinh/${project._id || project.id}`}
-                          className="inline-flex items-center bg-[#7C5C52] text-white px-4 py-2 rounded-lg hover:bg-[#5B3A29] transition shadow-sm"
-                        >
-                          Xem chi tiết
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 ml-1.5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M14 5l7 7m0 0l-7 7m7-7H3"
-                            />
-                          </svg>
-                        </Link>
-                      </div>
-                    </div>
+                      project={project}
+                      priority={index < 3}
+                    />
                   ))
                 ) : (
                   <div className="col-span-3 text-center py-16 text-gray-600 bg-[#FFF9F2] rounded-xl border border-[#D4BFA6]">
