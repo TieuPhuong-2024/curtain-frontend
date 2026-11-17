@@ -177,7 +177,10 @@ export default function CurtainForm({
     }
 
     const known = colors.find((color) => color._id === formData.color);
-    if (known) setSelectedColor(known);
+    if (known) {
+      setSelectedColor(known);
+      return undefined;
+    }
 
     let active = true;
     getColorById(formData.color)

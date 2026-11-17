@@ -4,13 +4,14 @@ import { SITE_NAME } from '@/utils/constant';
 export async function generateMetadata({ params }) {
     // Kiểm tra params có tồn tại và có id không
     try {
-      const product = await getCurtainById(params?.id);
+      const { id } = await params;
+      const product = await getCurtainById(id);
       
       return {
         title: `${product.name} | ${SITE_NAME}`,
         description: product.description || 'Chi tiết sản phẩm rèm cửa cao cấp',
         keywords: `${product.name}, rèm cửa, ${product.category?.name || ''}`,
-        url: `${process.env.NEXT_PUBLIC_URL}/products/${params?.id}`,
+        url: `${process.env.NEXT_PUBLIC_URL}/products/${id}`,
         openGraph: {
           title: product.name,
           description: product.description,
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }) {
               alt: product.name,
             }
           ],
-          url: `${process.env.NEXT_PUBLIC_URL}/products/${params?.id}`,
+          url: `${process.env.NEXT_PUBLIC_URL}/products/${id}`,
         },
       };
     } catch (error) {

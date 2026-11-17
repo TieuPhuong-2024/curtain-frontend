@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 
 // Route public không yêu cầu authentication
 const PUBLIC_ROUTES = ['/', '/login', '/register', '/contact', '/products', '/projects', '/posts'];
@@ -7,7 +6,7 @@ const PUBLIC_ROUTES = ['/', '/login', '/register', '/contact', '/products', '/pr
 // Route chỉ dành cho admin
 const ADMIN_ROUTES = ['/admin'];
 
-export function middleware(request: NextRequest) {
+export function proxy(request) {
   const { pathname } = request.nextUrl;
 
   // Cho phép truy cập các route API và static files

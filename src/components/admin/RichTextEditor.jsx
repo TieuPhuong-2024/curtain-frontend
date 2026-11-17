@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import 'ckeditor5/ckeditor5.css';
 
 import { uploadImage, uploadVideo } from '@/lib/api';
 
@@ -25,6 +26,32 @@ function CustomUploadAdapterPlugin(editor) {
   editor.plugins.get('FileRepository').createUploadAdapter = (loader) => new UploadAdapter(loader);
 }
 
+function buildPlugins(ck) {
+  return [
+    ck.Essentials,
+    ck.Autoformat,
+    ck.Paragraph,
+    ck.Heading,
+    ck.Bold,
+    ck.Italic,
+    ck.Link,
+    ck.List,
+    ck.BlockQuote,
+    ck.Table,
+    ck.TableToolbar,
+    ck.Image,
+    ck.ImageCaption,
+    ck.ImageStyle,
+    ck.ImageToolbar,
+    ck.ImageTextAlternative,
+    ck.ImageResize,
+    ck.ImageUpload,
+    ck.MediaEmbed,
+    ck.PasteFromOffice,
+    ck.TextTransformation,
+  ];
+}
+
 export default function RichTextEditor({ value, onChange, placeholder = 'Nhập nội dung…' }) {
   const [editor, setEditor] = useState(null);
 
@@ -33,12 +60,13 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Nhập 
 
     Promise.all([
       import('@ckeditor/ckeditor5-react'),
-      import('@ckeditor/ckeditor5-build-classic'),
-    ]).then(([reactModule, buildModule]) => {
+      import('ckeditor5'),
+    ]).then(([reactModule, ck]) => {
       if (!active) return;
       setEditor({
-        CKEditor: reactModule.CKEditor || reactModule.default?.CKEditor,
-        ClassicEditor: buildModule.default || buildModule,
+        CKEditor: reactModule.CKEditor,
+        ClassicEditor: ck.ClassicEditor,
+        plugins: buildPlugins(ck),
       });
     });
 
@@ -55,7 +83,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Nhập 
     );
   }
 
-  const { CKEditor, ClassicEditor } = editor;
+  const { CKEditor, ClassicEditor, plugins } = editor;
 
   return (
     <CKEditor
@@ -63,7 +91,9 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Nhập 
       data={value}
       onChange={(event, instance) => onChange(instance.getData())}
       config={{
+        licenseKey: 'GPL',
         placeholder,
+        plugins,
         extraPlugins: [CustomUploadAdapterPlugin],
         toolbar: {
           items: [
@@ -87,9 +117,6 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Nhập 
         },
         image: {
           toolbar: ['imageStyle:full', 'imageStyle:side', '|', 'imageTextAlternative'],
-        },
-        mediaEmbed: {
-          previewsInData: true,
         },
       }}
     />
