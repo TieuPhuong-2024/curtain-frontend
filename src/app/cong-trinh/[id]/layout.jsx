@@ -9,18 +9,18 @@ export async function generateMetadata({ params }) {
 
     return {
       title: `${project.title || 'Chi tiết công trình'} | ${SITE_NAME}`,
-      description: project.description || 'Chi tiết công trình rèm cửa tiêu biểu của Tuấn Rèm',
+      description: project.shortDescription || 'Chi tiết công trình rèm cửa tiêu biểu của Tuấn Rèm',
       keywords: `${project.title}, công trình rèm cửa, ${project.location || ''}`,
       url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.CONG_TRINH}/${id}`,
       openGraph: {
         title: project.title || 'Chi tiết công trình',
-        description: project.description || 'Chi tiết công trình rèm cửa tiêu biểu của Tuấn Rèm',
+        description: project.shortDescription || 'Chi tiết công trình rèm cửa tiêu biểu của Tuấn Rèm',
         type: 'website',
         url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.CONG_TRINH}/${id}`,
-        images: project.mainImage
+        images: project.thumbnail
           ? [
               {
-                url: project.mainImage,
+                url: project.thumbnail,
                 alt: project.title,
               },
             ]
