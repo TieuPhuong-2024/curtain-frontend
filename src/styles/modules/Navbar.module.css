@@ -29,9 +29,11 @@
 .logo {
   display: flex;
   align-items: center;
+  gap: 0.7rem;
   flex-shrink: 0;
   margin-right: 1.5rem;
   line-height: 0;
+  text-decoration: none;
 }
 
 .logo:focus-visible {
@@ -41,10 +43,60 @@
 }
 
 .logoImage {
-  height: 3.25rem;
+  height: 2.9rem;
   width: auto;
   max-width: 9.5rem;
   object-fit: contain;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.24rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid rgba(63, 47, 34, 0.22);
+  line-height: 1;
+}
+
+.brandName {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #2e2318;
+  white-space: nowrap;
+}
+
+.brandTagline {
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8a6642;
+  white-space: nowrap;
+}
+
+@media (max-width: 575px) {
+  .logo {
+    gap: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  .logoImage {
+    height: 2.4rem;
+  }
+
+  .brandText {
+    padding-left: 0.55rem;
+  }
+
+  .brandName {
+    font-size: 1.15rem;
+  }
+
+  .brandTagline {
+    display: none;
+  }
 }
 
 .actionButton,

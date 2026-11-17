@@ -158,12 +158,17 @@ export default function Navbar() {
                         <Link
                             href="/"
                             className={styles.logo}
+                            aria-label="Tuấn Rèm - Trang chủ"
                         >
                             <img
                                 src="/images/logo-2.png"
-                                alt="Tuấn Rèm"
+                                alt=""
                                 className={styles.logoImage}
                             />
+                            <span className={styles.brandText}>
+                                <span className={styles.brandName}>Tuấn Rèm</span>
+                                <span className={styles.brandTagline}>Rèm cửa cao cấp</span>
+                            </span>
                         </Link>
 
                         {/* Desktop Navigation - Hidden on smaller screens and when not wide enough */}

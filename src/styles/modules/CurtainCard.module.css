@@ -162,3 +162,108 @@
     height: 16rem;
   }
 }
+
+/* Editorial variant (home page) */
+.editorialCard {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.editorialCard:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.editorialImageContainer {
+  height: auto;
+  aspect-ratio: 4 / 5;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #e6dccd;
+}
+
+.editorialImage {
+  object-fit: cover;
+  transition: transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.editorialCard:hover .editorialImage {
+  transform: scale(1.05);
+}
+
+.editorialBadge {
+  top: 0.85rem;
+  left: 0.85rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(255, 250, 246, 0.92);
+  color: #5b4636;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.editorialOverlay {
+  background: rgba(24, 17, 11, 0.16);
+}
+
+.editorialAction {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border-radius: 50%;
+  background: #fffaf6;
+  color: #2e2318;
+  transform: translateY(6px);
+  transition: transform 0.3s ease, background 0.25s ease;
+}
+
+.editorialAction:hover {
+  background: #f0e4d6;
+}
+
+.editorialOverlay.editorialOverlay:not(.overlayHidden) .editorialAction {
+  transform: translateY(0);
+}
+
+.editorialAction .actionText {
+  display: none;
+}
+
+.editorialContent {
+  padding: 1rem 0.1rem 0;
+}
+
+.editorialTitle {
+  margin-bottom: 0.45rem;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.3rem;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: 0;
+  color: #2e2318;
+  white-space: normal;
+  overflow: visible;
+}
+
+.editorialFooter {
+  gap: 1rem;
+}
+
+.editorialColorName {
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7a6a58;
+}
+
+@media (max-width: 640px) {
+  .editorialAction {
+    transform: translateY(0);
+  }
+}

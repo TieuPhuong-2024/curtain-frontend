@@ -1,181 +1,266 @@
-/* Banner Slider Styles */
-.slider {
+.hero {
   position: relative;
-  height: 50vh;
   display: flex;
-  align-items: center;
+  align-items: stretch;
+  min-height: clamp(560px, calc(100svh - 4.5rem), 920px);
+  margin-top: -1.5rem;
   overflow: hidden;
-  max-height: 800px;
+  background: #241b13;
+  color: #fffaf6;
+  isolation: isolate;
 }
 
-.slide {
+.media {
   position: absolute;
   inset: 0;
   z-index: 0;
 }
 
-.slideImage {
-  object-fit: cover;
-  transform: scale(1.05);
-}
-
-.slideOverlay {
+.slide {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1));
-}
-
-.slideContent {
-  max-width: 36rem;
-  padding: 1.25rem 1.5rem;
-  border-radius: 0.75rem;
-  background: #f7f1e8;
-  color: #5b4636;
-  border: 1px solid #e4d3c0;
-  box-shadow: 0 16px 40px rgba(63, 47, 34, 0.16);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-.slideContentHidden {
   opacity: 0;
-  transform: translateY(8px);
+  transform: scale(1.03);
+  transition: opacity 1s ease, transform 8s ease;
 }
 
-.slideTitle {
-  font-size: clamp(1.5rem, 3.2vw, 2.75rem);
-  font-weight: 700;
-  line-height: 1.15;
-  margin-bottom: 0.75rem;
-  color: #3f2f22;
+.slideActive {
+  opacity: 1;
+  transform: scale(1);
 }
 
-.slideDescription {
-  font-size: clamp(0.95rem, 1.4vw, 1.125rem);
-  margin-bottom: 1.25rem;
-  color: #5b4636;
-  line-height: 1.55;
+.image {
+  object-fit: cover;
+  object-position: center 55%;
 }
 
-.slideButton {
+.overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(24, 17, 11, 0.84) 0%, rgba(24, 17, 11, 0.58) 38%, rgba(24, 17, 11, 0.16) 72%, rgba(24, 17, 11, 0.04) 100%),
+    linear-gradient(to top, rgba(24, 17, 11, 0.78) 0%, rgba(24, 17, 11, 0) 42%);
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: clamp(5rem, 9vw, 7rem) clamp(1rem, 4vw, 2.5rem) clamp(1.25rem, 3vw, 2rem);
+}
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0 0 auto;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 250, 246, 0.72);
+}
+
+.kicker::before {
+  content: '';
+  width: 2.5rem;
+  height: 1px;
+  background: rgba(255, 250, 246, 0.45);
+}
+
+.heroContent {
+  animation: rise 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.title {
+  margin: 0 0 1.25rem;
+  max-width: 18ch;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(2.55rem, 6.2vw, 5.1rem);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  color: #fffaf6;
+  text-wrap: balance;
+}
+
+.description {
+  max-width: 33rem;
+  margin: 0 0 2rem;
+  font-size: clamp(1rem, 1.25vw, 1.125rem);
+  line-height: 1.65;
+  color: rgba(255, 250, 246, 0.82);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.primaryAction,
+.secondaryAction {
   display: inline-flex;
   align-items: center;
-  padding: 0.75rem 1.35rem;
-  background: #8a6642;
-  color: #fff;
-  text-decoration: none;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.9rem 1.6rem;
   border-radius: 999px;
+  font-size: 0.95rem;
   font-weight: 600;
-  transition: background 0.2s ease;
+  text-decoration: none;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
 }
 
-.slideButton:hover {
-  background: #6f5134;
+.primaryAction {
+  background: #f5eee6;
+  color: #2e2318;
 }
 
-.slideButton:focus-visible {
-  outline: 2px solid #3f2f22;
+.primaryAction:hover {
+  background: #fffaf6;
+}
+
+.actionIcon {
+  font-size: 0.8rem;
+  transition: transform 0.25s ease;
+}
+
+.primaryAction:hover .actionIcon {
+  transform: translateX(3px);
+}
+
+.secondaryAction {
+  border: 1px solid rgba(255, 250, 246, 0.42);
+  color: #fffaf6;
+  background: rgba(255, 250, 246, 0.04);
+  backdrop-filter: blur(4px);
+}
+
+.secondaryAction:hover {
+  border-color: rgba(255, 250, 246, 0.75);
+  background: rgba(255, 250, 246, 0.1);
+}
+
+.heroFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-top: clamp(2.5rem, 5vw, 3.75rem);
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 250, 246, 0.18);
+}
+
+.heroNote {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 250, 246, 0.6);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.controlButton {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 250, 246, 0.35);
+  background: transparent;
+  color: #fffaf6;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.controlButton:hover,
+.controlButton:focus-visible {
+  background: #f5eee6;
+  border-color: #f5eee6;
+  color: #2e2318;
+}
+
+.counter {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  min-width: 4.25rem;
+  justify-content: center;
+  font-family: var(--font-display), Georgia, serif;
+  letter-spacing: 0.06em;
+  color: #fffaf6;
+}
+
+.counter strong {
+  font-size: 1.35rem;
+  font-weight: 500;
+}
+
+.counter span {
+  font-size: 0.8rem;
+  color: rgba(255, 250, 246, 0.55);
+}
+
+.progressTrack {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 1.1rem;
+}
+
+.progressSegment {
+  position: relative;
+  flex: 1;
+  height: 2px;
+  padding: 0;
+  border: 0;
+  background: rgba(255, 250, 246, 0.22);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.progressSegment:focus-visible {
+  outline: 1px solid rgba(255, 250, 246, 0.8);
   outline-offset: 3px;
 }
 
-.slideButtonIcon {
-  margin-left: 0.5rem;
+.progressFill {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: #f5eee6;
 }
 
-/* Navigation Controls */
-.navButton {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.9);
-  border: none;
-  border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  z-index: 10;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+.progressActive {
+  animation-name: heroProgress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
 }
 
-.navButton:hover {
-  background: white;
-  transform: translateY(-50%) scale(1.1);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+@keyframes heroProgress {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
 }
 
-.navButtonPrev {
-  left: 1rem;
-}
-
-.navButtonNext {
-  right: 1rem;
-}
-
-.navIcon {
-  color: rgb(55 65 81);
-  font-size: 1.125rem;
-}
-
-/* Indicators */
-.indicators {
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 0.5rem;
-  z-index: 10;
-}
-
-.indicator {
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.indicatorActive {
-  background: white;
-  transform: scale(1.2);
-}
-
-.indicator:hover {
-  background: rgba(255, 255, 255, 0.8);
-}
-
-/* Slide Transitions */
-.slideEnter {
-  opacity: 0;
-  transform: translateX(100%);
-}
-
-.slideEnterActive {
-  opacity: 1;
-  transform: translateX(0);
-  transition: all 0.7s ease;
-}
-
-.slideExit {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.slideExitActive {
-  opacity: 0;
-  transform: translateX(-100%);
-  transition: all 0.7s ease;
-}
-
-/* Animations */
-@keyframes slideUp {
+@keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(2rem);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -183,89 +268,100 @@
   }
 }
 
-/* Responsive Design */
-@media (min-width: 640px) {
-  .slider {
-    height: 60vh;
+/* Loading skeleton */
+.skeletonBg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 15% 100%, rgba(138, 102, 66, 0.35), transparent 60%),
+    linear-gradient(125deg, #241b13 0%, #35281c 45%, #241b13 100%);
+}
+
+.skeletonBg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 250, 246, 0.07) 48%, transparent 76%);
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+.skeletonLine {
+  display: block;
+  border-radius: 2px;
+  background: rgba(255, 250, 246, 0.1);
+}
+
+.skeletonKicker {
+  width: 9rem;
+  height: 0.7rem;
+  margin-bottom: auto;
+}
+
+.skeletonTitle {
+  width: min(34rem, 78%);
+  height: clamp(2rem, 4.5vw, 3.4rem);
+  margin-bottom: 0.8rem;
+}
+
+.skeletonTitleShort {
+  width: min(24rem, 55%);
+  height: clamp(2rem, 4.5vw, 3.4rem);
+  margin-bottom: 1.8rem;
+}
+
+.skeletonText {
+  width: min(26rem, 70%);
+  height: 1rem;
+  margin-bottom: 2rem;
+}
+
+.skeletonButton {
+  width: 11rem;
+  height: 3rem;
+  border-radius: 999px;
+}
+
+@keyframes shimmer {
+  from {
+    transform: translateX(-30%);
   }
-  
-  .slideContent {
-    padding: 1.5rem;
-  }
-  
-  .slideTitle {
-    font-size: 2.25rem;
-  }
-  
-  .slideDescription {
-    font-size: 1.125rem;
+  to {
+    transform: translateX(30%);
   }
 }
 
-@media (min-width: 768px) {
-  .slider {
-    height: 70vh;
+@media (max-width: 767px) {
+  .hero {
+    min-height: clamp(540px, calc(100svh - 4.5rem), 720px);
   }
-  
-  .slideContent {
-    padding: 2rem;
+
+  .title {
+    max-width: 15ch;
   }
-  
-  .slideTitle {
-    font-size: 3rem;
-    margin-bottom: 1.5rem;
+
+  .heroFoot {
+    flex-wrap: wrap;
   }
-  
-  .slideDescription {
-    font-size: 1.25rem;
-    margin-bottom: 2rem;
+
+  .heroNote {
+    display: none;
   }
-  
-  .navButton {
-    width: 3.5rem;
-    height: 3.5rem;
+
+  .controls {
+    width: 100%;
+    justify-content: space-between;
   }
-  
-  .navIcon {
-    font-size: 1.25rem;
+
+  .progressTrack {
+    margin-top: 0.9rem;
   }
 }
 
-@media (min-width: 1024px) {
-  .slider {
-    height: 80vh;
-  }
-  
-  .slideContent {
-    padding: 2rem;
-  }
-  
-  .slideTitle {
-    font-size: 3.75rem;
-  }
-  
-  .slideDescription {
-    font-size: 1.5rem;
-  }
-}
-
-/* Touch Device Optimizations */
-@media (hover: none) and (pointer: coarse) {
-  .navButton {
-    width: 4rem;
-    height: 4rem;
-  }
-  
-  .navIcon {
-    font-size: 1.5rem;
-  }
-  
-  .indicators {
-    bottom: 1rem;
-  }
-  
-  .indicator {
-    width: 1rem;
-    height: 1rem;
+@media (prefers-reduced-motion: reduce) {
+  .slide,
+  .heroContent,
+  .skeletonBg::after {
+    animation: none;
+    transition: none;
   }
 }

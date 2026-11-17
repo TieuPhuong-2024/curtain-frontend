@@ -1,4 +1,4 @@
-import { Quicksand } from 'next/font/google';
+import { Playfair_Display, Quicksand } from 'next/font/google';
 import { ToastContainer } from 'react-toastify';
 
 import SiteChrome from '@/components/SiteChrome';
@@ -14,6 +14,14 @@ const quicksand = Quicksand({
   weight: ['300', '400', '500', '600', '700'],
   display: 'swap',
   variable: '--font-quicksand',
+});
+
+const playfair = Playfair_Display({
+  subsets: ['latin', 'vietnamese'],
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+  variable: '--font-display',
 });
 
 export const metadata = {
@@ -70,7 +78,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="vi" className={quicksand.variable}>
+    <html lang="vi" className={`${quicksand.variable} ${playfair.variable}`}>
       <body className={`${quicksand.className} flex flex-col min-h-screen cozy-bg`}>
         <AuthProvider>
           <SiteChrome>{children}</SiteChrome>
