@@ -281,7 +281,8 @@ body {
 
 /* Fix for mobile overflow issues */
 html, body {
-    overflow-x: hidden;
+    /* clip (not hidden) so position: sticky still works */
+    overflow-x: clip;
     max-width: 100vw;
     position: relative;
 }
