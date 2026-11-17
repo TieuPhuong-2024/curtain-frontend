@@ -22,6 +22,14 @@ const buildDraft = (source) =>
     ])
   );
 
+const buildBaseline = (source) =>
+  Object.fromEntries(
+    SETTING_DEFINITIONS.map((definition) => [
+      definition.key,
+      typeof source[definition.key] === 'string' ? source[definition.key] : '',
+    ])
+  );
+
 export default function AdminSettingsPage() {
   const { refresh } = useSettings();
   const [draft, setDraft] = useState(() => buildDraft({}));
@@ -35,9 +43,9 @@ export default function AdminSettingsPage() {
       setLoading(true);
       setError('');
       const data = await getSettings();
-      const next = buildDraft(data && typeof data === 'object' ? data : {});
-      setDraft(next);
-      setInitial(next);
+      const source = data && typeof data === 'object' ? data : {};
+      setDraft(buildDraft(source));
+      setInitial(buildBaseline(source));
     } catch (err) {
       setError(err.message || 'Không tải được nội dung website.');
     } finally {
@@ -68,9 +76,10 @@ export default function AdminSettingsPage() {
       const data = await saveSettings(draft);
       const next = buildDraft(data && typeof data === 'object' ? data : draft);
       setDraft(next);
-      setInitial(next);
+      setInitial(buildBaseline(next));
       notify.success('Đã lưu nội dung website.');
       await refresh();
+      fetch('/api/revalidate-settings', { method: 'POST' }).catch(() => {});
     } catch (err) {
       notify.error(err.message || 'Không lưu được nội dung.');
     } finally {

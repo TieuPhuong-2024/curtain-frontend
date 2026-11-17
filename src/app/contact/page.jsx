@@ -16,17 +16,10 @@ import StructuredData, {
   createContactPageSchema,
 } from '@/components/StructureData';
 import { createContact } from '@/lib/api';
+import { useSettings } from '@/lib/SettingsContext';
+import { phoneDigits } from '@/utils/siteSettings';
 import { ROUTES_PATH } from '@/utils/constant';
 import styles from '@/styles/modules/Contact.module.css';
-
-const PHONE_DISPLAY = '0937 543 809';
-const PHONE_HREF = 'tel:+84937543809';
-const ZALO_HREF = 'https://zalo.me/0937543809';
-const EMAIL = 'tuanremgiare@gmail.com';
-const ADDRESS = '15/7A Tân Lập - Đông Hòa - Dĩ An - Bình Dương';
-const MAP_HREF = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-  '15/7A Tân Lập, Đông Hòa, Dĩ An, Bình Dương'
-)}`;
 
 const EMPTY_FORM = {
   name: '',
@@ -38,8 +31,21 @@ const EMPTY_FORM = {
 };
 
 export default function ContactPage() {
+  const { getValue } = useSettings();
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
+
+  const hotline = getValue('global.hotline');
+  const hotlineDigits = phoneDigits(hotline);
+  const phoneHref = hotlineDigits ? `tel:+84${hotlineDigits.replace(/^0/, '')}` : '';
+  const zaloUrl = getValue('global.zaloUrl');
+  const email = getValue('global.email');
+  const address = getValue('global.address');
+  const shortHours = getValue('global.shortHours');
+  const workingHours = getValue('global.workingHours');
+  const mapHref = address
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
+    : '';
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -103,8 +109,8 @@ export default function ContactPage() {
           title: 'Liên hệ - Tuấn Rèm',
           description:
             'Liên hệ với Tuấn Rèm để được tư vấn và báo giá rèm cửa cao cấp, đặt lịch đo đạc tận nhà.',
-          phone: '+84-937-543-809',
-          email: EMAIL,
+          phone: hotlineDigits ? `+84-${hotlineDigits.replace(/^0/, '')}` : '',
+          email,
         })}
       />
 
@@ -122,15 +128,22 @@ export default function ContactPage() {
 
           <div className={styles.headGrid}>
             <div>
-              <p className={styles.kicker}>Liên hệ Tuấn Rèm</p>
-              <h1 className={styles.title}>Liên hệ &amp; đặt lịch tư vấn</h1>
+              {getValue('contact.kicker') && (
+                <p className={styles.kicker}>{getValue('contact.kicker')}</p>
+              )}
+              {getValue('contact.title') && (
+                <h1 className={styles.title}>{getValue('contact.title')}</h1>
+              )}
             </div>
             <div className={styles.headAside}>
-              <p className={styles.lead}>
-                Gửi kích thước cửa hoặc ảnh không gian — Tuấn Rèm tư vấn chất liệu, báo giá may
-                đo và hẹn đo đạc tận nhà trong 24 giờ làm việc.
-              </p>
-              <p className={styles.headNote}>{`Hotline ${PHONE_DISPLAY} · 8:00 – 20:00`}</p>
+              {getValue('contact.lead') && (
+                <p className={styles.lead}>{getValue('contact.lead')}</p>
+              )}
+              {(hotline || shortHours) && (
+                <p className={styles.headNote}>
+                  {[hotline ? `Hotline ${hotline}` : '', shortHours].filter(Boolean).join(' · ')}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -139,54 +152,70 @@ export default function ContactPage() {
       <section className={styles.channelsSection} aria-label="Kênh liên hệ nhanh">
         <div className={styles.sectionInner}>
           <div className={styles.channelGrid}>
-            <a href={PHONE_HREF} className={styles.channel}>
-              <span className={styles.channelIcon}>
-                <FaPhoneAlt aria-hidden="true" />
-              </span>
-              <span className={styles.channelLabel}>Hotline</span>
-              <span className={styles.channelValue}>{PHONE_DISPLAY}</span>
-              <span className={styles.channelHint}>Gọi trực tiếp mỗi ngày, 8:00 – 20:00</span>
-              <span className={styles.channelArrow}>
-                Gọi ngay
-                <FaArrowRight className={styles.channelArrowIcon} aria-hidden="true" />
-              </span>
-            </a>
+            {phoneHref && (
+              <a href={phoneHref} className={styles.channel}>
+                <span className={styles.channelIcon}>
+                  <FaPhoneAlt aria-hidden="true" />
+                </span>
+                <span className={styles.channelLabel}>Hotline</span>
+                <span className={styles.channelValue}>{hotline}</span>
+                {getValue('contact.hotlineHint') && (
+                  <span className={styles.channelHint}>{getValue('contact.hotlineHint')}</span>
+                )}
+                <span className={styles.channelArrow}>
+                  Gọi ngay
+                  <FaArrowRight className={styles.channelArrowIcon} aria-hidden="true" />
+                </span>
+              </a>
+            )}
 
-            <a
-              href={ZALO_HREF}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.channel}
-            >
-              <span className={styles.channelIcon}>
-                <FaRegCommentDots aria-hidden="true" />
-              </span>
-              <span className={styles.channelLabel}>Zalo</span>
-              <span className={styles.channelValue}>Tuấn Rèm</span>
-              <span className={styles.channelHint}>Gửi ảnh cửa, nhận báo giá nhanh</span>
-              <span className={styles.channelArrow}>
-                Mở Zalo
-                <FaArrowRight className={styles.channelArrowIcon} aria-hidden="true" />
-              </span>
-            </a>
+            {zaloUrl && (
+              <a
+                href={zaloUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.channel}
+              >
+                <span className={styles.channelIcon}>
+                  <FaRegCommentDots aria-hidden="true" />
+                </span>
+                <span className={styles.channelLabel}>Zalo</span>
+                {getValue('contact.zaloValue') && (
+                  <span className={styles.channelValue}>{getValue('contact.zaloValue')}</span>
+                )}
+                {getValue('contact.zaloHint') && (
+                  <span className={styles.channelHint}>{getValue('contact.zaloHint')}</span>
+                )}
+                <span className={styles.channelArrow}>
+                  Mở Zalo
+                  <FaArrowRight className={styles.channelArrowIcon} aria-hidden="true" />
+                </span>
+              </a>
+            )}
 
-            <a
-              href={MAP_HREF}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.channel}
-            >
-              <span className={styles.channelIcon}>
-                <FaMapMarkerAlt aria-hidden="true" />
-              </span>
-              <span className={styles.channelLabel}>Showroom</span>
-              <span className={styles.channelValue}>Dĩ An, Bình Dương</span>
-              <span className={styles.channelHint}>Xem vải và phụ kiện thực tế</span>
-              <span className={styles.channelArrow}>
-                Chỉ đường
-                <FaArrowRight className={styles.channelArrowIcon} aria-hidden="true" />
-              </span>
-            </a>
+            {mapHref && (
+              <a
+                href={mapHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.channel}
+              >
+                <span className={styles.channelIcon}>
+                  <FaMapMarkerAlt aria-hidden="true" />
+                </span>
+                <span className={styles.channelLabel}>Showroom</span>
+                {getValue('contact.showroomValue') && (
+                  <span className={styles.channelValue}>{getValue('contact.showroomValue')}</span>
+                )}
+                {getValue('contact.showroomHint') && (
+                  <span className={styles.channelHint}>{getValue('contact.showroomHint')}</span>
+                )}
+                <span className={styles.channelArrow}>
+                  Chỉ đường
+                  <FaArrowRight className={styles.channelArrowIcon} aria-hidden="true" />
+                </span>
+              </a>
+            )}
           </div>
         </div>
       </section>
@@ -196,68 +225,82 @@ export default function ContactPage() {
           <div className={styles.contactGrid}>
             <div className={styles.infoPane}>
               <div>
-                <p className={styles.paneKicker}>Showroom &amp; xưởng</p>
-                <h2 className={styles.paneTitle}>Ghé xem vải trực tiếp</h2>
+                {getValue('contact.paneKicker') && (
+                  <p className={styles.paneKicker}>{getValue('contact.paneKicker')}</p>
+                )}
+                {getValue('contact.paneTitle') && (
+                  <h2 className={styles.paneTitle}>{getValue('contact.paneTitle')}</h2>
+                )}
               </div>
-              <p className={styles.paneText}>
-                Mẫu vải, thanh treo và phụ kiện được trưng bày tại showroom. Mang theo ảnh cửa
-                hoặc bản vẽ để được tư vấn ngay tại chỗ.
-              </p>
+              {getValue('contact.paneText') && (
+                <p className={styles.paneText}>{getValue('contact.paneText')}</p>
+              )}
 
               <ul className={styles.infoList}>
-                <li className={styles.infoItem}>
-                  <FaMapMarkerAlt className={styles.infoIcon} aria-hidden="true" />
-                  <div>
-                    <p className={styles.infoLabel}>Địa chỉ</p>
-                    <p className={styles.infoValue}>{ADDRESS}</p>
-                  </div>
-                </li>
-                <li className={styles.infoItem}>
-                  <FaPhoneAlt className={styles.infoIcon} aria-hidden="true" />
-                  <div>
-                    <p className={styles.infoLabel}>Điện thoại</p>
-                    <p className={styles.infoValue}>
-                      <a href={PHONE_HREF}>{PHONE_DISPLAY}</a>
-                    </p>
-                  </div>
-                </li>
-                <li className={styles.infoItem}>
-                  <FaEnvelope className={styles.infoIcon} aria-hidden="true" />
-                  <div>
-                    <p className={styles.infoLabel}>Email</p>
-                    <p className={styles.infoValue}>
-                      <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
-                    </p>
-                  </div>
-                </li>
-                <li className={styles.infoItem}>
-                  <FaClock className={styles.infoIcon} aria-hidden="true" />
-                  <div>
-                    <p className={styles.infoLabel}>Giờ làm việc</p>
-                    <p className={styles.infoValue}>
-                      Thứ Hai – Thứ Bảy: 8:00 – 20:00
-                      <br />
-                      Chủ Nhật: 9:00 – 18:00
-                    </p>
-                  </div>
-                </li>
+                {address && (
+                  <li className={styles.infoItem}>
+                    <FaMapMarkerAlt className={styles.infoIcon} aria-hidden="true" />
+                    <div>
+                      <p className={styles.infoLabel}>Địa chỉ</p>
+                      <p className={styles.infoValue}>{address}</p>
+                    </div>
+                  </li>
+                )}
+                {phoneHref && (
+                  <li className={styles.infoItem}>
+                    <FaPhoneAlt className={styles.infoIcon} aria-hidden="true" />
+                    <div>
+                      <p className={styles.infoLabel}>Điện thoại</p>
+                      <p className={styles.infoValue}>
+                        <a href={phoneHref}>{hotline}</a>
+                      </p>
+                    </div>
+                  </li>
+                )}
+                {email && (
+                  <li className={styles.infoItem}>
+                    <FaEnvelope className={styles.infoIcon} aria-hidden="true" />
+                    <div>
+                      <p className={styles.infoLabel}>Email</p>
+                      <p className={styles.infoValue}>
+                        <a href={`mailto:${email}`}>{email}</a>
+                      </p>
+                    </div>
+                  </li>
+                )}
+                {workingHours && (
+                  <li className={styles.infoItem}>
+                    <FaClock className={styles.infoIcon} aria-hidden="true" />
+                    <div>
+                      <p className={styles.infoLabel}>Giờ làm việc</p>
+                      <p className={styles.infoValue}>
+                        {workingHours.split('\n').map((line, index) => (
+                          <span key={index}>
+                            {index > 0 && <br />}
+                            {line}
+                          </span>
+                        ))}
+                      </p>
+                    </div>
+                  </li>
+                )}
               </ul>
 
-              <p className={styles.infoNote}>
-                Ngoài giờ làm việc, bạn để lại tin nhắn Zalo — Tuấn Rèm phản hồi vào đầu ngày
-                làm việc kế tiếp.
-              </p>
+              {getValue('contact.infoNote') && (
+                <p className={styles.infoNote}>{getValue('contact.infoNote')}</p>
+              )}
             </div>
 
             <div className={styles.formPane}>
-              <p className={styles.paneKicker}>Tư vấn miễn phí</p>
+              {getValue('contact.formKicker') && (
+                <p className={styles.paneKicker}>{getValue('contact.formKicker')}</p>
+              )}
               <h2 id="contact-form-title" className={styles.paneTitle}>
-                Gửi yêu cầu tư vấn
+                {getValue('contact.formTitle')}
               </h2>
-              <p className={styles.paneText}>
-                Điền thông tin bên dưới, chúng tôi gọi lại trong 24 giờ làm việc để hỏi rõ nhu
-                cầu và hẹn lịch đo.
-              </p>
+              {getValue('contact.formText') && (
+                <p className={styles.paneText}>{getValue('contact.formText')}</p>
+              )}
 
               <form className={styles.form} onSubmit={handleSubmit}>
                 <input
@@ -362,9 +405,9 @@ export default function ContactPage() {
                       <FaArrowRight className={styles.submitIcon} aria-hidden="true" />
                     )}
                   </button>
-                  <p className={styles.formNote}>
-                    Thông tin chỉ dùng để tư vấn và không chia sẻ cho bên thứ ba.
-                  </p>
+                  {getValue('contact.formNote') && (
+                    <p className={styles.formNote}>{getValue('contact.formNote')}</p>
+                  )}
                 </div>
               </form>
             </div>
@@ -376,21 +419,27 @@ export default function ContactPage() {
         <div className={styles.sectionInner}>
           <div className={styles.mapHead}>
             <div>
-              <p className={styles.paneKicker}>Bản đồ</p>
-              <h2 id="contact-map-title" className={styles.mapTitle}>
-                Đường đến Tuấn Rèm
-              </h2>
-              <p className={styles.mapAddress}>{ADDRESS}</p>
+              {getValue('contact.mapKicker') && (
+                <p className={styles.paneKicker}>{getValue('contact.mapKicker')}</p>
+              )}
+              {getValue('contact.mapTitle') && (
+                <h2 id="contact-map-title" className={styles.mapTitle}>
+                  {getValue('contact.mapTitle')}
+                </h2>
+              )}
+              {address && <p className={styles.mapAddress}>{address}</p>}
             </div>
-            <a
-              href={MAP_HREF}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.mapLink}
-            >
-              Mở Google Maps
-              <FaArrowRight className={styles.mapLinkIcon} aria-hidden="true" />
-            </a>
+            {mapHref && (
+              <a
+                href={mapHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.mapLink}
+              >
+                Mở Google Maps
+                <FaArrowRight className={styles.mapLinkIcon} aria-hidden="true" />
+              </a>
+            )}
           </div>
 
           <div className={styles.mapFrame}>
@@ -407,30 +456,41 @@ export default function ContactPage() {
 
       <section className={styles.ctaSection} aria-labelledby="contact-cta-title">
         <div className={styles.ctaInner}>
-          <p className={styles.ctaKicker}>Cần phản hồi nhanh?</p>
-          <h2 id="contact-cta-title" className={styles.ctaTitle}>
-            Gọi trực tiếp để được báo giá sơ bộ
-          </h2>
-          <p className={styles.ctaText}>
-            Hotline mở mỗi ngày từ 8:00 đến 20:00. Gọi hoặc nhắn Zalo — Tuấn Rèm tư vấn ngay,
-            không cần chờ email.
-          </p>
+          {getValue('contact.ctaKicker') && (
+            <p className={styles.ctaKicker}>{getValue('contact.ctaKicker')}</p>
+          )}
+          {getValue('contact.ctaTitle') && (
+            <h2 id="contact-cta-title" className={styles.ctaTitle}>
+              {getValue('contact.ctaTitle')}
+            </h2>
+          )}
+          {getValue('contact.ctaText') && (
+            <p className={styles.ctaText}>{getValue('contact.ctaText')}</p>
+          )}
           <div className={styles.ctaActions}>
-            <a href={PHONE_HREF} className={styles.ctaPrimary}>
-              <FaPhoneAlt aria-hidden="true" />
-              {PHONE_DISPLAY}
-            </a>
-            <a
-              href={ZALO_HREF}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.ctaGhost}
-            >
-              <FaRegCommentDots aria-hidden="true" />
-              Nhắn Zalo
-            </a>
+            {phoneHref && (
+              <a href={phoneHref} className={styles.ctaPrimary}>
+                <FaPhoneAlt aria-hidden="true" />
+                {hotline}
+              </a>
+            )}
+            {zaloUrl && (
+              <a
+                href={zaloUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.ctaGhost}
+              >
+                <FaRegCommentDots aria-hidden="true" />
+                Nhắn Zalo
+              </a>
+            )}
           </div>
-          <p className={styles.ctaNote}>{`${PHONE_DISPLAY} · Dĩ An, Bình Dương`}</p>
+          {(hotline || address) && (
+            <p className={styles.ctaNote}>
+              {[hotline, address].filter(Boolean).join(' · ')}
+            </p>
+          )}
         </div>
       </section>
     </div>
