@@ -8,6 +8,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   googleProvider,
+  facebookProvider,
   signOut,
   onAuthStateChanged,
   sendPasswordResetEmail
@@ -189,6 +190,68 @@ export function AuthProvider({ children }) {
 
       return { success: true };
     } catch (error) {
+      if (error.code === 'auth/popup-closed-by-user') {
+        return { success: false, error: 'Bạn đã đóng cửa sổ đăng nhập Google. Vui lòng thử lại.' };
+      }
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Login with Facebook
+  const loginWithFacebook = async () => {
+    try {
+      const result = await signInWithPopup(auth, facebookProvider);
+      const uid = result.user.uid;
+
+      // Check if user exists in Firestore
+      try {
+        const userDocRef = doc(db, 'users', uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (!userDoc.exists()) {
+          // First time login, create a user document
+          try {
+            await setDoc(userDocRef, {
+              email: result.user.email,
+              displayName: result.user.displayName,
+              role: 'user',
+              createdAt: new Date().toISOString()
+            });
+            setUserRole('user');
+          } catch (writeError) {
+            console.error("Error creating user document:", writeError);
+            // Continue even if document creation fails
+            setUserRole('user');
+          }
+          // Set user-role cookie
+          document.cookie = `user-role=user; path=/; SameSite=Lax`;
+          router.push('/');
+        } else {
+          // Existing user
+          const role = userDoc.data().role;
+          setUserRole(role);
+          // Set user-role cookie
+          document.cookie = `user-role=${role}; path=/; SameSite=Lax`;
+          if (role === 'admin') {
+            router.push('/admin');
+          } else {
+            router.push('/');
+          }
+        }
+      } catch (firestoreError) {
+        console.error("Error accessing Firestore:", firestoreError);
+        // Set default role and redirect even if Firestore access fails
+        setUserRole('user');
+        // Set user-role cookie mặc định là user nếu không lấy được role
+        document.cookie = `user-role=user; path=/; SameSite=Lax`;
+        router.push('/');
+      }
+
+      return { success: true };
+    } catch (error) {
+      if (error.code === 'auth/popup-closed-by-user') {
+        return { success: false, error: 'Bạn đã đóng cửa sổ đăng nhập Facebook. Vui lòng thử lại.' };
+      }
       return { success: false, error: error.message };
     }
   };
@@ -222,6 +285,7 @@ export function AuthProvider({ children }) {
     login,
     register,
     loginWithGoogle,
+    loginWithFacebook,
     resetPassword,
     logout,
     isAdmin: userRole === 'admin'
