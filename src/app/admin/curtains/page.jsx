@@ -2,344 +2,328 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { FaEdit, FaPlus, FaSearch, FaTrash, FaEye, FaFileExcel } from 'react-icons/fa';
-import { deleteCurtain, getCategories, getCurtains } from '@/lib/api';
+import { FaPlus, FaFileExcel, FaPen, FaTrash, FaStore } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
-import ProductPrice from '@/components/ProductPrice';
+
+import { deleteCurtain, getCategories, getCurtains } from '@/lib/api';
+import PageHeader from '@/components/admin/PageHeader';
+import Panel from '@/components/admin/Panel';
+import Toolbar from '@/components/admin/Toolbar';
+import LedgerTable from '@/components/admin/LedgerTable';
+import Pagination from '@/components/admin/Pagination';
+import Button, { buttonClasses } from '@/components/admin/Button';
+import Badge from '@/components/admin/Badge';
+import Thumb from '@/components/admin/Thumb';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import EmptyState from '@/components/admin/EmptyState';
+import { formatPrice, formatNumber } from '@/components/admin/format';
+import { notify } from '@/components/admin/notify';
+import { selectClass } from '@/components/admin/Field';
+
+const PAGE_SIZE = 10;
+
+function categoryName(curtain) {
+  return typeof curtain.category === 'object' ? curtain.category?.name : curtain.category;
+}
 
 export default function CurtainsList() {
-    const [categories, setCategories] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+  const [curtains, setCurtains] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
-    const [curtains, setCurtains] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [error, setError] = useState(null);
+  useEffect(() => {
+    fetchCurtains();
+    fetchCategories();
+  }, []);
 
-    useEffect(() => {
-        fetchCurtains();
-        fetchCategories();
-    }, []);
+  const fetchCategories = async () => {
+    try {
+      const data = await getCategories();
+      setCategories(Array.isArray(data) ? data : []);
+    } catch {
+      setCategories([]);
+    }
+  };
 
-    const fetchCategories = async () => {
-        try {
-            const data = await getCategories();
-            setCategories(Array.isArray(data) ? data : []);
-        } catch (error) {
-            setCategories([]);
-        }
-    };
+  const fetchCurtains = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getCurtains();
+      setCurtains(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Error fetching curtains:', err);
+      setError('Không tải được danh sách sản phẩm. Kiểm tra kết nối rồi thử lại.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const fetchCurtains = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const data = await getCurtains();
-            setCurtains(data);
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching curtains:', error);
-            setError('Không thể tải dữ liệu rèm cửa. Vui lòng thử lại sau.');
-            setLoading(false);
-        }
-    };
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      setDeleting(true);
+      await deleteCurtain(deleteTarget._id);
+      notify.success('Đã xóa sản phẩm khỏi danh sách.');
+      setDeleteTarget(null);
+      await fetchCurtains();
+    } catch (err) {
+      console.error('Error deleting curtain:', err);
+      notify.error('Không xóa được sản phẩm. Vui lòng thử lại.');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
-            try {
-                await deleteCurtain(id);
-                // Cập nhật danh sách sau khi xóa thành công
-                fetchCurtains();
-                alert('Xóa sản phẩm thành công!');
-            } catch (error) {
-                console.error('Error deleting curtain:', error);
-                alert('Có lỗi xảy ra khi xóa sản phẩm');
-            }
-        }
-    };
+  const keyword = searchTerm.trim().toLowerCase();
+  const filteredCurtains = curtains.filter((curtain) => {
+    const matchesSearch =
+      !keyword ||
+      curtain.name?.toLowerCase().includes(keyword) ||
+      categoryName(curtain)?.toLowerCase().includes(keyword);
+    const matchesCategory = selectedCategory
+      ? (typeof curtain.category === 'object' ? curtain.category?._id : curtain.category) === selectedCategory
+      : true;
+    return matchesSearch && matchesCategory;
+  });
 
-    const filteredCurtains = curtains.filter(curtain => {
-        const matchesSearch = curtain.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (typeof curtain.category === 'object' ? curtain.category?.name?.toLowerCase().includes(searchTerm.toLowerCase()) : curtain.category?.toLowerCase().includes(searchTerm.toLowerCase()));
-        const matchesCategory = selectedCategory ? (typeof curtain.category === 'object' ? curtain.category?._id === selectedCategory : curtain.category === selectedCategory) : true;
-        return matchesSearch && matchesCategory;
-    });
+  const totalPages = Math.ceil(filteredCurtains.length / PAGE_SIZE);
+  const paginatedCurtains = filteredCurtains.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
+  const inStockCount = curtains.filter((curtain) => curtain.inStock).length;
 
-    const totalPages = Math.ceil(filteredCurtains.length / itemsPerPage);
-    const paginatedCurtains = filteredCurtains.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) setCurrentPage(totalPages);
+  }, [totalPages, currentPage]);
 
-    const handleExportExcel = () => {
-        const dataToExport = filteredCurtains.map(curtain => ({
-            'Tên sản phẩm': curtain.name,
-            'Danh mục': typeof curtain.category === 'object' ? curtain.category?.name : curtain.category,
-            'Giá': curtain.price,
-            'Chất liệu': curtain.material,
-            'Màu sắc': curtain.color?.name || '',
-            'Kích thước': curtain.size ? `${curtain.size.width} x ${curtain.size.height}` : '',
-            'Còn hàng': curtain.inStock ? 'Có' : 'Không',
-        }));
-        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Curtains');
-        XLSX.writeFile(workbook, 'danh_sach_rem_cua.xlsx');
-    };
+  const resetPage = () => setCurrentPage(1);
 
+  const handleExportExcel = () => {
+    const rows = filteredCurtains.map((curtain) => ({
+      'Tên sản phẩm': curtain.name,
+      'Danh mục': categoryName(curtain) || '',
+      Giá: formatPrice(curtain.price),
+      'Chất liệu': curtain.material || '',
+      'Màu sắc': curtain.color?.name || '',
+      'Còn hàng': curtain.inStock ? 'Có' : 'Không',
+    }));
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'San pham');
+    XLSX.writeFile(workbook, 'danh-sach-san-pham.xlsx');
+  };
 
-    return (
-        <div>
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
-                <h1 className="text-2xl font-bold">Quản Lý Rèm Cửa</h1>
-                <div className="flex flex-wrap gap-2">
-                    <button onClick={handleExportExcel}
-                        className="cursor-pointer bg-green-600 text-white px-4 py-2 rounded-md flex items-center hover:bg-green-700 transition">
-                        <FaFileExcel className="mr-2" />
-                        Xuất Excel
-                    </button>
-                    <Link
-                        href="/admin/curtains/add"
-                        className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-md flex items-center hover:bg-blue-700 transition"
-                    >
-                        <FaPlus className="mr-2" /> Thêm Mới
-                    </Link>
-                </div>
-            </div>
-            <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
-                <div className="w-full md:w-1/3">
-                    <select
-                        className="w-full p-3 rounded-md border border-gray-300"
-                        value={selectedCategory}
-                        onChange={e => {
-                            setSelectedCategory(e.target.value);
-                            setCurrentPage(1);
-                        }}
-                    >
-                        <option value="">Tất cả danh mục</option>
-                        {Array.isArray(categories) && categories.map(cat => (
-                            <option key={cat._id} value={cat._id}>{cat.name}</option>
-                        ))}
-                    </select>
-                </div>
-                {/* Search Bar */}
-                <div className="w-full md:w-2/3 relative">
-                    <input
-                        type="text"
-                        placeholder="Tìm kiếm theo tên hoặc danh mục..."
-                        className="w-full p-3 pl-10 rounded-md border border-gray-300"
-                        value={searchTerm}
-                        onChange={(e) => {
-                            setSearchTerm(e.target.value);
-                            setCurrentPage(1);
-                        }}
-                    />
-                    <FaSearch className="absolute left-3 top-3.5 text-gray-400" />
-                </div>
-            </div>
-
-            {loading ? (
-                <div className="text-center py-8">
-                    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-                    <p className="mt-2">Đang tải dữ liệu...</p>
-                </div>
-            ) : error ? (
-                <div className="text-center py-8 bg-white rounded-lg shadow">
-                    <p className="text-red-500">{error}</p>
-                    <button
-                        onClick={fetchCurtains}
-                        className="cursor-pointer mt-4 bg-blue-600 text-white px-4 py-2 rounded-md"
-                    >
-                        Thử lại
-                    </button>
-                </div>
-            ) : (
-                <>
-                    {filteredCurtains.length === 0 ? (
-                        <div className="text-center py-8 bg-white rounded-lg shadow">
-                            <p className="text-gray-500">Không tìm thấy sản phẩm phù hợp</p>
-                        </div>
-                    ) : (
-                        <div className="bg-white rounded-lg shadow overflow-x-auto">
-                            {/* Regular table for md screens and up */}
-                            <table className="min-w-full divide-y divide-gray-200 hidden md:table">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Sản phẩm
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Danh mục
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Giá
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Trạng thái
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Thao tác
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {paginatedCurtains.map((curtain) => (
-                                        <tr key={curtain._id}>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex items-center">
-                                                    <div className="h-10 w-10 flex-shrink-0">
-                                                        <img
-                                                            className="h-10 w-10 rounded-full object-cover"
-                                                            src={curtain.mainImage || curtain.image || '/placeholder-curtain.jpg'}
-                                                            alt={curtain.name}
-                                                        />
-                                                    </div>
-                                                    <div className="ml-4">
-                                                        <div
-                                                            className="text-sm font-medium text-gray-900">{curtain.name}</div>
-                                                        <div className="text-sm text-gray-500">{curtain.color?.name || 'N/A'}</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div
-                                                    className="text-sm text-gray-900">{typeof curtain.category === 'object' ? curtain.category?.name : curtain.category}</div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-900">
-                                                    {
-                                                        <ProductPrice price={curtain.price} />
-                                                    }
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${curtain.inStock
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : 'bg-red-100 text-red-800'
-                                                    }`}>
-                                                    {curtain.inStock ? 'Còn hàng' : 'Hết hàng'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <div className="flex space-x-2">
-                                                    <Link
-                                                        href={`/admin/curtains/edit/${curtain._id}`}
-                                                        className="text-blue-600 hover:text-blue-900"
-                                                    >
-                                                        <FaEdit size={18} />
-                                                    </Link>
-                                                    <button
-                                                        onClick={() => handleDelete(curtain._id)}
-                                                        className="cursor-pointer text-red-600 hover:text-red-900"
-                                                    >
-                                                        <FaTrash size={18} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-
-                            {/* Card view for mobile */}
-                            <div className="md:hidden divide-y divide-gray-200">
-                                {paginatedCurtains.map((curtain) => (
-                                    <div key={curtain._id} className="p-4 hover:bg-gray-50">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div className="flex items-center">
-                                                <div className="h-10 w-10 flex-shrink-0 mr-3">
-                                                    <img
-                                                        className="h-10 w-10 rounded-full object-cover"
-                                                        src={curtain.mainImage || curtain.image || '/placeholder-curtain.jpg'}
-                                                        alt={curtain.name}
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <div className="font-medium">{curtain.name}</div>
-                                                    <div className="text-xs text-gray-500">
-                                                        {typeof curtain.category === 'object' ? curtain.category?.name : curtain.category}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <span className={`px-2 text-xs leading-5 font-semibold rounded-full ${curtain.inStock
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : 'bg-red-100 text-red-800'
-                                                }`}>
-                                                {curtain.inStock ? 'Còn hàng' : 'Hết hàng'}
-                                            </span>
-                                        </div>
-                                        <div className="mt-2 flex justify-between items-center">
-                                            <div className="text-sm font-semibold">
-                                                {new Intl.NumberFormat('vi-VN', {
-                                                    style: 'currency',
-                                                    currency: 'VND'
-                                                }).format(curtain.price)}
-                                            </div>
-                                            <div className="flex space-x-3">
-                                                <Link
-                                                    href={`/products/${curtain._id}`}
-                                                    className="text-blue-500 bg-blue-50 p-2 rounded-full hover:bg-blue-100"
-                                                >
-                                                    <FaEye size={16} />
-                                                </Link>
-                                                <Link
-                                                    href={`/admin/curtains/edit/${curtain._id}`}
-                                                    className="text-green-500 bg-green-50 p-2 rounded-full hover:bg-green-100"
-                                                >
-                                                    <FaEdit size={16} />
-                                                </Link>
-                                                <button
-                                                    onClick={() => handleDelete(curtain._id)}
-                                                    className="text-red-500 bg-red-50 p-2 rounded-full hover:bg-red-100"
-                                                >
-                                                    <FaTrash size={16} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Pagination */}
-                    {filteredCurtains.length > 0 && (
-                        <div className="mt-6 flex justify-center">
-                            <nav className="flex items-center space-x-1">
-                                <button
-                                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                                    disabled={currentPage === 1}
-                                    className={`px-3 py-1 rounded-md 
-                                    ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-50'}`}
-                                >
-                                    &laquo;
-                                </button>
-
-                                {[...Array(totalPages)].map((_, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => setCurrentPage(index + 1)}
-                                        className={`px-3 py-1 rounded-md ${currentPage === index + 1
-                                                ? 'bg-blue-600 text-white'
-                                                : 'text-blue-600 hover:bg-blue-50'
-                                            }`}
-                                    >
-                                        {index + 1}
-                                    </button>
-                                ))}
-
-                                <button
-                                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                                    disabled={currentPage === totalPages}
-                                    className={`px-3 py-1 rounded-md
-                                    ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-50'}`}
-                                >
-                                    &raquo;
-                                </button>
-                            </nav>
-                        </div>
-                    )}
-                </>
-            )}
+  const columns = [
+    {
+      key: 'name',
+      label: 'Sản phẩm',
+      primary: true,
+      render: (curtain) => (
+        <div className="flex min-w-0 items-center gap-3">
+          <Thumb
+            src={curtain.mainImage || curtain.image}
+            alt={curtain.name}
+            className="h-10 w-10 shrink-0"
+          />
+          <div className="min-w-0">
+            <p className="truncate font-medium text-[var(--a-ink)]">{curtain.name}</p>
+            <p className="mt-0.5 truncate text-[12px] text-[var(--a-faint)]">
+              {curtain.color?.name || curtain.material || 'Chưa ghi chất liệu'}
+            </p>
+          </div>
         </div>
-    );
-} 
+      ),
+    },
+    {
+      key: 'category',
+      label: 'Danh mục',
+      render: (curtain) => (
+        <span className="text-[var(--a-muted)]">{categoryName(curtain) || 'Chưa phân loại'}</span>
+      ),
+    },
+    {
+      key: 'price',
+      label: 'Giá',
+      align: 'right',
+      render: (curtain) => (
+        <span className="whitespace-nowrap font-medium tabular-nums text-[var(--a-ink)]">
+          {formatPrice(curtain.price)}
+        </span>
+      ),
+    },
+    {
+      key: 'stock',
+      label: 'Trạng thái',
+      render: (curtain) => (
+        <Badge tone={curtain.inStock ? 'success' : 'danger'} dot>
+          {curtain.inStock ? 'Còn hàng' : 'Hết hàng'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'actions',
+      label: '',
+      actions: true,
+      align: 'right',
+      width: '108px',
+      render: (curtain) => (
+        <div className="flex items-center justify-end gap-1">
+          <Link
+            href={`/admin/curtains/edit/${curtain._id}`}
+            className="flex h-8 w-8 items-center justify-center rounded-[6px] text-[var(--a-muted)] transition hover:bg-[var(--a-raised)] hover:text-[var(--a-cham)]"
+            aria-label={`Sửa ${curtain.name}`}
+            title="Sửa sản phẩm"
+          >
+            <FaPen className="h-3.5 w-3.5" />
+          </Link>
+          <button
+            type="button"
+            onClick={() => setDeleteTarget(curtain)}
+            className="flex h-8 w-8 items-center justify-center rounded-[6px] text-[var(--a-muted)] transition hover:bg-[var(--a-danger-soft)] hover:text-[var(--a-danger)]"
+            aria-label={`Xóa ${curtain.name}`}
+            title="Xóa sản phẩm"
+          >
+            <FaTrash className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Sản phẩm"
+        description="Toàn bộ rèm cửa trong sổ xưởng: giá bán, danh mục và tình trạng còn hàng."
+        meta={`${formatNumber(filteredCurtains.length)}${filteredCurtains.length !== curtains.length ? ` / ${formatNumber(curtains.length)}` : ''} sản phẩm`}
+        actions={
+          <>
+            <Button
+              icon={FaFileExcel}
+              onClick={handleExportExcel}
+              disabled={!filteredCurtains.length}
+            >
+              Xuất Excel
+            </Button>
+            <Link href="/admin/curtains/add" className={buttonClasses('primary', 'md')}>
+              <FaPlus className="h-3.5 w-3.5" />
+              Thêm sản phẩm
+            </Link>
+          </>
+        }
+      />
+
+      {error ? (
+        <Panel className="border-[rgba(156,59,54,0.25)]">
+          <div className="flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-[var(--a-danger)]">{error}</p>
+            <Button size="sm" onClick={fetchCurtains}>
+              Thử lại
+            </Button>
+          </div>
+        </Panel>
+      ) : (
+        <Panel>
+          <Toolbar
+            searchValue={searchTerm}
+            onSearchChange={(value) => {
+              setSearchTerm(value);
+              resetPage();
+            }}
+            searchPlaceholder="Tìm theo tên hoặc danh mục…"
+            filters={
+              <select
+                className={selectClass}
+                value={selectedCategory}
+                onChange={(event) => {
+                  setSelectedCategory(event.target.value);
+                  resetPage();
+                }}
+                aria-label="Lọc theo danh mục"
+              >
+                <option value="">Tất cả danh mục</option>
+                {categories.map((category) => (
+                  <option key={category._id} value={category._id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            }
+          >
+            <p className="text-[12.5px] tabular-nums text-[var(--a-faint)]">
+              {formatNumber(inStockCount)} đang còn hàng
+            </p>
+          </Toolbar>
+
+          <LedgerTable
+            columns={columns}
+            rows={paginatedCurtains}
+            loading={loading}
+            caption="Danh sách sản phẩm"
+            empty={
+              <EmptyState
+                icon={FaStore}
+                title={
+                  keyword || selectedCategory
+                    ? 'Không có sản phẩm phù hợp'
+                    : 'Sổ chưa có sản phẩm nào'
+                }
+                description={
+                  keyword || selectedCategory
+                    ? 'Thử từ khóa khác hoặc bỏ bộ lọc danh mục để xem toàn bộ sản phẩm.'
+                    : 'Thêm sản phẩm đầu tiên để bắt đầu ghi sổ bán hàng.'
+                }
+                action={
+                  keyword || selectedCategory ? (
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setSearchTerm('');
+                        setSelectedCategory('');
+                      }}
+                    >
+                      Bỏ bộ lọc
+                    </Button>
+                  ) : (
+                    <Link href="/admin/curtains/add" className={buttonClasses('primary', 'sm')}>
+                      Thêm sản phẩm
+                    </Link>
+                  )
+                }
+              />
+            }
+          />
+
+          <Pagination
+            page={currentPage}
+            totalPages={totalPages}
+            total={filteredCurtains.length}
+            onChange={setCurrentPage}
+          />
+        </Panel>
+      )}
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Xóa sản phẩm?"
+        description={
+          deleteTarget
+            ? `“${deleteTarget.name}” sẽ bị gỡ khỏi danh sách bán. Thao tác này không hoàn tác được.`
+            : ''
+        }
+        confirmLabel="Xóa sản phẩm"
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => !deleting && setDeleteTarget(null)}
+      />
+    </div>
+  );
+}

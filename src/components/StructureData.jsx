@@ -199,10 +199,10 @@ export const createContactPageSchema = ({ title, description, url, phone, email 
   },
 });
 
-const StructuredData = ({ data }) => {
+const StructuredData = ({ data, id = 'structured-data' }) => {
   return (
     <Script
-      id="structured-data"
+      id={id}
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
       strategy="afterInteractive"

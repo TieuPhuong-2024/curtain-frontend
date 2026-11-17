@@ -1,0 +1,144 @@
+.page {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 4rem;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 700;
+  color: var(--text-primary, #5b4636);
+  margin: 0 0 0.5rem;
+}
+
+.lead {
+  font-size: 1.0625rem;
+  color: var(--text-secondary, #7d6e5d);
+  margin: 0;
+}
+
+.chip {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.8125rem;
+  border-radius: 999px;
+  border: 1px solid rgba(166, 124, 82, 0.22);
+  background: #fffaf6;
+  color: var(--text-primary, #5b4636);
+  cursor: pointer;
+}
+
+.chip:hover {
+  background: #f3e6d8;
+}
+
+.chipActive {
+  background: linear-gradient(90deg, #e7cba9 0%, #d6a77a 100%);
+  color: #5b4636;
+  border-color: transparent;
+  font-weight: 600;
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem;
+  }
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  gap: 1rem;
+  color: var(--text-secondary, #7d6e5d);
+}
+
+.spinner {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 3px solid rgba(166, 124, 82, 0.2);
+  border-top-color: var(--primary, #a67c52);
+  border-radius: 50%;
+  animation: contentListSpin 0.75s linear infinite;
+}
+
+@keyframes contentListSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-top: 2.5rem;
+}
+
+.pageBtn {
+  min-width: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  background: #fffaf6;
+  color: var(--text-primary, #5b4636);
+  border: 1px solid rgba(166, 124, 82, 0.2);
+  cursor: pointer;
+}
+
+.pageBtn:hover {
+  background: #f3e6d8;
+}
+
+.pageBtnActive {
+  background: linear-gradient(90deg, #e7cba9 0%, #d6a77a 100%);
+  font-weight: 600;
+  border-color: transparent;
+}
+
+.empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary, #7d6e5d);
+}
+
+.errorBox {
+  padding: 1rem 1.25rem;
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: 0.75rem;
+  border: 1px solid #fecaca;
+}

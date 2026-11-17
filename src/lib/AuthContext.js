@@ -8,8 +8,10 @@ import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   googleProvider,
+  facebookProvider,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  sendPasswordResetEmail
 } from './firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
@@ -67,17 +69,17 @@ export function AuthProvider({ children }) {
         const role = await fetchUserRole(authUser.uid);
         setUserRole(role);
         // Luôn cập nhật cookie khi đăng nhập
-        document.cookie = `user-role=${role}; path=/`;
+        document.cookie = `user-role=${role}; path=/; SameSite=Lax`;
       } else {
         setUser(null);
         setUserRole(null);
         // Xóa cookie khi logout hoặc hết phiên
-        document.cookie = 'user-role=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        document.cookie = 'user-role=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
       }
       setLoading(false);
     });
     return () => unsubscribe();
-  }, [router]);
+  }, []);
 
   // Login with email and password
   const login = async (email, password) => {
@@ -87,7 +89,7 @@ export function AuthProvider({ children }) {
         const role = await fetchUserRole(userCredential.user.uid);
 
         // Set user-role cookie
-        document.cookie = `user-role=${role}; path=/`;
+        document.cookie = `user-role=${role}; path=/; SameSite=Lax`;
         // Redirect based on role
         if (role === 'admin') {
           router.push('/admin');
@@ -97,7 +99,7 @@ export function AuthProvider({ children }) {
       } catch (roleError) {
         console.error("Error fetching role:", roleError);
         // Set user-role cookie mặc định là user nếu không lấy được role
-        document.cookie = `user-role=user; path=/`;
+        document.cookie = `user-role=user; path=/; SameSite=Lax`;
         // Continue with login even if role fetch fails
         router.push('/');
       }
@@ -163,14 +165,14 @@ export function AuthProvider({ children }) {
             setUserRole('user');
           }
           // Set user-role cookie
-          document.cookie = `user-role=user; path=/`;
+          document.cookie = `user-role=user; path=/; SameSite=Lax`;
           router.push('/');
         } else {
           // Existing user
           const role = userDoc.data().role;
           setUserRole(role);
           // Set user-role cookie
-          document.cookie = `user-role=${role}; path=/`;
+          document.cookie = `user-role=${role}; path=/; SameSite=Lax`;
           if (role === 'admin') {
             router.push('/admin');
           } else {
@@ -182,10 +184,81 @@ export function AuthProvider({ children }) {
         // Set default role and redirect even if Firestore access fails
         setUserRole('user');
         // Set user-role cookie mặc định là user nếu không lấy được role
-        document.cookie = `user-role=user; path=/`;
+        document.cookie = `user-role=user; path=/; SameSite=Lax`;
         router.push('/');
       }
 
+      return { success: true };
+    } catch (error) {
+      if (error.code === 'auth/popup-closed-by-user') {
+        return { success: false, error: 'Bạn đã đóng cửa sổ đăng nhập Google. Vui lòng thử lại.' };
+      }
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Login with Facebook
+  const loginWithFacebook = async () => {
+    try {
+      const result = await signInWithPopup(auth, facebookProvider);
+      const uid = result.user.uid;
+
+      // Check if user exists in Firestore
+      try {
+        const userDocRef = doc(db, 'users', uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (!userDoc.exists()) {
+          // First time login, create a user document
+          try {
+            await setDoc(userDocRef, {
+              email: result.user.email,
+              displayName: result.user.displayName,
+              role: 'user',
+              createdAt: new Date().toISOString()
+            });
+            setUserRole('user');
+          } catch (writeError) {
+            console.error("Error creating user document:", writeError);
+            // Continue even if document creation fails
+            setUserRole('user');
+          }
+          // Set user-role cookie
+          document.cookie = `user-role=user; path=/; SameSite=Lax`;
+          router.push('/');
+        } else {
+          // Existing user
+          const role = userDoc.data().role;
+          setUserRole(role);
+          // Set user-role cookie
+          document.cookie = `user-role=${role}; path=/; SameSite=Lax`;
+          if (role === 'admin') {
+            router.push('/admin');
+          } else {
+            router.push('/');
+          }
+        }
+      } catch (firestoreError) {
+        console.error("Error accessing Firestore:", firestoreError);
+        // Set default role and redirect even if Firestore access fails
+        setUserRole('user');
+        // Set user-role cookie mặc định là user nếu không lấy được role
+        document.cookie = `user-role=user; path=/; SameSite=Lax`;
+        router.push('/');
+      }
+
+      return { success: true };
+    } catch (error) {
+      if (error.code === 'auth/popup-closed-by-user') {
+        return { success: false, error: 'Bạn đã đóng cửa sổ đăng nhập Facebook. Vui lòng thử lại.' };
+      }
+      return { success: false, error: error.message };
+    }
+  };
+
+  const resetPassword = async (email) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -197,7 +270,7 @@ export function AuthProvider({ children }) {
     try {
       await signOut(auth);
       // Xóa cookie user-role
-      document.cookie = 'user-role=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+      document.cookie = 'user-role=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
       router.push('/login');
       return { success: true };
     } catch (error) {
@@ -212,7 +285,8 @@ export function AuthProvider({ children }) {
     login,
     register,
     loginWithGoogle,
-
+    loginWithFacebook,
+    resetPassword,
     logout,
     isAdmin: userRole === 'admin'
   };

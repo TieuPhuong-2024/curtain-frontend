@@ -1,12 +1,13 @@
 'use client';
 
 import './styles/cozy-theme.css';
-import Image from 'next/image';
+import styles from '@/styles/modules/Home.module.css';
 import Link from 'next/link';
-import { FaArrowRight, FaCheck } from 'react-icons/fa';
+import Image from 'next/image';
+import { FaArrowRight, FaPhoneAlt } from 'react-icons/fa';
 
 import { useEffect, useState } from 'react';
-import { getBanners, getCategories, getCurtains } from '@/lib/api';
+import { getBanners, getCategories, getCurtains, getProjects } from '@/lib/api';
 import CurtainCard from '@/components/CurtainCard';
 import BannerSlider from '@/components/BannerSlider';
 import CategorySlider from '@/components/CategorySlider';
@@ -16,19 +17,37 @@ import StructuredData, {
   createWebPageSchema,
 } from '@/components/StructureData';
 
+const TRUST_ITEMS = [
+  { value: '20+', label: 'Năm kinh nghiệm' },
+  { value: 'Tận nơi', label: 'Đo & lắp tại nhà' },
+  { value: 'Miễn phí', label: 'Tư vấn, hẹn đo' },
+  { value: 'Bảo hành', label: 'Sau lắp đặt' },
+];
+
+const WHY_POINTS = [
+  {
+    title: 'Vải và màu thật',
+    text: 'Catalogue online cùng mẫu vải mang đến tận nhà khi đo cửa — không chỉ ảnh stock.',
+  },
+  {
+    title: 'Lắp đúng kích thước',
+    text: 'Đo cửa, tư vấn kiểu rèm, thi công gọn gàng và bảo hành sau lắp.',
+  },
+];
+
 export default function Home() {
   const [featuredCurtains, setFeaturedCurtains] = useState([]);
   const [banners, setBanners] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
-  const [loading, setLoading] = useState(true);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [loadingBanners, setLoadingBanners] = useState(true);
-  const [error, setError] = useState(null);
-  const [bannerError, setBannerError] = useState(null);
+  const [productError, setProductError] = useState(null);
   const [categoryError, setCategoryError] = useState(null);
   const [productCounts, setProductCounts] = useState({});
+  const [spotlightProject, setSpotlightProject] = useState(null);
+  const [projectImageFailed, setProjectImageFailed] = useState(false);
 
-  // Tạo schema cho trang chủ
   const organizationSchema = createOrganizationSchema({
     name: SITE_NAME,
     url: process.env.NEXT_PUBLIC_URL,
@@ -55,32 +74,48 @@ export default function Home() {
     image: `${process.env.NEXT_PUBLIC_URL}/logo.png`,
   });
 
+  const loadFeaturedProducts = async () => {
+    try {
+      setLoadingProducts(true);
+      setProductError(null);
+      const allProducts = await getCurtains();
+      setFeaturedCurtains(allProducts.slice(0, 3));
+
+      const counts = {};
+      allProducts.forEach((product) => {
+        const categoryId =
+          typeof product.category === 'object' ? product.category._id : product.category;
+
+        if (categoryId) {
+          counts[categoryId] = (counts[categoryId] || 0) + 1;
+        }
+      });
+      setProductCounts(counts);
+    } catch (err) {
+      console.error('Error fetching curtains:', err);
+      setProductError('Không thể tải sản phẩm nổi bật.');
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      setLoadingCategories(true);
+      setCategoryError(null);
+      const data = await getCategories();
+      setCategories(data);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+      setCategoryError('Không thể tải danh mục sản phẩm.');
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchFeatured = async () => {
-      try {
-        setLoading(true);
-        const allProducts = await getCurtains();
-        // Lấy 3 sản phẩm đầu tiên hoặc sắp xếp theo tiêu chí khác nếu cần
-        setFeaturedCurtains(allProducts.slice(0, 3));
-
-        // Calculate product counts per category
-        const counts = {};
-        allProducts.forEach(product => {
-          const categoryId =
-            typeof product.category === 'object' ? product.category._id : product.category;
-
-          if (categoryId) {
-            counts[categoryId] = (counts[categoryId] || 0) + 1;
-          }
-        });
-        setProductCounts(counts);
-      } catch (err) {
-        console.error('Error fetching curtains:', err);
-        setError('Không thể tải sản phẩm nổi bật.');
-      } finally {
-        setLoading(false);
-      }
-    };
+    loadFeaturedProducts();
+    loadCategories();
 
     const fetchBanners = async () => {
       try {
@@ -89,213 +124,243 @@ export default function Home() {
         setBanners(data);
       } catch (err) {
         console.error('Error fetching banners:', err);
-        setBannerError('Không thể tải banner.');
+        setBanners([]);
       } finally {
         setLoadingBanners(false);
       }
     };
 
-    fetchFeatured();
-    fetchBanners();
-
-    const fetchCategories = async () => {
+    const fetchSpotlightProject = async () => {
       try {
-        setLoadingCategories(true);
-        const data = await getCategories();
-        setCategories(data);
+        const projects = await getProjects();
+        const withImage = (projects || []).find((project) => project.thumbnail);
+        setSpotlightProject(withImage || projects?.[0] || null);
       } catch (err) {
-        setCategoryError('Không thể tải danh mục sản phẩm');
-      } finally {
-        setLoadingCategories(false);
+        console.error('Error fetching spotlight project:', err);
       }
     };
-    fetchCategories();
+
+    fetchBanners();
+    fetchSpotlightProject();
   }, []);
 
+  const ctaImage = '/images/blackout-curtains.jpg';
+  const spotlightImage = projectImageFailed
+    ? '/images/hero-curtain.jpg'
+    : spotlightProject?.thumbnail;
+
   return (
-    <div className="cozy-bg min-h-screen">
+    <div className={styles.container}>
       <StructuredData data={organizationSchema} />
       <StructuredData data={webPageSchema} />
-      {/* Banner Slider Section */}
-      {loadingBanners ? (
-        <section className="relative h-[70vh] flex items-center justify-center bg-gray-200">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Đang tải banner...</p>
-          </div>
-        </section>
-      ) : bannerError ? (
-        <section className="relative h-[70vh] flex items-center">
-          <div className="absolute inset-0 z-0">
-            <Image
-              src="/images/hero-curtain.jpg"
-              alt="Rèm cửa cao cấp"
-              fill
-              style={{ objectFit: 'cover' }}
-              priority
-              className="cozy-img w-full h-full"
-            />
-            <div className="absolute inset-0 bg-black opacity-40"></div>
-          </div>
 
-          <div className="container mx-auto px-4 z-10 text-white">
-            <div className="max-w-2xl cozy-card bg-opacity-90">
-              <h1 className="cozy-title mb-4 text-4xl md:text-5xl">
-                Rèm Cửa Cao Cấp Cho Không Gian Của Bạn
-              </h1>
-              <p className="text-xl mb-8">
-                Khám phá bộ sưu tập rèm cửa đa dạng với chất lượng tốt nhất và giá cả hợp lý
+      <BannerSlider banners={banners} loading={loadingBanners} />
+
+      <section className={styles.trustBand} aria-label="Cam kết của Tuấn Rèm">
+        <div className={styles.trustInner}>
+          {TRUST_ITEMS.map((item) => (
+            <div key={item.label} className={styles.trustItem}>
+              <span className={styles.trustValue}>{item.value}</span>
+              <span className={styles.trustLabel}>{item.label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.categoriesSection} aria-labelledby="home-categories-title">
+        <div className={styles.sectionInner}>
+          <div className={styles.sectionHead}>
+            <div>
+              <p className={styles.kicker}>Bộ sưu tập</p>
+              <h2 id="home-categories-title" className={styles.sectionTitle}>
+                Danh mục rèm cửa
+              </h2>
+            </div>
+            <div className={styles.sectionAside}>
+              <p className={styles.sectionLead}>
+                Chọn loại rèm theo không gian — phòng khách, phòng ngủ, chống nắng, voan…
               </p>
-              <Link href="/products" className="cozy-btn font-semibold inline-flex items-center">
-                Xem sản phẩm <FaArrowRight className="ml-2" />
+              <Link href="/products" className={styles.textLink}>
+                Xem tất cả danh mục <FaArrowRight className={styles.textLinkIcon} />
               </Link>
             </div>
           </div>
-        </section>
-      ) : (
-        <BannerSlider banners={banners} />
-      )}
 
-      {/* Categories Section */}
-      <section className="py-16 bg-[#f3e6d8]">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Danh Mục Rèm Cửa</h2>
           {loadingCategories ? (
-            <div className="text-center py-12">Đang tải danh mục...</div>
+            <div className={styles.categoriesSkeleton} aria-busy="true" aria-label="Đang tải danh mục">
+              {[0, 1, 2, 3].map((item) => (
+                <span key={item} className={styles.categorySkeleton} />
+              ))}
+            </div>
           ) : categoryError ? (
-            <div className="text-center text-red-500 py-12">{categoryError}</div>
+            <div className={styles.statePanel} role="alert">
+              <p className={styles.stateTitle}>{categoryError}</p>
+              <p className={styles.stateText}>Kiểm tra kết nối và thử tải lại.</p>
+              <button type="button" onClick={loadCategories} className={styles.stateButton}>
+                Thử lại
+              </button>
+            </div>
           ) : categories.length === 0 ? (
-            <div className="text-center py-12">Chưa có danh mục nào.</div>
+            <div className={styles.statePanel}>
+              <p className={styles.stateTitle}>Danh mục đang được cập nhật.</p>
+              <p className={styles.stateText}>
+                Gọi <a href="tel:+84937543809">0937 543 809</a> để xem mẫu vải và hẹn đo tại nhà.
+              </p>
+            </div>
           ) : (
             <CategorySlider categories={categories} productCounts={productCounts} />
           )}
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl font-bold mb-6">Tại Sao Chọn Chúng Tôi?</h2>
-              <p className="text-gray-600 mb-8">
-                Với hơn 20 năm kinh nghiệm, chúng tôi tự hào cung cấp các sản phẩm rèm cửa chất
-                lượng cao, được thiết kế để nâng tầm không gian sống của bạn.
-              </p>
+      <section className={styles.whySection} aria-labelledby="home-why-title">
+        <div className={`${styles.sectionInner} ${styles.whyInner}`}>
+          <div className={styles.whyCopy}>
+            <p className={styles.kicker}>Vì sao chọn Tuấn Rèm</p>
+            <h2 id="home-why-title" className={styles.whyTitle}>
+              Hơn hai mươi năm may đo và lắp đặt tại Bình Dương.
+            </h2>
+            <p className={styles.whyLead}>
+              Bạn xem mẫu vải thật tại nhà trước khi quyết định — không chỉ ảnh stock.
+            </p>
 
-              <ul className="space-y-4">
-                <li className="flex items-start">
-                  <FaCheck className="text-green-500 mt-1 mr-3" />
-                  <span>Chất liệu cao cấp, bền đẹp theo thời gian</span>
+            <ol className={styles.whyList}>
+              {WHY_POINTS.map((point, index) => (
+                <li key={point.title} className={styles.whyItem}>
+                  <span className={styles.whyNumber}>{String(index + 1).padStart(2, '0')}</span>
+                  <div>
+                    <h3 className={styles.whyItemTitle}>{point.title}</h3>
+                    <p className={styles.whyItemText}>{point.text}</p>
+                  </div>
                 </li>
-                <li className="flex items-start">
-                  <FaCheck className="text-green-500 mt-1 mr-3" />
-                  <span>Đa dạng mẫu mã, phù hợp với mọi phong cách</span>
-                </li>
-                <li className="flex items-start">
-                  <FaCheck className="text-green-500 mt-1 mr-3" />
-                  <span>Dịch vụ tư vấn, đo đạc và lắp đặt tận nhà</span>
-                </li>
-                <li className="flex items-start">
-                  <FaCheck className="text-green-500 mt-1 mr-3" />
-                  <span>Bảo hành dài hạn và hỗ trợ sau bán hàng</span>
-                </li>
-              </ul>
-            </div>
+              ))}
+            </ol>
+
+            <Link href="/cong-trinh" className={styles.textLink}>
+              Xem công trình đã lắp <FaArrowRight className={styles.textLinkIcon} />
+            </Link>
+          </div>
+
+          <div className={styles.projectWrap}>
+            <Link href="/cong-trinh" className={styles.projectShowcase}>
+              {spotlightImage ? (
+                <Image
+                  src={spotlightImage}
+                  alt={spotlightProject?.title || 'Công trình rèm Tuấn Rèm'}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 46vw"
+                  className={styles.projectImage}
+                  onError={() => setProjectImageFailed(true)}
+                />
+              ) : (
+                <span className={styles.projectFallback} aria-hidden="true" />
+              )}
+              <div className={styles.projectCaption}>
+                <span className={styles.projectKicker}>Công trình thực tế</span>
+                <h3 className={styles.projectTitle}>
+                  {spotlightProject?.title || 'Album lắp đặt tại Dĩ An'}
+                </h3>
+                <p className={styles.projectLocation}>
+                  {spotlightProject?.location || 'Bình Dương & TP.HCM'}
+                </p>
+              </div>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Sản phẩm nổi bật */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Sản Phẩm Nổi Bật</h2>
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Đang tải sản phẩm...</p>
-              </div>
+      <section className={styles.productsSection} aria-labelledby="home-products-title">
+        <div className={styles.sectionInner}>
+          <div className={styles.sectionHead}>
+            <div>
+              <p className={styles.kicker}>Tuyển chọn</p>
+              <h2 id="home-products-title" className={styles.sectionTitle}>
+                Sản phẩm nổi bật
+              </h2>
             </div>
-          ) : error ? (
-            <div className="text-center py-12 bg-red-50 rounded-lg">
-              <p className="text-red-500 mb-4">{error}</p>
-              <button
-                onClick={() => {
-                  setLoading(true);
-                  setError(null);
-                  getCurtains()
-                    .then(data => {
-                      setFeaturedCurtains(data.slice(0, 3));
-                      setLoading(false);
-                    })
-                    .catch(err => {
-                      setError('Không thể tải sản phẩm nổi bật.');
-                      setLoading(false);
-                    });
-                }}
-                className="cursor-pointer px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
-              >
+            <div className={styles.sectionAside}>
+              <p className={styles.sectionLead}>
+                Một vài mẫu hay chọn — xem thêm màu và kích thước tại trang sản phẩm.
+              </p>
+              <Link href="/products" className={styles.textLink}>
+                Xem tất cả sản phẩm <FaArrowRight className={styles.textLinkIcon} />
+              </Link>
+            </div>
+          </div>
+
+          {loadingProducts ? (
+            <div className={styles.productsSkeleton} aria-busy="true" aria-label="Đang tải sản phẩm">
+              {[0, 1, 2].map((item) => (
+                <div key={item} className={styles.productSkeleton}>
+                  <span className={styles.skeletonImage} />
+                  <span className={styles.skeletonLine} />
+                  <span className={styles.skeletonLineShort} />
+                </div>
+              ))}
+            </div>
+          ) : productError ? (
+            <div className={styles.statePanel} role="alert">
+              <p className={styles.stateTitle}>{productError}</p>
+              <p className={styles.stateText}>Kiểm tra kết nối và thử lại.</p>
+              <button type="button" onClick={loadFeaturedProducts} className={styles.stateButton}>
                 Thử lại
               </button>
             </div>
           ) : featuredCurtains.length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <p className="text-gray-500 mb-2">Chưa có sản phẩm nổi bật</p>
-              <Link
-                href="/products"
-                className="text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center"
-              >
-                Xem tất cả sản phẩm <FaArrowRight className="ml-1" />
-              </Link>
+            <div className={styles.statePanel}>
+              <p className={styles.stateTitle}>Mẫu rèm đang được cập nhật trên web.</p>
+              <p className={styles.stateText}>
+                Gọi hoặc nhắn Zalo để xem catalogue và hẹn đo tại nhà.
+              </p>
+              <div className={styles.stateActions}>
+                <a href="tel:+84937543809" className={styles.stateButton}>
+                  <FaPhoneAlt size={12} /> 0937 543 809
+                </a>
+                <a
+                  href="https://zalo.me/0937543809"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.stateButtonGhost}
+                >
+                  Nhắn Zalo
+                </a>
+              </div>
             </div>
           ) : (
-            <div
-              className={
-                featuredCurtains.length < 3
-                  ? "flex justify-center gap-8 flex-wrap"
-                  : "grid grid-cols-1 md:grid-cols-3 gap-8"
-              }
-            >
-              {featuredCurtains.map(curtain => (
-                <div className="max-w-md w-full">
-                  <CurtainCard key={curtain._id} curtain={curtain} />
-                </div>
+            <div className={styles.productsGrid}>
+              {featuredCurtains.map((curtain) => (
+                <CurtainCard key={curtain._id} curtain={curtain} variant="editorial" />
               ))}
-              <div className="flex justify-center items-center w-full mt-8">
-                <Link
-                  href="/products"
-                  className="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors inline-flex items-center"
-                >
-                  Xem tất cả sản phẩm <FaArrowRight className="ml-2" />
-                </Link>
-              </div>
             </div>
           )}
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-[#f9f3ea] text-[#5d4938] relative">
-        <div className="container mx-auto px-4 text-center relative z-10">
-          <h2 className="text-3xl font-bold mb-5">Sẵn Sàng Làm Mới Không Gian Của Bạn?</h2>
-          <p className="text-lg mb-12 max-w-2xl mx-auto">
-            Liên hệ ngay với chúng tôi để được tư vấn miễn phí và nhận báo giá tốt nhất
+      <section className={styles.ctaSection} aria-labelledby="home-cta-title">
+        <Image src={ctaImage} alt="" fill sizes="100vw" className={styles.ctaImage} />
+        <div className={styles.ctaOverlay} aria-hidden="true" />
+        <div className={styles.ctaInner}>
+          <p className={styles.kickerLight}>Tư vấn miễn phí</p>
+          <h2 id="home-cta-title" className={styles.ctaTitle}>
+            Hẹn đo rèm tại nhà
+          </h2>
+          <p className={styles.ctaLead}>
+            Gọi hoặc nhắn Zalo — tư vấn miễn phí, báo giá sau khi đo cửa.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-y-4 sm:gap-y-0 sm:gap-x-6">
-            <Link
-              href="/contact"
-              className="w-60 mx-auto sm:mx-0 bg-[#f9f3ea] text-[#5d4938] hover:bg-[#f0e9df] border border-[#d1c3b3] px-6 py-3 rounded-md font-medium transition-colors duration-300"
-            >
-              Liên hệ ngay
+          <div className={styles.ctaActions}>
+            <Link href="/contact" className={styles.ctaPrimary}>
+              Liên hệ
             </Link>
-            <Link
-              href="/products"
-              className="w-60 mx-auto sm:mx-0 bg-transparent text-[#5d4938] hover:bg-[#f0e9df] border border-[#d1c3b3] px-6 py-3 rounded-md font-medium transition-colors duration-300"
+            <a
+              href="https://zalo.me/0937543809"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.ctaSecondary}
             >
-              Khám phá sản phẩm
-            </Link>
+              Nhắn Zalo
+            </a>
           </div>
+          <p className={styles.ctaNote}>0937 543 809 · Dĩ An, Bình Dương</p>
         </div>
       </section>
     </div>
