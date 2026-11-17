@@ -50,7 +50,7 @@ const PostCard = ({ post, isAdmin = false }) => {
             <span>{formattedDate}</span>
             <span className="mx-2 hidden sm:inline">•</span>
             <span className="hidden sm:inline">
-              {post.viewCount} lượt xem ({post.uniqueViewCount} độc giả)
+              {post.viewCount} lượt xem
             </span>
           </div>
 

@@ -68,17 +68,17 @@ export function AuthProvider({ children }) {
         const role = await fetchUserRole(authUser.uid);
         setUserRole(role);
         // Luôn cập nhật cookie khi đăng nhập
-        document.cookie = `user-role=${role}; path=/`;
+        document.cookie = `user-role=${role}; path=/; SameSite=Lax`;
       } else {
         setUser(null);
         setUserRole(null);
         // Xóa cookie khi logout hoặc hết phiên
-        document.cookie = 'user-role=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+        document.cookie = 'user-role=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
       }
       setLoading(false);
     });
     return () => unsubscribe();
-  }, [router]);
+  }, []);
 
   // Login with email and password
   const login = async (email, password) => {
@@ -88,7 +88,7 @@ export function AuthProvider({ children }) {
         const role = await fetchUserRole(userCredential.user.uid);
 
         // Set user-role cookie
-        document.cookie = `user-role=${role}; path=/`;
+        document.cookie = `user-role=${role}; path=/; SameSite=Lax`;
         // Redirect based on role
         if (role === 'admin') {
           router.push('/admin');
@@ -98,7 +98,7 @@ export function AuthProvider({ children }) {
       } catch (roleError) {
         console.error("Error fetching role:", roleError);
         // Set user-role cookie mặc định là user nếu không lấy được role
-        document.cookie = `user-role=user; path=/`;
+        document.cookie = `user-role=user; path=/; SameSite=Lax`;
         // Continue with login even if role fetch fails
         router.push('/');
       }
@@ -164,14 +164,14 @@ export function AuthProvider({ children }) {
             setUserRole('user');
           }
           // Set user-role cookie
-          document.cookie = `user-role=user; path=/`;
+          document.cookie = `user-role=user; path=/; SameSite=Lax`;
           router.push('/');
         } else {
           // Existing user
           const role = userDoc.data().role;
           setUserRole(role);
           // Set user-role cookie
-          document.cookie = `user-role=${role}; path=/`;
+          document.cookie = `user-role=${role}; path=/; SameSite=Lax`;
           if (role === 'admin') {
             router.push('/admin');
           } else {
@@ -183,7 +183,7 @@ export function AuthProvider({ children }) {
         // Set default role and redirect even if Firestore access fails
         setUserRole('user');
         // Set user-role cookie mặc định là user nếu không lấy được role
-        document.cookie = `user-role=user; path=/`;
+        document.cookie = `user-role=user; path=/; SameSite=Lax`;
         router.push('/');
       }
 
@@ -207,7 +207,7 @@ export function AuthProvider({ children }) {
     try {
       await signOut(auth);
       // Xóa cookie user-role
-      document.cookie = 'user-role=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+      document.cookie = 'user-role=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
       router.push('/login');
       return { success: true };
     } catch (error) {

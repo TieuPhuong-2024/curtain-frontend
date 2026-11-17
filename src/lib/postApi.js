@@ -14,9 +14,11 @@ export const getPosts = async (page = 1, limit = 10, status, tag) => {
     }
 };
 
-export const getPostById = async (id) => {
+export const getPostById = async (id, { recordView = true } = {}) => {
     try {
-        const response = await api.get(`/posts/${id}`);
+        const response = await api.get(`/posts/${id}`, {
+            params: recordView ? undefined : { recordView: 'false' },
+        });
         return response.data;
     } catch (error) {
         console.error(`Error fetching post with id ${id}:`, error);

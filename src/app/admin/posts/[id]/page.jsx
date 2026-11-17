@@ -79,7 +79,7 @@ export default function EditPost() {
       const fetchPost = async () => {
         setLoading(true);
         try {
-          const post = await getPostById(postId);
+          const post = await getPostById(postId, { recordView: false });
           setFormData({
             title: post.title || '',
             summary: post.summary || '',
