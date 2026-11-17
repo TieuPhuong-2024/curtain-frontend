@@ -571,6 +571,7 @@ export default function CurtainForm({
                   onChange={handleChange}
                   placeholder="Ví dụ: Rèm lanh trơn phòng khách"
                   className={controlClass}
+                  autoComplete="off"
                   autoFocus
                   required
                 />
@@ -620,12 +621,15 @@ export default function CurtainForm({
                   >
                     <p className="text-[12px] font-medium text-[var(--a-muted)]">Danh mục mới</p>
                     <input
+                      id="curtain-new-category-name"
+                      name="newCategoryName"
                       type="text"
                       value={newCategoryName}
                       onChange={(event) => setNewCategoryName(event.target.value)}
                       placeholder="Tên danh mục"
                       className={controlClass}
                       aria-label="Tên danh mục mới"
+                      autoComplete="off"
                       onKeyDown={(event) => {
                         if (event.key === 'Enter') {
                           event.preventDefault();
@@ -635,6 +639,8 @@ export default function CurtainForm({
                     />
                     <div className="flex flex-wrap items-center gap-2">
                       <input
+                        id="curtain-category-image"
+                        name="categoryImage"
                         type="file"
                         ref={categoryFileInputRef}
                         onChange={handleCategoryImageChange}
@@ -702,6 +708,7 @@ export default function CurtainForm({
                   onChange={handleChange}
                   placeholder="Vải lanh"
                   className={controlClass}
+                  autoComplete="off"
                   required
                 />
               </Field>
@@ -820,9 +827,16 @@ export default function CurtainForm({
               </div>
 
               {priceType === 'fixed' && (
-                <Field label="Giá bán" required hint="Đơn vị đồng. Ví dụ: 1250000.">
+                <Field
+                  label="Giá bán"
+                  htmlFor="curtain-price-value"
+                  required
+                  hint="Đơn vị đồng. Ví dụ: 1250000."
+                >
                   <div className="relative">
                     <input
+                      id="curtain-price-value"
+                      name="priceValue"
                       type="number"
                       inputMode="numeric"
                       min="0"
@@ -830,6 +844,7 @@ export default function CurtainForm({
                       onChange={(event) => handlePriceChange('value', event.target.value)}
                       placeholder="1250000"
                       className={`${controlClass} pr-10 tabular-nums`}
+                      autoComplete="off"
                       required
                     />
                     <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-[var(--a-faint)]">
@@ -841,9 +856,11 @@ export default function CurtainForm({
 
               {priceType === 'range' && (
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Giá thấp nhất" required>
+                  <Field label="Giá thấp nhất" htmlFor="curtain-price-min" required>
                     <div className="relative">
                       <input
+                        id="curtain-price-min"
+                        name="priceMin"
                         type="number"
                         inputMode="numeric"
                         min="0"
@@ -851,6 +868,7 @@ export default function CurtainForm({
                         onChange={(event) => handlePriceChange('min', event.target.value)}
                         placeholder="800000"
                         className={`${controlClass} pr-10 tabular-nums`}
+                        autoComplete="off"
                         required
                       />
                       <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-[var(--a-faint)]">
@@ -858,9 +876,11 @@ export default function CurtainForm({
                       </span>
                     </div>
                   </Field>
-                  <Field label="Giá cao nhất" required>
+                  <Field label="Giá cao nhất" htmlFor="curtain-price-max" required>
                     <div className="relative">
                       <input
+                        id="curtain-price-max"
+                        name="priceMax"
                         type="number"
                         inputMode="numeric"
                         min="0"
@@ -868,6 +888,7 @@ export default function CurtainForm({
                         onChange={(event) => handlePriceChange('max', event.target.value)}
                         placeholder="2400000"
                         className={`${controlClass} pr-10 tabular-nums`}
+                        autoComplete="off"
                         required
                       />
                       <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-[var(--a-faint)]">
@@ -880,9 +901,11 @@ export default function CurtainForm({
 
               {priceType === 'discount' && (
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Giá cũ" required>
+                  <Field label="Giá cũ" htmlFor="curtain-price-old" required>
                     <div className="relative">
                       <input
+                        id="curtain-price-old"
+                        name="priceOld"
                         type="number"
                         inputMode="numeric"
                         min="0"
@@ -890,6 +913,7 @@ export default function CurtainForm({
                         onChange={(event) => handlePriceChange('old', event.target.value)}
                         placeholder="2000000"
                         className={`${controlClass} pr-10 tabular-nums`}
+                        autoComplete="off"
                         required
                       />
                       <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-[var(--a-faint)]">
@@ -897,9 +921,11 @@ export default function CurtainForm({
                       </span>
                     </div>
                   </Field>
-                  <Field label="Giá mới" required>
+                  <Field label="Giá mới" htmlFor="curtain-price-new" required>
                     <div className="relative">
                       <input
+                        id="curtain-price-new"
+                        name="priceNew"
                         type="number"
                         inputMode="numeric"
                         min="0"
@@ -907,6 +933,7 @@ export default function CurtainForm({
                         onChange={(event) => handlePriceChange('new', event.target.value)}
                         placeholder="1600000"
                         className={`${controlClass} pr-10 tabular-nums`}
+                        autoComplete="off"
                         required
                       />
                       <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-[var(--a-faint)]">
@@ -945,6 +972,8 @@ export default function CurtainForm({
             </PanelHeader>
             <div className="p-5">
               <input
+                id="curtain-main-file"
+                name="mainFile"
                 type="file"
                 ref={fileInputRef}
                 onChange={handleMainFileChange}
@@ -1006,12 +1035,13 @@ export default function CurtainForm({
                 </label>
                 <input
                   id="curtain-main-url"
-                  type="url"
+                  type="text"
                   name="mainImage"
                   value={formData.mainImage}
                   onChange={handleMainUrlChange}
                   placeholder="https://…"
                   className={`${controlClass} mt-1`}
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -1030,7 +1060,7 @@ export default function CurtainForm({
               >
                 <span>
                   <span className="block text-[13px] font-medium text-[var(--a-ink)]">
-                    Còn hàng
+                    Hiển thị còn hàng
                   </span>
                   <span className="mt-0.5 block text-[12px] leading-relaxed text-[var(--a-faint)]">
                     Tắt khi mẫu đang hết hàng để khách biết.
@@ -1073,6 +1103,8 @@ export default function CurtainForm({
             </PanelHeader>
             <div className="p-5">
               <input
+                id="curtain-additional-files"
+                name="additionalFiles"
                 type="file"
                 multiple
                 ref={additionalFileInputRef}
@@ -1199,11 +1231,13 @@ export default function CurtainForm({
               <Field label="Tên màu" htmlFor="curtain-color-name" required>
                 <input
                   id="curtain-color-name"
+                  name="colorName"
                   type="text"
                   value={newColorName}
                   onChange={(event) => setNewColorName(event.target.value)}
                   placeholder="Ví dụ: Xanh chàm"
                   className={controlClass}
+                  autoComplete="off"
                   autoFocus
                   onKeyDown={(event) => {
                     if (event.key === 'Enter') {
@@ -1216,20 +1250,24 @@ export default function CurtainForm({
 
               <Field label="Mã màu" htmlFor="curtain-color-hex" hint="Dùng mã hex, ví dụ #2C4657.">
                 <div className="flex gap-2">
-                  <input
-                    type="color"
-                    value={pickerValue}
-                    onChange={(event) => setNewColorHexCode(event.target.value)}
-                    aria-label="Chọn màu"
-                    className="h-9 w-11 shrink-0 cursor-pointer rounded-[var(--a-radius-sm)] border border-[var(--a-line-strong)] bg-[var(--a-surface)] p-0.5"
-                  />
+                    <input
+                      id="curtain-color-picker"
+                      name="colorPicker"
+                      type="color"
+                      value={pickerValue}
+                      onChange={(event) => setNewColorHexCode(event.target.value)}
+                      aria-label="Chọn màu"
+                      className="h-9 w-11 shrink-0 cursor-pointer rounded-[var(--a-radius-sm)] border border-[var(--a-line-strong)] bg-[var(--a-surface)] p-0.5"
+                    />
                   <input
                     id="curtain-color-hex"
+                    name="colorHex"
                     type="text"
                     value={newColorHexCode}
                     onChange={(event) => setNewColorHexCode(event.target.value)}
                     placeholder="#808080"
                     className={`${controlClass} flex-1 tabular-nums`}
+                    autoComplete="off"
                     onKeyDown={(event) => {
                       if (event.key === 'Enter') {
                         event.preventDefault();

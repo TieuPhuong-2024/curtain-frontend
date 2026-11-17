@@ -17,7 +17,7 @@ export function PanelHeader({ title, description, children }) {
           <p className="mt-0.5 text-[13px] leading-relaxed text-[var(--a-muted)]">{description}</p>
         )}
       </div>
-      {children && <div className="flex items-center gap-2">{children}</div>}
+      {children && <div className="flex shrink-0 items-center gap-2">{children}</div>}
     </div>
   );
 }
