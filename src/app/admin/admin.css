@@ -85,68 +85,6 @@
   box-shadow: 0 0 0 3px rgba(44, 70, 87, 0.12);
 }
 
-/* Lớp phủ cho các form cũ (rèm) — chỉ đổi da, không đổi logic */
-.admin-form :where(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]), textarea, select) {
-  width: 100%;
-  border: 1px solid var(--a-line-strong);
-  border-radius: var(--a-radius-sm);
-  background-color: var(--a-surface);
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--a-ink);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.admin-form :where(input, textarea, select):focus {
-  border-color: var(--a-cham);
-  box-shadow: 0 0 0 3px rgba(44, 70, 87, 0.12);
-  outline: none;
-}
-.admin-form textarea {
-  min-height: 96px;
-}
-.admin-form label {
-  color: var(--a-muted);
-}
-.admin-form button[type="submit"] {
-  background-color: var(--a-cham);
-  color: #fff;
-  border-radius: var(--a-radius-sm);
-  font-weight: 500;
-}
-.admin-form button[type="submit"]:hover {
-  background-color: var(--a-cham-deep);
-}
-.admin-form button[type="submit"]:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-.admin-form .bg-blue-500,
-.admin-form .bg-blue-600,
-.admin-form .bg-blue-700,
-.admin-form .bg-indigo-500,
-.admin-form .bg-indigo-600,
-.admin-form .bg-indigo-700 {
-  background-color: var(--a-cham);
-}
-.admin-form .hover\:bg-blue-600:hover,
-.admin-form .hover\:bg-blue-700:hover,
-.admin-form .hover\:bg-indigo-600:hover,
-.admin-form .hover\:bg-indigo-700:hover {
-  background-color: var(--a-cham-deep);
-}
-.admin-form .text-blue-500,
-.admin-form .text-blue-600,
-.admin-form .text-blue-700,
-.admin-form .text-blue-800,
-.admin-form .text-indigo-600 {
-  color: var(--a-cham);
-}
-.admin-form .border-blue-500,
-.admin-form .border-indigo-500 {
-  border-color: var(--a-cham);
-}
-
 /* Toast đồng bộ tông */
 .a-toast {
   border-radius: 10px !important;
