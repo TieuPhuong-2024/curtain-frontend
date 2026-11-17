@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { FaUpload, FaPlus, FaTimes, FaEdit, FaSave } from 'react-icons/fa';
 import { createCurtain, uploadImage, getColors, createColor, getColorById, updateColor } from '@/lib/api';
 import { getCategories, createCategory } from '@/lib/categoryApi';
+import PageHeader from '@/components/admin/PageHeader';
+import { buttonClasses } from '@/components/admin/Button';
 
 export default function AddCurtain() {
     const [priceType, setPriceType] = useState('fixed');
@@ -380,18 +382,24 @@ export default function AddCurtain() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="mb-4 flex items-center">
-                <h1 className="text-2xl font-bold">Thêm sản phẩm mới</h1>
-            </div>
+        <div className="admin-form space-y-6">
+            <PageHeader
+                title="Thêm sản phẩm"
+                description="Ghi một mẫu rèm mới vào sổ: giá, danh mục, màu và ảnh thực tế."
+                actions={
+                    <Link href="/admin/curtains" className={buttonClasses('secondary', 'md')}>
+                        Quay lại sản phẩm
+                    </Link>
+                }
+            />
 
             {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <div className="rounded-[var(--a-radius-sm)] border border-[rgba(156,59,54,0.25)] bg-[var(--a-danger-soft)] px-4 py-3 text-sm text-[var(--a-danger)]">
                     {error}
                 </div>
             )}
 
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="rounded-[var(--a-radius)] border border-[var(--a-line)] bg-[var(--a-surface)] p-5 sm:p-6">
                 <form onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Tên sản phẩm */}

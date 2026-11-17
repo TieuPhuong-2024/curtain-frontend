@@ -1,7 +1,7 @@
 'use client';
 
-import { use, useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { FaEdit, FaPlus, FaSave, FaTimes, FaUpload } from 'react-icons/fa';
 import {
@@ -14,8 +14,10 @@ import {
 } from '@/lib/api';
 import { createCategory, getCategories } from '@/lib/categoryApi';
 import { createColor, getColorById, getColors, updateColor } from '@/lib/colorApi';
+import PageHeader from '@/components/admin/PageHeader';
+import { buttonClasses } from '@/components/admin/Button';
 
-export default function EditCurtain({ params }) {
+export default function EditCurtain() {
   const [priceType, setPriceType] = useState('fixed');
   const [priceData, setPriceData] = useState({
     value: '',
@@ -26,7 +28,7 @@ export default function EditCurtain({ params }) {
   });
 
   const router = useRouter();
-  const { id } = use(params);
+  const { id } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -490,25 +492,31 @@ export default function EditCurtain({ params }) {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8 flex justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="flex justify-center py-16">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-[var(--a-line-strong)] border-t-[var(--a-cham)]" />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-4 flex items-center">
-        <h1 className="text-2xl font-bold">Chỉnh sửa sản phẩm</h1>
-      </div>
+    <div className="admin-form space-y-6">
+      <PageHeader
+        title="Sửa sản phẩm"
+        description="Cập nhật giá, màu, ảnh và tình trạng hàng của mẫu rèm này."
+        actions={
+          <Link href="/admin/curtains" className={buttonClasses('secondary', 'md')}>
+            Quay lại sản phẩm
+          </Link>
+        }
+      />
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="rounded-[var(--a-radius-sm)] border border-[rgba(156,59,54,0.25)] bg-[var(--a-danger-soft)] px-4 py-3 text-sm text-[var(--a-danger)]">
           {error}
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="rounded-[var(--a-radius)] border border-[var(--a-line)] bg-[var(--a-surface)] p-5 sm:p-6">
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Tên sản phẩm */}

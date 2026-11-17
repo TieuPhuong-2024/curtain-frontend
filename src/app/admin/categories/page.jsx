@@ -1,268 +1,254 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { deleteCategory, getCategories } from '@/lib/api';
-import Image from "next/image";
-import { FaEdit, FaPlus, FaTrash, FaSearch, FaFileExcel } from 'react-icons/fa';
+'use client';
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { FaPlus, FaFileExcel, FaPen, FaTrash, FaTags } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 
+import { deleteCategory, getCategories } from '@/lib/api';
+import PageHeader from '@/components/admin/PageHeader';
+import Panel from '@/components/admin/Panel';
+import Toolbar from '@/components/admin/Toolbar';
+import LedgerTable from '@/components/admin/LedgerTable';
+import Pagination from '@/components/admin/Pagination';
+import Button, { buttonClasses } from '@/components/admin/Button';
+import Thumb from '@/components/admin/Thumb';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import EmptyState from '@/components/admin/EmptyState';
+import { formatDate, formatNumber } from '@/components/admin/format';
+import { notify } from '@/components/admin/notify';
+
+const PAGE_SIZE = 10;
+
+function categoryId(category) {
+  return category?._id || category;
+}
+
+function categoryName(category) {
+  return category?.name || String(category ?? '');
+}
+
 export default function CategoryListPage() {
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-    const [searchTerm, setSearchTerm] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
-    const router = useRouter();
+  const [categories, setCategories] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
-    useEffect(() => {
-        fetchCategories();
-    }, []);
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
-    const fetchCategories = async () => {
-        try {
-            setLoading(true);
-            setError("");
-            const data = await getCategories();
-            setCategories(data);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const data = await getCategories();
+      setCategories(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError(err.message || 'Không tải được danh mục.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleAdd = () => {
-        router.push("/admin/categories/add");
-    };
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      setDeleting(true);
+      await deleteCategory(categoryId(deleteTarget));
+      notify.success('Đã xóa danh mục.');
+      setDeleteTarget(null);
+      await fetchCategories();
+    } catch (err) {
+      notify.error(err.message || 'Không xóa được danh mục.');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
-    const handleEdit = (id) => {
-        router.push(`/admin/categories/edit/${id}`);
-    };
+  const keyword = searchTerm.trim().toLowerCase();
+  const filteredCategories = categories.filter((category) =>
+    categoryName(category).toLowerCase().includes(keyword)
+  );
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Bạn có chắc muốn xóa danh mục này?")) return;
-        try {
-            await deleteCategory(id);
-            fetchCategories(); // Refresh the list after deletion
-            alert("Xóa danh mục thành công!");
-        } catch (err) {
-            alert(err.message);
-        }
-    };
+  const totalPages = Math.ceil(filteredCategories.length / PAGE_SIZE);
+  const paginatedCategories = filteredCategories.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
 
-    const handleExportExcel = () => {
-        const dataToExport = filteredCategories.map(category => ({
-            'Tên danh mục': category.name,
-            'Ngày tạo': category.createdAt ? new Date(category.createdAt).toLocaleDateString('vi-VN') : 'N/A',
-            'Số sản phẩm': category.productCount || 0
-        }));
-        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Categories');
-        XLSX.writeFile(workbook, 'danh_sach_danh_muc.xlsx');
-    };
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) setCurrentPage(totalPages);
+  }, [totalPages, currentPage]);
 
-    // Filter categories based on search term
-    const filteredCategories = categories.filter(category =>
-        category.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  const handleExportExcel = () => {
+    const rows = filteredCategories.map((category) => ({
+      'Tên danh mục': categoryName(category),
+      'Mô tả': category.description || '',
+      'Ngày tạo': category.createdAt ? formatDate(category.createdAt) : '',
+    }));
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Danh muc');
+    XLSX.writeFile(workbook, 'danh-sach-danh-muc.xlsx');
+  };
 
-    // Apply pagination
-    const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
-    const paginatedCategories = filteredCategories.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
-
-    return (
-        <div>
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
-                <h1 className="text-2xl font-bold">Quản lý danh mục sản phẩm</h1>
-                <div className="flex flex-wrap gap-2">
-                    <button onClick={handleExportExcel}
-                        className="cursor-pointer bg-green-600 text-white px-4 py-2 rounded-md flex items-center hover:bg-green-700 transition">
-                        <FaFileExcel className="mr-2" />
-                        Xuất Excel
-                    </button>
-                    <button
-                        onClick={handleAdd}
-                        className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-md flex items-center hover:bg-blue-700 transition"
-                    >
-                        <FaPlus className="mr-2" /> Thêm Mới
-                    </button>
-                </div>
-            </div>
-
-            {/* Search Bar */}
-            <div className="mb-6 relative">
-                <input
-                    type="text"
-                    placeholder="Tìm kiếm danh mục..."
-                    className="w-full p-3 pl-10 rounded-md border border-gray-300"
-                    value={searchTerm}
-                    onChange={(e) => {
-                        setSearchTerm(e.target.value);
-                        setCurrentPage(1);
-                    }}
-                />
-                <FaSearch className="absolute left-3 top-3.5 text-gray-400" />
-            </div>
-            {loading ? (
-                <div className="text-center py-8">
-                    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-                    <p className="mt-2">Đang tải dữ liệu...</p>
-                </div>
-            ) : error ? (
-                <div className="text-center py-8 bg-red-100 text-red-600 p-4 rounded-lg">
-                    {error}
-                    <button
-                        onClick={fetchCategories}
-                        className="cursor-pointer mt-4 bg-blue-600 text-white px-4 py-2 rounded-md"
-                    >
-                        Thử lại
-                    </button>
-                </div>
-            ) : (
-                <>
-                    {filteredCategories.length === 0 ? (
-                        <div className="text-center py-8 bg-white rounded-lg shadow">
-                            <p className="text-gray-500">Không tìm thấy danh mục phù hợp</p>
-                        </div>
-                    ) : (
-                        <div className="bg-white rounded-lg shadow overflow-x-auto">
-                            {/* Regular table for md screens and up */}
-                            <table className="min-w-full divide-y divide-gray-200 hidden md:table">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Ảnh
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Tên danh mục
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Thao tác
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {paginatedCategories.map((cat) => (
-                                        <tr key={cat._id || cat} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="relative w-10 h-10">
-                                                    <Image
-                                                        src={cat.image || '/images/curtain-placeholder.jpg'}
-                                                        alt={cat.name || cat}
-                                                        fill
-                                                        className="rounded-full object-cover"
-                                                    />
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm font-medium text-gray-900">{cat.name || cat}</div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <div className="flex space-x-2">
-                                                    <button
-                                                        onClick={() => handleEdit(cat._id || cat)}
-                                                        className="cursor-pointer text-blue-600 hover:text-blue-900"
-                                                    >
-                                                        <FaEdit size={18} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(cat._id || cat)}
-                                                        className="cursor-pointer text-red-600 hover:text-red-900"
-                                                    >
-                                                        <FaTrash size={18} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-
-                            {/* Card view for mobile */}
-                            <div className="md:hidden divide-y divide-gray-200">
-                                {paginatedCategories.map((cat) => (
-                                    <div key={cat._id || cat} className="p-4 hover:bg-gray-50">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div className="flex items-center">
-                                                <div className="h-10 w-10 flex-shrink-0 mr-3">
-                                                    <div className="relative w-10 h-10">
-                                                        <Image
-                                                            src={cat.image || '/images/curtain-placeholder.jpg'}
-                                                            alt={cat.name || cat}
-                                                            fill
-                                                            className="rounded-full object-cover"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <div className="font-medium">{cat.name || cat}</div>
-                                                </div>
-                                            </div>
-                                            <div className="flex space-x-3">
-                                                <button
-                                                    onClick={() => handleEdit(cat._id || cat)}
-                                                    className="text-green-500 bg-green-50 p-2 rounded-full hover:bg-green-100"
-                                                >
-                                                    <FaEdit size={16} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(cat._id || cat)}
-                                                    className="text-red-500 bg-red-50 p-2 rounded-full hover:bg-red-100"
-                                                >
-                                                    <FaTrash size={16} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Pagination */}
-                    {filteredCategories.length > 0 && (
-                        <div className="mt-6 flex justify-center">
-                            <nav className="flex items-center space-x-1">
-                                <button
-                                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                                    disabled={currentPage === 1}
-                                    className={`px-3 py-1 rounded-md 
-                                    ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-50'}`}
-                                >
-                                    &laquo;
-                                </button>
-
-                                {[...Array(totalPages)].map((_, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => setCurrentPage(index + 1)}
-                                        className={`px-3 py-1 rounded-md ${currentPage === index + 1
-                                                ? 'bg-blue-600 text-white'
-                                                : 'text-blue-600 hover:bg-blue-50'
-                                            }`}
-                                    >
-                                        {index + 1}
-                                    </button>
-                                ))}
-
-                                <button
-                                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                                    disabled={currentPage === totalPages}
-                                    className={`px-3 py-1 rounded-md
-                                    ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-50'}`}
-                                >
-                                    &raquo;
-                                </button>
-                            </nav>
-                        </div>
-                    )}
-                </>
-            )}
+  const columns = [
+    {
+      key: 'name',
+      label: 'Danh mục',
+      primary: true,
+      render: (category) => (
+        <div className="flex min-w-0 items-center gap-3">
+          <Thumb src={category.image} alt={categoryName(category)} className="h-10 w-10 shrink-0" />
+          <div className="min-w-0">
+            <p className="truncate font-medium text-[var(--a-ink)]">{categoryName(category)}</p>
+            <p className="mt-0.5 line-clamp-1 text-[12px] text-[var(--a-faint)]">
+              {category.description || 'Chưa có mô tả'}
+            </p>
+          </div>
         </div>
-    );
+      ),
+    },
+    {
+      key: 'createdAt',
+      label: 'Ngày tạo',
+      render: (category) => (
+        <span className="whitespace-nowrap tabular-nums text-[var(--a-muted)]">
+          {formatDate(category.createdAt)}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      label: '',
+      actions: true,
+      align: 'right',
+      width: '108px',
+      render: (category) => (
+        <div className="flex items-center justify-end gap-1">
+          <Link
+            href={`/admin/categories/edit/${categoryId(category)}`}
+            className="flex h-8 w-8 items-center justify-center rounded-[6px] text-[var(--a-muted)] transition hover:bg-[var(--a-raised)] hover:text-[var(--a-cham)]"
+            aria-label={`Sửa ${categoryName(category)}`}
+            title="Sửa danh mục"
+          >
+            <FaPen className="h-3.5 w-3.5" />
+          </Link>
+          <button
+            type="button"
+            onClick={() => setDeleteTarget(category)}
+            className="flex h-8 w-8 items-center justify-center rounded-[6px] text-[var(--a-muted)] transition hover:bg-[var(--a-danger-soft)] hover:text-[var(--a-danger)]"
+            aria-label={`Xóa ${categoryName(category)}`}
+            title="Xóa danh mục"
+          >
+            <FaTrash className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Danh mục"
+        description="Nhóm sản phẩm theo chất liệu và kiểu rèm để khách tìm nhanh hơn."
+        meta={`${formatNumber(filteredCategories.length)}${
+          filteredCategories.length !== categories.length ? ` / ${formatNumber(categories.length)}` : ''
+        } danh mục`}
+        actions={
+          <>
+            <Button
+              icon={FaFileExcel}
+              onClick={handleExportExcel}
+              disabled={!filteredCategories.length}
+            >
+              Xuất Excel
+            </Button>
+            <Link href="/admin/categories/add" className={buttonClasses('primary', 'md')}>
+              <FaPlus className="h-3.5 w-3.5" />
+              Thêm danh mục
+            </Link>
+          </>
+        }
+      />
+
+      {error ? (
+        <Panel className="border-[rgba(156,59,54,0.25)]">
+          <div className="flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-[var(--a-danger)]">{error}</p>
+            <Button size="sm" onClick={fetchCategories}>
+              Thử lại
+            </Button>
+          </div>
+        </Panel>
+      ) : (
+        <Panel>
+          <Toolbar
+            searchValue={searchTerm}
+            onSearchChange={(value) => {
+              setSearchTerm(value);
+              setCurrentPage(1);
+            }}
+            searchPlaceholder="Tìm tên danh mục…"
+          />
+
+          <LedgerTable
+            columns={columns}
+            rows={paginatedCategories}
+            rowKey="_id"
+            loading={loading}
+            caption="Danh sách danh mục sản phẩm"
+            empty={
+              <EmptyState
+                icon={FaTags}
+                title={keyword ? 'Không có danh mục phù hợp' : 'Sổ chưa có danh mục nào'}
+                description={
+                  keyword
+                    ? 'Thử từ khóa khác để tìm đúng nhóm sản phẩm.'
+                    : 'Tạo danh mục đầu tiên để sắp xếp sản phẩm trong cửa hàng.'
+                }
+                action={
+                  keyword ? (
+                    <Button size="sm" onClick={() => setSearchTerm('')}>
+                      Xóa tìm kiếm
+                    </Button>
+                  ) : (
+                    <Link href="/admin/categories/add" className={buttonClasses('primary', 'sm')}>
+                      Thêm danh mục
+                    </Link>
+                  )
+                }
+              />
+            }
+          />
+
+          <Pagination
+            page={currentPage}
+            totalPages={totalPages}
+            total={filteredCategories.length}
+            onChange={setCurrentPage}
+          />
+        </Panel>
+      )}
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Xóa danh mục?"
+        description={
+          deleteTarget
+            ? `“${categoryName(deleteTarget)}” sẽ bị gỡ khỏi danh sách. Sản phẩm đang thuộc danh mục này có thể mất phân loại.`
+            : ''
+        }
+        confirmLabel="Xóa danh mục"
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => !deleting && setDeleteTarget(null)}
+      />
+    </div>
+  );
 }

@@ -1,192 +1,255 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye } from 'react-icons/fa';
-import { toast } from 'react-toastify';
+import { FaEye, FaPen, FaPlus, FaTrash, FaBuilding } from 'react-icons/fa';
+
 import { getProjects, deleteProject } from '@/lib/api';
+import PageHeader from '@/components/admin/PageHeader';
+import Panel from '@/components/admin/Panel';
+import Toolbar from '@/components/admin/Toolbar';
+import LedgerTable from '@/components/admin/LedgerTable';
+import Pagination from '@/components/admin/Pagination';
+import Button, { buttonClasses } from '@/components/admin/Button';
+import Badge from '@/components/admin/Badge';
+import Thumb from '@/components/admin/Thumb';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import EmptyState from '@/components/admin/EmptyState';
+import { formatDate, formatNumber } from '@/components/admin/format';
+import { notify } from '@/components/admin/notify';
+
+const PAGE_SIZE = 10;
 
 export default function AdminProjects() {
-    const [projects, setProjects] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [confirmDelete, setConfirmDelete] = useState(null);
-    const [error, setError] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [error, setError] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
-    useEffect(() => {
-        fetchProjects();
-    }, []);
+  useEffect(() => {
+    fetchProjects();
+  }, []);
 
-    const fetchProjects = async () => {
-        try {
-            setLoading(true);
-            const projectsData = await getProjects();
-            setProjects(projectsData);
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching projects:', error);
-            setError('Không thể tải dữ liệu. Vui lòng thử lại sau.');
-            setLoading(false);
-        }
-    };
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getProjects();
+      setProjects(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Error fetching projects:', err);
+      setError('Không tải được danh sách công trình. Kiểm tra kết nối rồi thử lại.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleDelete = async (id) => {
-        try {
-            await deleteProject(id);
-            toast.success('Xóa công trình thành công!');
-            setConfirmDelete(null);
-            fetchProjects();
-        } catch (error) {
-            console.error('Error deleting project:', error);
-            toast.error('Lỗi khi xóa công trình!');
-        }
-    };
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      setDeleting(true);
+      await deleteProject(deleteTarget._id);
+      notify.success('Đã xóa công trình.');
+      setDeleteTarget(null);
+      await fetchProjects();
+    } catch (err) {
+      console.error('Error deleting project:', err);
+      notify.error('Không xóa được công trình. Vui lòng thử lại.');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
-    const filteredProjects = projects.filter(project => 
-        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (project.shortDescription && project.shortDescription.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        project.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.type.toLowerCase().includes(searchTerm.toLowerCase())
+  const keyword = searchTerm.trim().toLowerCase();
+  const filteredProjects = projects.filter((project) => {
+    if (!keyword) return true;
+    return [project.title, project.shortDescription, project.location, project.type].some((value) =>
+      value?.toLowerCase().includes(keyword)
     );
+  });
 
-    const renderProjectImage = (project) => {
-        if (project.thumbnail) {
-            return (
-                <div className="relative w-20 h-20 overflow-hidden rounded">
-                    <Image 
-                        src={project.thumbnail}
-                        alt={project.title} 
-                        fill
-                        style={{ objectFit: 'cover' }}
-                        sizes="80px"
-                    />
-                </div>
-            );
-        }
-        return (
-            <div className="w-20 h-20 bg-gray-200 flex items-center justify-center rounded">
-                <span className="text-xs text-gray-400">No image</span>
+  const totalPages = Math.ceil(filteredProjects.length / PAGE_SIZE);
+  const paginatedProjects = filteredProjects.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
+
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) setCurrentPage(totalPages);
+  }, [totalPages, currentPage]);
+
+  const columns = [
+    {
+      key: 'title',
+      label: 'Công trình',
+      primary: true,
+      render: (project) => (
+        <div className="flex min-w-0 items-center gap-3">
+          <Thumb src={project.thumbnail} alt={project.title} className="h-11 w-16 shrink-0" />
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <p className="truncate font-medium text-[var(--a-ink)]">{project.title}</p>
+              {project.featured && <Badge tone="brass">Nổi bật</Badge>}
             </div>
-        );
-    };
-
-    return (
-        <div className="p-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-                <h1 className="text-2xl font-bold text-gray-800 mb-4 sm:mb-0">Quản lý Công Trình</h1>
-                <Link href="/admin/projects/add" className="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center hover:bg-blue-700 transition">
-                    <FaPlus className="mr-2" /> Thêm công trình mới
-                </Link>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm mb-6">
-                <div className="p-4 border-b">
-                    <div className="relative">
-                        <input
-                            type="text"
-                            placeholder="Tìm kiếm công trình..."
-                            className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                        <FaSearch className="absolute left-3 top-3 text-gray-400" />
-                    </div>
-                </div>
-
-                {loading ? (
-                    <div className="p-8 text-center">
-                        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-                        <p className="mt-4 text-gray-600">Đang tải dữ liệu...</p>
-                    </div>
-                ) : error ? (
-                    <div className="p-8 text-center text-red-600">
-                        <p>{error}</p>
-                        <button 
-                            onClick={fetchProjects}
-                            className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
-                        >
-                            Thử lại
-                        </button>
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        {filteredProjects.length === 0 ? (
-                            <div className="p-8 text-center text-gray-600">
-                                <p>Không tìm thấy công trình nào.</p>
-                            </div>
-                        ) : (
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hình ảnh</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên công trình</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Địa điểm</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {filteredProjects.map((project) => (
-                                        <tr key={project._id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                {renderProjectImage(project)}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="text-sm font-medium text-gray-900">{project.title}</div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="text-sm text-gray-500">{project.location}</div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                    {project.type}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <div className="flex space-x-2">
-                                                    <Link href={`/cong-trinh/${project._id}`} target="_blank" className="text-indigo-600 hover:text-indigo-900" title="Xem">
-                                                        <FaEye />
-                                                    </Link>
-                                                    <Link href={`/admin/projects/edit/${project._id}`} className="text-blue-600 hover:text-blue-900" title="Sửa">
-                                                        <FaEdit />
-                                                    </Link>
-                                                    {confirmDelete === project._id ? (
-                                                        <div className="flex items-center space-x-2">
-                                                            <button
-                                                                onClick={() => handleDelete(project._id)}
-                                                                className="cursor-pointer text-red-600 hover:text-red-900"
-                                                                title="Xác nhận xóa"
-                                                            >
-                                                                Xác nhận
-                                                            </button>
-                                                            <button
-                                                                onClick={() => setConfirmDelete(null)}
-                                                                className="cursor-pointer text-gray-600 hover:text-gray-900"
-                                                                title="Hủy"
-                                                            >
-                                                                Hủy
-                                                            </button>
-                                                        </div>
-                                                    ) : (
-                                                        <button
-                                                            onClick={() => setConfirmDelete(project._id)}
-                                                            className="cursor-pointer text-red-600 hover:text-red-900"
-                                                            title="Xóa"
-                                                        >
-                                                            <FaTrash />
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        )}
-                    </div>
-                )}
-            </div>
+            <p className="mt-0.5 line-clamp-1 text-[12px] text-[var(--a-faint)]">
+              {project.shortDescription || 'Chưa có mô tả ngắn'}
+            </p>
+          </div>
         </div>
-    );
-} 
+      ),
+    },
+    {
+      key: 'location',
+      label: 'Địa điểm',
+      render: (project) => (
+        <span className="text-[var(--a-muted)]">{project.location || 'Chưa ghi'}</span>
+      ),
+    },
+    {
+      key: 'type',
+      label: 'Loại',
+      render: (project) =>
+        project.type ? <Badge tone="cham">{project.type}</Badge> : <span className="text-[var(--a-faint)]">—</span>,
+    },
+    {
+      key: 'createdAt',
+      label: 'Ngày tạo',
+      render: (project) => (
+        <span className="whitespace-nowrap tabular-nums text-[var(--a-muted)]">
+          {formatDate(project.createdAt)}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      label: '',
+      actions: true,
+      align: 'right',
+      width: '132px',
+      render: (project) => (
+        <div className="flex items-center justify-end gap-1">
+          <Link
+            href={`/cong-trinh/${project._id}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex h-8 w-8 items-center justify-center rounded-[6px] text-[var(--a-muted)] transition hover:bg-[var(--a-raised)] hover:text-[var(--a-cham)]"
+            aria-label={`Xem công trình ${project.title}`}
+            title="Xem trên site"
+          >
+            <FaEye className="h-3.5 w-3.5" />
+          </Link>
+          <Link
+            href={`/admin/projects/edit/${project._id}`}
+            className="flex h-8 w-8 items-center justify-center rounded-[6px] text-[var(--a-muted)] transition hover:bg-[var(--a-raised)] hover:text-[var(--a-cham)]"
+            aria-label={`Sửa ${project.title}`}
+            title="Sửa công trình"
+          >
+            <FaPen className="h-3.5 w-3.5" />
+          </Link>
+          <button
+            type="button"
+            onClick={() => setDeleteTarget(project)}
+            className="flex h-8 w-8 items-center justify-center rounded-[6px] text-[var(--a-muted)] transition hover:bg-[var(--a-danger-soft)] hover:text-[var(--a-danger)]"
+            aria-label={`Xóa ${project.title}`}
+            title="Xóa công trình"
+          >
+            <FaTrash className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Công trình"
+        description="Hồ sơ những công trình đã thi công, dùng làm bằng chứng tay nghề trên trang chủ."
+        meta={`${formatNumber(filteredProjects.length)}${
+          filteredProjects.length !== projects.length ? ` / ${formatNumber(projects.length)}` : ''
+        } công trình`}
+        actions={
+          <Link href="/admin/projects/add" className={buttonClasses('primary', 'md')}>
+            <FaPlus className="h-3.5 w-3.5" />
+            Thêm công trình
+          </Link>
+        }
+      />
+
+      {error ? (
+        <Panel className="border-[rgba(156,59,54,0.25)]">
+          <div className="flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-[var(--a-danger)]">{error}</p>
+            <Button size="sm" onClick={fetchProjects}>
+              Thử lại
+            </Button>
+          </div>
+        </Panel>
+      ) : (
+        <Panel>
+          <Toolbar
+            searchValue={searchTerm}
+            onSearchChange={(value) => {
+              setSearchTerm(value);
+              setCurrentPage(1);
+            }}
+            searchPlaceholder="Tìm theo tên, địa điểm, loại…"
+          />
+
+          <LedgerTable
+            columns={columns}
+            rows={paginatedProjects}
+            loading={loading}
+            caption="Danh sách công trình"
+            empty={
+              <EmptyState
+                icon={FaBuilding}
+                title={keyword ? 'Không có công trình phù hợp' : 'Sổ chưa có công trình nào'}
+                description={
+                  keyword
+                    ? 'Thử từ khóa khác để tìm đúng công trình.'
+                    : 'Đăng công trình đầu tiên để khách thấy tay nghề của xưởng.'
+                }
+                action={
+                  keyword ? (
+                    <Button size="sm" onClick={() => setSearchTerm('')}>
+                      Xóa tìm kiếm
+                    </Button>
+                  ) : (
+                    <Link href="/admin/projects/add" className={buttonClasses('primary', 'sm')}>
+                      Thêm công trình
+                    </Link>
+                  )
+                }
+              />
+            }
+          />
+
+          <Pagination
+            page={currentPage}
+            totalPages={totalPages}
+            total={filteredProjects.length}
+            onChange={setCurrentPage}
+          />
+        </Panel>
+      )}
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Xóa công trình?"
+        description={
+          deleteTarget
+            ? `“${deleteTarget.title}” sẽ bị gỡ khỏi trang công trình. Thao tác này không hoàn tác được.`
+            : ''
+        }
+        confirmLabel="Xóa công trình"
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => !deleting && setDeleteTarget(null)}
+      />
+    </div>
+  );
+}

@@ -1,288 +1,293 @@
-﻿"use client";
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-  FaWindowMaximize, FaShoppingCart, FaTags, FaBuilding, FaImage, FaList, FaEnvelope,
-  FaChartPie, FaClock, FaUserPlus, FaTrash, FaEdit, FaEye
+  FaBuilding,
+  FaEnvelope,
+  FaImage,
+  FaList,
+  FaPen,
+  FaPlus,
+  FaTags,
+  FaWindowMaximize,
 } from 'react-icons/fa';
-import { getCurtains } from '@/lib/api';
-import StatCard from '@/components/dashboard/StatCard';
-import Badge from '@/components/dashboard/Badge';
-import ActionButton from '@/components/dashboard/ActionButton';
-import EmptyState from '@/components/dashboard/EmptyState';
-import LoadingSpinner from '@/components/dashboard/LoadingSpinner';
 
-const statusColors = {
-  published: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-  draft: 'bg-amber-100 text-amber-700 border-amber-200',
-  archived: 'bg-gray-100 text-gray-700 border-gray-200',
-};
+import { getAllContacts, getCategories, getCurtains } from '@/lib/api';
+import PageHeader from '@/components/admin/PageHeader';
+import Panel, { PanelHeader } from '@/components/admin/Panel';
+import LedgerTable from '@/components/admin/LedgerTable';
+import Button, { buttonClasses } from '@/components/admin/Button';
+import Badge from '@/components/admin/Badge';
+import Thumb from '@/components/admin/Thumb';
+import EmptyState from '@/components/admin/EmptyState';
+import { formatDate, formatNumber, formatPrice } from '@/components/admin/format';
+
+const shortcuts = [
+  { href: '/admin/curtains/add', label: 'Thêm sản phẩm', icon: FaPlus },
+  { href: '/admin/categories/add', label: 'Thêm danh mục', icon: FaTags },
+  { href: '/admin/projects/add', label: 'Thêm công trình', icon: FaBuilding },
+  { href: '/admin/banners', label: 'Sửa banner trang chủ', icon: FaImage },
+  { href: '/admin/posts/new', label: 'Viết bài mới', icon: FaList },
+  { href: '/admin/contacts', label: 'Xem liên hệ', icon: FaEnvelope },
+];
+
+function categoryName(curtain) {
+  return typeof curtain.category === 'object' ? curtain.category?.name : curtain.category;
+}
+
+function StatCell({ label, value, hint, loading }) {
+  return (
+    <div className="bg-[var(--a-surface)] p-5">
+      <dt className="text-[12px] font-medium text-[var(--a-muted)]">{label}</dt>
+      {loading ? (
+        <span className="mt-2 block h-7 w-16 animate-pulse rounded bg-[var(--a-line)]" />
+      ) : (
+        <dd className="mt-2 text-[28px] font-semibold leading-none tabular-nums text-[var(--a-ink)]">
+          {value}
+        </dd>
+      )}
+      <p className="mt-2 text-[12px] text-[var(--a-faint)]">{hint}</p>
+    </div>
+  );
+}
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({
-    totalCurtains: 0,
-    lowStock: 0,
-    totalCategories: 0,
-    totalOrders: 0,
-  });
-  const [recentItems, setRecentItems] = useState([]);
+  const [curtains, setCurtains] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [curtainsError, setCurtainsError] = useState('');
+  const [contactsError, setContactsError] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState('');
+
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    setCurtainsError('');
+    setContactsError(false);
+
+    const [curtainsResult, categoriesResult, contactsResult] = await Promise.allSettled([
+      getCurtains(),
+      getCategories(),
+      getAllContacts(),
+    ]);
+
+    if (curtainsResult.status === 'fulfilled') {
+      setCurtains(Array.isArray(curtainsResult.value) ? curtainsResult.value : []);
+    } else {
+      console.error('Error fetching curtains:', curtainsResult.reason);
+      setCurtainsError('Không tải được danh sách sản phẩm.');
+    }
+
+    if (categoriesResult.status === 'fulfilled') {
+      setCategories(Array.isArray(categoriesResult.value) ? categoriesResult.value : []);
+    } else {
+      console.error('Error fetching categories:', categoriesResult.reason);
+      setCategories([]);
+    }
+
+    if (contactsResult.status === 'fulfilled') {
+      setContacts(Array.isArray(contactsResult.value) ? contactsResult.value : []);
+    } else {
+      console.error('Error fetching contacts:', contactsResult.reason);
+      setContactsError(true);
+      setContacts([]);
+    }
+
+    setUpdatedAt(
+      new Intl.DateTimeFormat('vi-VN', { hour: '2-digit', minute: '2-digit' }).format(new Date())
+    );
+    setLoading(false);
+  };
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  const totalCurtains = curtains.length;
+  const inStockCount = curtains.filter((curtain) => curtain.inStock).length;
+  const outOfStockCount = totalCurtains - inStockCount;
+  const newContacts = contacts.filter((contact) => contact.status === 'new').length;
 
-      const curtains = await getCurtains();
-      const totalCurtains = curtains.length;
-      const lowStockItems = curtains.filter((c) => !c.inStock).length;
+  const recentProducts = [...curtains]
+    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+    .slice(0, 5);
 
-      setStats({
-        totalCurtains,
-        lowStock: lowStockItems,
-        totalCategories: 8,
-        totalOrders: 24,
-      });
-
-      setRecentItems(
-        curtains
-          .slice(0, 5)
-          .map((c) => ({
-            id: c._id,
-            name: c.name,
-            category: typeof c.category === 'object' ? c.category?.name : c.category,
-            price: c.price,
-            status: c.inStock ? 'published' : 'draft',
-            updatedAt: c.updatedAt || c.createdAt,
-          }))
-      );
-
-      setLoading(false);
-    } catch (err) {
-      console.error('Error fetching dashboard data:', err);
-      setError('Không thể tải dữ liệu thống kê. Vui lòng thử lại sau.');
-      setLoading(false);
-    }
-  };
-
-  const statCards = [
+  const columns = [
     {
-      title: 'Tổng sản phẩm',
-      value: stats.totalCurtains,
-      icon: FaWindowMaximize,
-      trend: 12,
-      trendLabel: 'so với tháng trước',
-      variant: 'primary',
+      key: 'name',
+      label: 'Sản phẩm',
+      primary: true,
+      render: (curtain) => (
+        <div className="flex min-w-0 items-center gap-3">
+          <Thumb
+            src={curtain.mainImage || curtain.image}
+            alt={curtain.name}
+            className="h-10 w-10 shrink-0"
+          />
+          <div className="min-w-0">
+            <p className="truncate font-medium text-[var(--a-ink)]">{curtain.name}</p>
+            <p className="mt-0.5 text-[12px] text-[var(--a-faint)]">
+              {formatDate(curtain.createdAt)}
+            </p>
+          </div>
+        </div>
+      ),
     },
     {
-      title: 'Sắp hết hàng',
-      value: stats.lowStock,
-      icon: FaShoppingCart,
-      trend: -5,
-      trendLabel: 'so với tuần trước',
-      variant: stats.lowStock > 0 ? 'warning' : 'success',
+      key: 'category',
+      label: 'Danh mục',
+      render: (curtain) => (
+        <span className="text-[var(--a-muted)]">{categoryName(curtain) || 'Chưa phân loại'}</span>
+      ),
     },
     {
-      title: 'Danh mục',
-      value: stats.totalCategories,
-      icon: FaTags,
-      trend: 0,
-      trendLabel: '',
-      variant: 'info',
+      key: 'price',
+      label: 'Giá',
+      align: 'right',
+      render: (curtain) => (
+        <span className="whitespace-nowrap font-medium tabular-nums text-[var(--a-ink)]">
+          {formatPrice(curtain.price)}
+        </span>
+      ),
     },
     {
-      title: 'Đơn hàng hôm nay',
-      value: stats.totalOrders,
-      icon: FaChartPie,
-      trend: 18,
-      trendLabel: 'so với hôm qua',
-      variant: 'success',
-    },
-  ];
-
-  const quickActions = [
-    {
-      label: 'Thêm sản phẩm',
-      href: '/admin/curtains/add',
-      icon: <FaUserPlus size={18} />,
-      variant: 'primary',
+      key: 'stock',
+      label: 'Trạng thái',
+      render: (curtain) => (
+        <Badge tone={curtain.inStock ? 'success' : 'danger'} dot>
+          {curtain.inStock ? 'Còn hàng' : 'Hết hàng'}
+        </Badge>
+      ),
     },
     {
-      label: 'Quản lý danh mục',
-      href: '/admin/categories',
-      icon: <FaTags size={18} />,
-      variant: 'secondary',
-    },
-    {
-      label: 'Quản lý công trình',
-      href: '/admin/projects',
-      icon: <FaBuilding size={18} />,
-      variant: 'secondary',
-    },
-    {
-      label: 'Quản lý Banner',
-      href: '/admin/banners',
-      icon: <FaImage size={18} />,
-      variant: 'ghost',
-    },
-    {
-      label: 'Quản lý bài viết',
-      href: '/admin/posts',
-      icon: <FaList size={18} />,
-      variant: 'ghost',
-    },
-    {
-      label: 'Quản lý liên hệ',
-      href: '/admin/contacts',
-      icon: <FaEnvelope size={18} />,
-      variant: 'ghost',
+      key: 'actions',
+      label: '',
+      actions: true,
+      align: 'right',
+      width: '56px',
+      render: (curtain) => (
+        <Link
+          href={`/admin/curtains/edit/${curtain._id}`}
+          className="flex h-8 w-8 items-center justify-center rounded-[6px] text-[var(--a-muted)] transition hover:bg-[var(--a-raised)] hover:text-[var(--a-cham)]"
+          aria-label={`Sửa ${curtain.name}`}
+          title="Sửa sản phẩm"
+        >
+          <FaPen className="h-3.5 w-3.5" />
+        </Link>
+      ),
     },
   ];
 
   return (
-    <div className="space-y-8">
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Bảng điều khiển</h1>
-          <p className="text-gray-500 mt-1">
-            Chào mừng quay lại. Dưới đây là tổng quan về hoạt động của cửa hàng.
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <ActionButton
-            href="/admin/curtains/add"
-            icon={<FaUserPlus size={16} />}
-            variant="primary"
-            size="sm"
-          >
-            Thêm sản phẩm mới
-          </ActionButton>
-          <ActionButton
-            variant="outline"
-            size="sm"
-            onClick={() => window.location.reload()}
-          >
-            <FaClock size={16} /> Làm mới
-          </ActionButton>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Sổ xưởng"
+        description="Tình hình hôm nay: hàng còn trong kho, nhóm sản phẩm và liên hệ mới từ khách."
+        meta={updatedAt ? `Cập nhật ${updatedAt}` : undefined}
+        actions={
+          <>
+            <Link href="/admin/posts/new" className={buttonClasses('secondary', 'md')}>
+              Viết bài
+            </Link>
+            <Link href="/admin/curtains/add" className={buttonClasses('primary', 'md')}>
+              <FaPlus className="h-3.5 w-3.5" />
+              Thêm sản phẩm
+            </Link>
+          </>
+        }
+      />
 
-      {/* Error State */}
-      {error && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl flex items-center gap-3">
-          <FaExclamationCircle size={20} />
-          <div>
-            <p className="font-medium">{error}</p>
-            <button
-              onClick={fetchDashboardData}
-              className="mt-2 text-xs text-rose-600 hover:underline font-medium"
-            >
+      <Panel className="overflow-hidden">
+        <dl className="grid grid-cols-2 gap-px bg-[var(--a-line)] lg:grid-cols-4">
+          <StatCell
+            label="Sản phẩm"
+            value={formatNumber(totalCurtains)}
+            hint={loading ? 'Đang đếm…' : `${formatNumber(inStockCount)} đang còn hàng`}
+            loading={loading}
+          />
+          <StatCell
+            label="Hết hàng"
+            value={formatNumber(outOfStockCount)}
+            hint={outOfStockCount ? 'Cần nhập thêm' : 'Không có mẫu hết hàng'}
+            loading={loading}
+          />
+          <StatCell
+            label="Danh mục"
+            value={formatNumber(categories.length)}
+            hint="Nhóm sản phẩm trong sổ"
+            loading={loading}
+          />
+          <StatCell
+            label="Liên hệ mới"
+            value={contactsError ? '—' : formatNumber(newContacts)}
+            hint={contactsError ? 'Không tải được hộp thư' : `${formatNumber(contacts.length)} tổng cộng`}
+            loading={loading}
+          />
+        </dl>
+      </Panel>
+
+      {curtainsError ? (
+        <Panel className="border-[rgba(156,59,54,0.25)]">
+          <div className="flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-[var(--a-danger)]">{curtainsError}</p>
+            <Button size="sm" onClick={fetchDashboardData}>
               Thử lại
-            </button>
+            </Button>
           </div>
-        </div>
-      )}
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCards.map((card, idx) => (
-          <StatCard key={idx} {...card} />
-        ))}
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center py-20">
-          <LoadingSpinner size="lg" className="text-indigo-600" />
-        </div>
+        </Panel>
       ) : (
-        <>
-          {/* Quick Actions */}
-          <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-50">
-              <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">
-                Thao tác nhanh
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-0 border-t border-gray-50">
-              {quickActions.map((action, idx) => (
-                <Link
-                  key={idx}
-                  href={action.href}
-                  className="flex flex-col items-center justify-center p-4 gap-2 hover:bg-gray-50 transition-colors border-r border-b border-gray-50 last:border-r-0 lg:last:border-b-0"
-                >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    action.variant === 'primary'
-                      ? 'bg-indigo-100 text-indigo-600'
-                      : action.variant === 'secondary'
-                        ? 'bg-emerald-100 text-emerald-600'
-                        : 'bg-gray-100 text-gray-600'
-                  }`}>
-                    {action.icon}
-                  </div>
-                  <span className="text-xs font-medium text-gray-700 text-center leading-tight">
-                    {action.label}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </section>
+        <Panel>
+          <PanelHeader title="Sản phẩm mới nhất" description="Năm mẫu vừa được ghi vào sổ.">
+            <Link
+              href="/admin/curtains"
+              className="text-[12.5px] text-[var(--a-cham)] hover:underline"
+            >
+              Xem tất cả
+            </Link>
+          </PanelHeader>
 
-          {/* Recent Activity */}
-          <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-50 flex justify-between items-center">
-              <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">
-                Hoạt động gần đây
-              </h2>
-              <Link
-                href="/admin/curtains"
-                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
-              >
-                Xem tất cả <span>→</span>
-              </Link>
-            </div>
-
-            {recentItems.length === 0 ? (
+          <LedgerTable
+            columns={columns}
+            rows={recentProducts}
+            loading={loading}
+            caption="Năm sản phẩm mới nhất"
+            empty={
               <EmptyState
-                title="Chưa có sản phẩm"
-                description="Thêm sản phẩm đầu tiên để bắt đầu quản lý."
-                action={() => (window.location.href = '/admin/curtains/add')}
-                actionLabel="Thêm sản phẩm"
+                icon={FaWindowMaximize}
+                title="Sổ chưa có sản phẩm nào"
+                description="Thêm mẫu rèm đầu tiên để bắt đầu theo dõi giá và tồn kho."
+                action={
+                  <Link href="/admin/curtains/add" className={buttonClasses('primary', 'sm')}>
+                    Thêm sản phẩm
+                  </Link>
+                }
               />
-            ) : (
-              <div className="divide-y divide-gray-50">
-                {recentItems.map((item) => (
-                  <div key={item.id} className="px-6 py-4 flex items-center gap-4 hover:bg-gray-50 transition-colors group">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-100 transition-colors">
-                      <FaImage size={20} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {item.category || 'Chưa phân loại'}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xs font-medium text-gray-900 block">
-                        {item.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price) : 'Liên hệ'}
-                      </span>
-                      <Badge variant={item.status === 'published' ? 'success' : 'warning'} size="sm">
-                        {item.status === 'published' ? 'Còn hàng' : 'Hết hàng'}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        </>
+            }
+          />
+        </Panel>
       )}
+
+      <Panel>
+        <PanelHeader title="Đi nhanh" description="Các việc thường làm trong ngày." />
+        <div className="grid gap-px bg-[var(--a-line)] sm:grid-cols-2 lg:grid-cols-3">
+          {shortcuts.map((shortcut) => {
+            const Icon = shortcut.icon;
+            return (
+              <Link
+                key={shortcut.href}
+                href={shortcut.href}
+                className="flex items-center gap-3 bg-[var(--a-surface)] px-5 py-4 text-[13px] text-[var(--a-ink)] transition-colors hover:bg-[var(--a-raised)]"
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--a-cham-soft)] text-[var(--a-cham)]">
+                  <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                </span>
+                {shortcut.label}
+              </Link>
+            );
+          })}
+        </div>
+      </Panel>
     </div>
   );
 }

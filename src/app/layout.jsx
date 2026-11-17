@@ -1,9 +1,7 @@
 import { Quicksand } from 'next/font/google';
 import { ToastContainer } from 'react-toastify';
 
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import FloatingContact from '@/components/FloatingContact';
+import SiteChrome from '@/components/SiteChrome';
 import { AuthProvider } from '@/lib/AuthContext';
 import { SITE_DESCRIPTION, SITE_NAME } from '@/utils/constant';
 
@@ -75,10 +73,7 @@ export default function RootLayout({ children }) {
     <html lang="vi" className={quicksand.variable}>
       <body className={`${quicksand.className} flex flex-col min-h-screen cozy-bg`}>
         <AuthProvider>
-          <Navbar />
-          <main className="flex-grow pt-24">{children}</main>
-          <Footer />
-          <FloatingContact />
+          <SiteChrome>{children}</SiteChrome>
           <ToastContainer
             position="top-center"
             autoClose={3000}
