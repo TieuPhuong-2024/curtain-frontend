@@ -1,11 +1,16 @@
 // src/app/cong-trinh/[id]/layout.jsx
-import { getProjectById } from '@/lib/api';
 import { ROUTES_PATH, SITE_NAME } from '@/utils/constant';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 export async function generateMetadata({ params }) {
   try {
     const { id } = await params;
-    const project = await getProjectById(id);
+    const response = await fetch(`${API_URL}/projects/${id}`, {
+      next: { revalidate: 60 },
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const project = await response.json();
 
     return {
       title: `${project.title || 'Chi tiết công trình'} | ${SITE_NAME}`,
