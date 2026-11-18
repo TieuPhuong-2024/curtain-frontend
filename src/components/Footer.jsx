@@ -1,8 +1,19 @@
+'use client';
+
 import Link from 'next/link';
 import {FaEnvelope, FaFacebook, FaInstagram, FaMapMarkerAlt, FaPhone, FaTwitter, FaYoutube} from 'react-icons/fa';
 import styles from '@/styles/modules/Footer.module.css';
+import { useSettings } from '@/lib/SettingsContext';
 
 export default function Footer() {
+    const { getValue } = useSettings();
+    const siteName = getValue('global.siteName');
+    const siteDescription = getValue('global.siteDescription');
+    const hotline = getValue('global.hotline');
+    const email = getValue('global.email');
+    const address = getValue('global.address');
+    const youtubeUrl = getValue('global.youtubeUrl');
+
     return (
         <footer className={styles.footer}>
             <div className={styles.footerContainer}>
@@ -10,16 +21,17 @@ export default function Footer() {
                     <div className={styles.footerGrid}>
                         {/* About Section */}
                         <div className={styles.footerSection}>
-                            <h3 className={styles.footerTitle}>Tuấn Rèm</h3>
-                            <p className={styles.footerDescription}>
-                                Chúng tôi cung cấp các loại rèm cửa cao cấp với đa dạng mẫu mã,
-                                chất liệu và màu sắc để phù hợp với mọi không gian sống.
-                            </p>
-                            <div className={styles.socialLinks}>
-                                <a href="https://www.youtube.com/@Tu%E1%BA%A5nR%C3%A8mB%C3%ACnhD%C6%B0%C6%A1ng" className={styles.socialLink}>
-                                    <FaYoutube size={20} className={styles.socialIcon}/>
-                                </a>
-                            </div>
+                            <h3 className={styles.footerTitle}>{siteName}</h3>
+                            {siteDescription && (
+                                <p className={styles.footerDescription}>{siteDescription}</p>
+                            )}
+                            {youtubeUrl && (
+                                <div className={styles.socialLinks}>
+                                    <a href={youtubeUrl} className={styles.socialLink}>
+                                        <FaYoutube size={20} className={styles.socialIcon}/>
+                                    </a>
+                                </div>
+                            )}
                         </div>
 
                         {/* Quick Links */}
@@ -63,25 +75,31 @@ export default function Footer() {
                         <div className={styles.footerSection}>
                             <h3 className={styles.footerTitle}>Thông tin liên hệ</h3>
                             <ul className={styles.contactInfo}>
-                                <li>
-                                    <FaMapMarkerAlt className={styles.contactIcon}/>
-                                    <span>15/7A Tân Lập - Đông Hoà - Dĩ An - Bình Dương</span>
-                                </li>
-                                <li>
-                                    <FaPhone className={styles.contactIcon}/>
-                                    <span>0937 543 809</span>
-                                </li>
-                                <li>
-                                    <FaEnvelope className={styles.contactIcon}/>
-                                    <span>tuanremgiare@gmail.com</span>
-                                </li>
+                                {address && (
+                                    <li>
+                                        <FaMapMarkerAlt className={styles.contactIcon}/>
+                                        <span>{address}</span>
+                                    </li>
+                                )}
+                                {hotline && (
+                                    <li>
+                                        <FaPhone className={styles.contactIcon}/>
+                                        <span>{hotline}</span>
+                                    </li>
+                                )}
+                                {email && (
+                                    <li>
+                                        <FaEnvelope className={styles.contactIcon}/>
+                                        <span>{email}</span>
+                                    </li>
+                                )}
                             </ul>
                         </div>
                     </div>
 
                     <div className={styles.footerDivider}>
                         <p className={styles.copyright}>
-                            &copy; {new Date().getFullYear()} Tuấn Rèm. Tất cả các quyền được bảo lưu.
+                            &copy; {new Date().getFullYear()} {siteName}. Tất cả các quyền được bảo lưu.
                         </p>
                     </div>
                 </div>

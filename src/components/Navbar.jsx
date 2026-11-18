@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaBars, FaHome, FaInfoCircle, FaPhone, FaTimes, FaSearch, FaUser, FaSignInAlt, FaSignOutAlt, FaBlog, FaShoppingCart, FaCog } from 'react-icons/fa';
 import { useAuth } from '@/lib/AuthContext';
+import { useSettings } from '@/lib/SettingsContext';
 import { usePathname } from 'next/navigation';
 import styles from '@/styles/modules/Navbar.module.css';
 
@@ -46,6 +47,9 @@ export default function Navbar() {
     const [searchQuery, setSearchQuery] = useState('');
     const [isWideScreen, setIsWideScreen] = useState(true);
     const { user, userRole, logout, isAdmin } = useAuth();
+    const { getValue } = useSettings();
+    const siteName = getValue('global.siteName');
+    const siteTagline = getValue('global.siteTagline');
     const pathname = usePathname() || '';
     const router = useRouter();
 
@@ -158,7 +162,7 @@ export default function Navbar() {
                         <Link
                             href="/"
                             className={styles.logo}
-                            aria-label="Tuấn Rèm - Trang chủ"
+                            aria-label={`${siteName || 'Trang chủ'} - Trang chủ`}
                         >
                             <img
                                 src="/images/logo-2.png"
@@ -166,8 +170,10 @@ export default function Navbar() {
                                 className={styles.logoImage}
                             />
                             <span className={styles.brandText}>
-                                <span className={styles.brandName}>Tuấn Rèm</span>
-                                <span className={styles.brandTagline}>Rèm cửa cao cấp</span>
+                                <span className={styles.brandName}>{siteName}</span>
+                                {siteTagline && (
+                                    <span className={styles.brandTagline}>{siteTagline}</span>
+                                )}
                             </span>
                         </Link>
 

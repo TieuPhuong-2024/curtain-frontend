@@ -10,6 +10,7 @@ import {
   FaBuilding,
   FaImage,
   FaList,
+  FaFileAlt,
   FaEnvelope,
   FaChevronLeft,
   FaChevronRight,
@@ -27,6 +28,7 @@ export const adminNavItems = [
   { label: 'Công trình', href: '/admin/projects', icon: FaBuilding },
   { label: 'Banner', href: '/admin/banners', icon: FaImage },
   { label: 'Bài viết', href: '/admin/posts', icon: FaList },
+  { label: 'Nội dung', href: '/admin/settings', icon: FaFileAlt },
   { label: 'Liên hệ', href: '/admin/contacts', icon: FaEnvelope },
 ];
 

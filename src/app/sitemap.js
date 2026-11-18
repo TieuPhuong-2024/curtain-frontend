@@ -1,5 +1,8 @@
 import { ROUTES_PATH } from "@/utils/constant"
 const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://remcuathuduc.shop'
+const API_URL = process.env.API_URL_INTERNAL
+    ? `${process.env.API_URL_INTERNAL}/api`
+    : 'http://localhost:5000/api';
 
 const staticRoutes = [
     {
@@ -85,15 +88,15 @@ async function fetchAndMapRoutes(apiUrl, pathPrefix) {
 
 export default async function sitemap() {
     const productRoutes = await fetchAndMapRoutes(
-        `${process.env.NEXT_PUBLIC_API_URL}/curtains`,
+        `${API_URL}/curtains`,
         'products'
     );
     const postRoutes = await fetchAndMapRoutes(
-        `${process.env.NEXT_PUBLIC_API_URL}/posts`,
+        `${API_URL}/posts`,
         'posts'
     );
     const projectRoutes = await fetchAndMapRoutes(
-        `${process.env.NEXT_PUBLIC_API_URL}/projects`,
+        `${API_URL}/projects`,
         'cong-trinh'
     );
 

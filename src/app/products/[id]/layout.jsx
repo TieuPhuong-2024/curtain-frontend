@@ -1,11 +1,18 @@
-import { getCurtainById } from '@/lib/api';
 import { SITE_NAME } from '@/utils/constant';
+
+const API_URL = process.env.API_URL_INTERNAL
+    ? `${process.env.API_URL_INTERNAL}/api`
+    : 'http://localhost:5000/api';
 
 export async function generateMetadata({ params }) {
     // Kiểm tra params có tồn tại và có id không
     try {
       const { id } = await params;
-      const product = await getCurtainById(id);
+      const response = await fetch(`${API_URL}/curtains/${id}`, {
+        next: { revalidate: 60 },
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const product = await response.json();
       
       return {
         title: `${product.name} | ${SITE_NAME}`,

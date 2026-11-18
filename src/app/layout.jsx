@@ -3,6 +3,7 @@ import { ToastContainer } from 'react-toastify';
 
 import SiteChrome from '@/components/SiteChrome';
 import { AuthProvider } from '@/lib/AuthContext';
+import { SettingsProvider } from '@/lib/SettingsContext';
 import { SITE_DESCRIPTION, SITE_NAME } from '@/utils/constant';
 
 import './globals.css';
@@ -80,20 +81,22 @@ export default function RootLayout({ children }) {
   return (
     <html lang="vi" className={`${quicksand.variable} ${playfair.variable}`}>
       <body className={`${quicksand.className} flex flex-col min-h-screen cozy-bg`}>
-        <AuthProvider>
-          <SiteChrome>{children}</SiteChrome>
-          <ToastContainer
-            position="top-center"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-          />
-        </AuthProvider>
+        <SettingsProvider>
+          <AuthProvider>
+            <SiteChrome>{children}</SiteChrome>
+            <ToastContainer
+              position="top-center"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+            />
+          </AuthProvider>
+        </SettingsProvider>
       </body>
     </html>
   );

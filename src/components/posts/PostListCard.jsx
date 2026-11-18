@@ -3,9 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaArrowRight, FaRegCalendarAlt, FaRegClock, FaRegEye } from 'react-icons/fa';
+import { FaArrowRight, FaRegCalendarAlt, FaRegEye } from 'react-icons/fa';
 import { ROUTES_PATH } from '@/utils/constant';
-import { getReadingMinutes } from '@/utils/postArticle';
 import styles from '@/styles/modules/PostListCard.module.css';
 
 const FALLBACK_IMAGE = '/images/curtain-placeholder.jpg';
@@ -31,7 +30,6 @@ export default function PostListCard({ post, priority = false }) {
   }, [post.featuredImage]);
 
   const formattedDate = formatDate(post.createdAt);
-  const minutes = getReadingMinutes(post.content || '');
   const tag = post.tags?.[0];
 
   return (
@@ -59,10 +57,6 @@ export default function PostListCard({ post, priority = false }) {
               {formattedDate}
             </span>
           )}
-          <span className={styles.metaItem}>
-            <FaRegClock aria-hidden="true" />
-            {minutes} phút đọc
-          </span>
           {post.viewCount != null && (
             <span className={styles.metaItem}>
               <FaRegEye aria-hidden="true" />

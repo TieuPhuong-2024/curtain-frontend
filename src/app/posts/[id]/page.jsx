@@ -9,7 +9,7 @@ import PostCard from '@/components/PostCard';
 import PostDetailToc from '@/components/posts/PostDetailToc';
 import PostDetailAside from '@/components/posts/PostDetailAside';
 import { renderCKEditorContent } from '@/utils/ckeditorConverter';
-import { preparePostContent, getReadingMinutes } from '@/utils/postArticle';
+import { preparePostContent } from '@/utils/postArticle';
 import '@/app/styles/content-styles.css';
 import StructuredData, { createArticleSchema, createBreadcrumbSchema } from '@/components/StructureData';
 import { ROUTES_PATH } from '@/utils/constant';
@@ -22,7 +22,6 @@ export default function PostDetail({ params }) {
   const [relatedPosts, setRelatedPosts] = useState([]);
   const [preparedHtml, setPreparedHtml] = useState('');
   const [toc, setToc] = useState([]);
-  const [readingMinutes, setReadingMinutes] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -66,7 +65,6 @@ export default function PostDetail({ params }) {
     const { html, toc: items } = preparePostContent(sanitized);
     setPreparedHtml(html);
     setToc(items);
-    setReadingMinutes(getReadingMinutes(sanitized));
   }, [post?.content]);
 
   const formatDate = (dateString) => {
@@ -147,7 +145,6 @@ export default function PostDetail({ params }) {
         {post.summary && <p className={styles.lead}>{post.summary}</p>}
         <div className={styles.meta}>
           <span className={styles.metaItem}>Đăng {formatDate(post.createdAt)}</span>
-          <span className={styles.metaItem}>Khoảng {readingMinutes} phút đọc</span>
           {post.viewCount != null && (
             <span className={styles.metaItem}>{post.viewCount} lượt xem</span>
           )}

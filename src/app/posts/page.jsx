@@ -9,12 +9,10 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaRegCalendarAlt,
-  FaRegClock,
   FaRegEye,
 } from 'react-icons/fa';
 import { getPosts } from '@/lib/api';
 import PostListCard from '@/components/posts/PostListCard';
-import { getReadingMinutes } from '@/utils/postArticle';
 import { ROUTES_PATH } from '@/utils/constant';
 import StructuredData, {
   createArticleSchemaShort,
@@ -58,7 +56,6 @@ function FeaturedPost({ post }) {
   }, [post.featuredImage]);
 
   const formattedDate = formatDate(post.createdAt);
-  const minutes = getReadingMinutes(post.content || '');
   const tag = post.tags?.[0];
 
   return (
@@ -90,10 +87,6 @@ function FeaturedPost({ post }) {
               {formattedDate}
             </span>
           )}
-          <span className={styles.featuredMetaItem}>
-            <FaRegClock aria-hidden="true" />
-            {minutes} phút đọc
-          </span>
           {post.viewCount != null && (
             <span className={styles.featuredMetaItem}>
               <FaRegEye aria-hidden="true" />
