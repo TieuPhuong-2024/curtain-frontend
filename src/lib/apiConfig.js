@@ -2,7 +2,7 @@ import axios from 'axios';
 import { auth } from './firebase';
 import { signOut } from './firebase';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 const RETRYABLE_STATUS = new Set([429, 503]);
 const MAX_RETRIES = 2;

@@ -1,6 +1,8 @@
 import { getSettingFallback } from '@/utils/siteSettings';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.API_URL_INTERNAL
+  ? `${process.env.API_URL_INTERNAL}/api`
+  : 'http://localhost:5000/api';
 
 export async function getServerSettings() {
   try {
