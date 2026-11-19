@@ -53,10 +53,13 @@ WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
-    HOSTNAME=0.0.0.0
+    HOSTNAME=0.0.0.0 \
+    API_URL_INTERNAL=http://backend:5000
 
-# Rewrites from next.config.js are resolved at build time; the value below is
-# informational for operators. Changing the backend URL requires a rebuild.
+# API_URL_INTERNAL has two consumers:
+# - next.config.js rewrites, resolved at build time (change requires a rebuild);
+# - server-side code at request time, e.g. generateMetadata in
+#   src/app/cong-trinh/[id]/layout.jsx, which reads it from the runtime env.
 COPY --from=builder --chown=node:node /app/public ./public
 COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
