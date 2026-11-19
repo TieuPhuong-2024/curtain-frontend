@@ -1,10 +1,9 @@
-import { Quicksand } from 'next/font/google';
+import { Playfair_Display, Quicksand } from 'next/font/google';
 import { ToastContainer } from 'react-toastify';
 
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import FloatingContact from '@/components/FloatingContact';
+import SiteChrome from '@/components/SiteChrome';
 import { AuthProvider } from '@/lib/AuthContext';
+import { SettingsProvider } from '@/lib/SettingsContext';
 import { SITE_DESCRIPTION, SITE_NAME } from '@/utils/constant';
 
 import './globals.css';
@@ -16,6 +15,14 @@ const quicksand = Quicksand({
   weight: ['300', '400', '500', '600', '700'],
   display: 'swap',
   variable: '--font-quicksand',
+});
+
+const playfair = Playfair_Display({
+  subsets: ['latin', 'vietnamese'],
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+  variable: '--font-display',
 });
 
 export const metadata = {
@@ -72,25 +79,24 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="vi" className={quicksand.variable}>
+    <html lang="vi" className={`${quicksand.variable} ${playfair.variable}`}>
       <body className={`${quicksand.className} flex flex-col min-h-screen cozy-bg`}>
-        <AuthProvider>
-          <Navbar />
-          <main className="flex-grow pt-24">{children}</main>
-          <Footer />
-          <FloatingContact />
-          <ToastContainer
-            position="top-center"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-          />
-        </AuthProvider>
+        <SettingsProvider>
+          <AuthProvider>
+            <SiteChrome>{children}</SiteChrome>
+            <ToastContainer
+              position="top-center"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+            />
+          </AuthProvider>
+        </SettingsProvider>
       </body>
     </html>
   );

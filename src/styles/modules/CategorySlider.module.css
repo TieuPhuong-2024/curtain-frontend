@@ -1,0 +1,76 @@
+.wrapper {
+  position: relative;
+}
+
+.track {
+  display: flex;
+  gap: clamp(0.9rem, 1.6vw, 1.5rem);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 0.65rem;
+  scrollbar-width: none;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.item {
+  flex: 0 0 clamp(240px, 26vw, 312px);
+  scroll-snap-align: start;
+}
+
+.arrow {
+  position: absolute;
+  top: 42%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  border: 1px solid rgba(63, 47, 34, 0.14);
+  background: rgba(255, 250, 246, 0.95);
+  color: #3f2f22;
+  cursor: pointer;
+  box-shadow: 0 12px 28px -14px rgba(46, 35, 24, 0.5);
+  transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+
+.arrow:hover {
+  background: #2e2318;
+  color: #fffaf6;
+  transform: translateY(-1px);
+}
+
+.arrowLeft {
+  left: -0.9rem;
+}
+
+.arrowRight {
+  right: -0.9rem;
+}
+
+.emptyState {
+  max-width: 32rem;
+  padding: 1.5rem 0;
+  color: #7a6a58;
+  line-height: 1.7;
+}
+
+.emptyState a {
+  color: #8a6642;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 767px) {
+  .arrow {
+    display: none;
+  }
+
+  .item {
+    flex-basis: min(78vw, 300px);
+  }
+}

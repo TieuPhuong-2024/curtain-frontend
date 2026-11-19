@@ -3,33 +3,35 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaBars, FaHome, FaInfoCircle, FaPhone, FaTimes, FaSearch, FaUser, FaSignInAlt, FaSignOutAlt, FaBlog, FaShoppingCart } from 'react-icons/fa';
+import { FaBars, FaHome, FaInfoCircle, FaPhone, FaTimes, FaSearch, FaUser, FaSignInAlt, FaSignOutAlt, FaBlog, FaShoppingCart, FaCog } from 'react-icons/fa';
 import { useAuth } from '@/lib/AuthContext';
+import { useSettings } from '@/lib/SettingsContext';
 import { usePathname } from 'next/navigation';
+import styles from '@/styles/modules/Navbar.module.css';
 
 // Action Button Component
 const ActionButton = ({ href, icon, label, badge, onClick }) => {
     return (
-        <div className="relative mx-0.5 sm:mx-1 md:mx-1 lg:mx-1.5 xl:mx-2">
+        <div className={styles.actionButton}>
             {onClick ? (
                 <button
                     onClick={onClick}
-                    className="cursor-pointer flex flex-col items-center justify-center p-1 lg:p-1.5 xl:p-2 text-text-primary hover:text-primary transition-colors w-7 xs:w-8 sm:w-10 lg:w-12 xl:w-14"
+                    className={styles.actionButton}
                 >
-                    <span className="text-sm lg:text-base xl:text-lg">{icon}</span>
-                    <span className="text-[8px] sm:text-[9px] lg:text-[10px] xl:text-xs mt-0.5 xl:mt-1 whitespace-nowrap font-medium">{label}</span>
+                    <span className={styles.actionIcon}>{icon}</span>
+                    <span className={styles.actionLabel}>{label}</span>
                     {badge > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-primary text-white text-xs w-4 h-4 md:w-5 md:h-5 flex items-center justify-center rounded-full">
+                        <span className={styles.actionBadge}>
                             {badge}
                         </span>
                     )}
                 </button>
             ) : (
-                <Link href={href} className="flex flex-col items-center justify-center p-1 lg:p-1.5 xl:p-2 text-text-primary hover:text-primary transition-colors w-7 xs:w-8 sm:w-10 lg:w-12 xl:w-14">
-                    <span className="text-sm lg:text-base xl:text-lg">{icon}</span>
-                    <span className="text-[8px] sm:text-[9px] lg:text-[10px] xl:text-xs mt-0.5 xl:mt-1 whitespace-nowrap font-medium">{label}</span>
+                <Link href={href} className={styles.actionButtonLink}>
+                    <span className={styles.actionIcon}>{icon}</span>
+                    <span className={styles.actionLabel}>{label}</span>
                     {badge > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-primary text-white text-xs w-4 h-4 md:w-5 md:h-5 flex items-center justify-center rounded-full">
+                        <span className={styles.actionBadge}>
                             {badge}
                         </span>
                     )}
@@ -45,6 +47,9 @@ export default function Navbar() {
     const [searchQuery, setSearchQuery] = useState('');
     const [isWideScreen, setIsWideScreen] = useState(true);
     const { user, userRole, logout, isAdmin } = useAuth();
+    const { getValue } = useSettings();
+    const siteName = getValue('global.siteName');
+    const siteTagline = getValue('global.siteTagline');
     const pathname = usePathname() || '';
     const router = useRouter();
 
@@ -54,12 +59,6 @@ export default function Navbar() {
             label: 'Trang chủ',
             icon: <FaHome className="mr-2" />,
             match: (path) => path === '/' || path === '/index',
-        },
-        {
-            href: '/about',
-            label: 'Giới thiệu',
-            icon: <FaInfoCircle className="mr-2" />,
-            match: (path) => path.startsWith('/about'),
         },
         {
             href: '/products',
@@ -85,7 +84,23 @@ export default function Navbar() {
             icon: <FaPhone className="mr-2" />,
             match: (path) => path.startsWith('/contact'),
         },
+        {
+            href: '/about',
+            label: 'Giới thiệu',
+            icon: <FaInfoCircle className="mr-2" />,
+            match: (path) => path.startsWith('/about'),
+        }
     ]
+
+    // Add admin menu for admin
+    const adminNavItems = [
+        {
+            href: '/admin',
+            label: 'Quản trị',
+            icon: <FaCog className="mr-2" />,
+            match: (path) => path.startsWith('/admin'),
+        }
+    ];
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
@@ -139,59 +154,84 @@ export default function Navbar() {
     };
 
     return (
-        <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled
-            ? 'bg-white/95 backdrop-blur-sm shadow-md py-2'
-            : 'bg-white py-4'
-            }`}>
-            <div className="container-custom">
+        <nav className={`${styles.navbar} ${scrolled ? styles.navbarScrolled : ''}`}>
+            <div className={styles.navbarContainer}>
                 <div className="flex justify-between items-center">
                     {/* Left side with logo and navigation */}
                     <div className="flex items-center">
                         <Link
                             href="/"
-                            className="flex items-center mr-1 xs:mr-2 sm:mr-4 md:mr-5 lg:mr-6 xl:mr-8 whitespace-nowrap flex-shrink-0 group"
+                            className={styles.logo}
+                            aria-label={`${siteName || 'Trang chủ'} - Trang chủ`}
                         >
-                            <div className={`${scrolled ? 'bg-white shadow-md' : 'bg-white/90 shadow-sm'} rounded-lg p-1 xs:p-1.5 transition-all duration-300 group-hover:shadow-lg group-hover:scale-105`}>
-                                <img
-                                    src="/images/logo-2.png"
-                                    alt="Tuấn Rèm"
-                                    className="h-7 xs:h-8 sm:h-9 md:h-11 lg:h-14 w-auto object-contain drop-shadow-sm"
-                                />
-                            </div>
+                            <img
+                                src="/images/logo-2.png"
+                                alt=""
+                                className={styles.logoImage}
+                            />
+                            <span className={styles.brandText}>
+                                <span className={styles.brandName}>{siteName}</span>
+                                {siteTagline && (
+                                    <span className={styles.brandTagline}>{siteTagline}</span>
+                                )}
+                            </span>
                         </Link>
 
                         {/* Desktop Navigation - Hidden on smaller screens and when not wide enough */}
-                        <div className={`hidden ${isWideScreen ? 'lg:flex' : 'xl:flex'} space-x-4`}>
+                        <div className={`hidden ${isWideScreen ? 'lg:flex' : 'xl:flex'} space-x-6 lg:space-x-8`}>
                             {navItems.map(({ href, label, match }) => {
                                 const isActive = match(pathname)
                                 return (
                                     <Link
                                         key={href}
                                         href={href}
-                                        className={`text-sm font-medium transition-colors whitespace-nowrap ${isActive ? 'text-primary underline font-bold' : 'text-text-primary hover:text-primary'
+                                        className={`text-sm lg:text-base font-medium transition-all duration-300 whitespace-nowrap px-3 py-2 rounded-lg relative overflow-hidden group ${isActive
+                                            ? 'text-primary bg-primary/5 font-semibold'
+                                            : 'text-text-primary hover:text-primary hover:bg-primary/5'
                                             }`}
                                     >
-                                        {label}
+                                        <span className="relative z-10">{label}</span>
+                                        {isActive && (
+                                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+                                        )}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     </Link>
                                 )
                             })}
+                            
+                            {/* Hiển thị menu Quản trị cho admin trong desktop navigation */}
+                            {isAdmin && (
+                                <Link
+                                    href="/admin"
+                                    className={`text-sm lg:text-base font-medium transition-all duration-300 whitespace-nowrap px-3 py-2 rounded-lg relative overflow-hidden group ${pathname.startsWith('/admin') 
+                                        ? 'text-primary bg-primary/5 font-semibold' 
+                                        : 'text-text-primary hover:text-primary hover:bg-primary/5'
+                                        }`}
+                                >
+                                    <span className="relative z-10">Quản trị</span>
+                                    {pathname.startsWith('/admin') && (
+                                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"></div>
+                                    )}
+                                    <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                </Link>
+                            )}
                         </div>
                     </div>
 
                     {/* Desktop Right Side (Search & Actions) */}
                     <div className={`hidden ${isWideScreen ? 'lg:flex' : 'xl:flex'} items-center`}>
                         {/* Search form */}
-                        <form onSubmit={handleSearch} className="relative ml-1 sm:ml-2 xl:ml-4">
+                        <form onSubmit={handleSearch} className="relative ml-1 sm:ml-2 xl:ml-6">
                             <input
                                 type="text"
                                 placeholder="Tìm kiếm sản phẩm..."
-                                className="w-24 xs:w-28 sm:w-32 md:w-36 lg:w-40 xl:w-56 pl-2 lg:pl-3 xl:pl-4 pr-7 lg:pr-8 xl:pr-10 py-1 lg:py-1.5 xl:py-2 border rounded-full text-xs lg:text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                                className="w-24 xs:w-28 sm:w-32 md:w-36 lg:w-40 xl:w-64 pl-4 lg:pl-5 xl:pl-6 pr-8 lg:pr-10 xl:pr-12 py-2 lg:py-2.5 xl:py-3 border border-gray-200 rounded-full text-xs lg:text-sm bg-gray-50/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all duration-300 shadow-sm hover:shadow-md"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                             <button
                                 type="submit"
-                                className="cursor-pointer absolute right-2 xl:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary"
+                                className="cursor-pointer absolute right-3 xl:right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary transition-colors duration-200 p-1 hover:bg-primary/10 rounded-full"
                             >
                                 <FaSearch className="text-xs lg:text-sm" />
                             </button>
@@ -224,11 +264,6 @@ export default function Navbar() {
 
                     {/* Mobile icons */}
                     <div className={`${isWideScreen ? 'lg:hidden' : 'xl:hidden'} flex items-center space-x-0.5 xs:space-x-1 sm:space-x-2`}>
-                        {user && (
-                            <Link href="/account" className="p-1 xs:p-1.5 sm:p-2 text-text-primary hover:text-primary">
-                                <FaUser className="text-sm xs:text-base sm:text-lg" />
-                            </Link>
-                        )}
                         <button
                             onClick={toggleMenu}
                             className="cursor-pointer p-1 xs:p-1.5 sm:p-2 text-text-primary hover:text-primary focus:outline-none"
@@ -242,7 +277,7 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Menu */}
-            <div className={`${isOpen ? 'block' : 'hidden'} ${isWideScreen ? 'lg:hidden' : 'xl:hidden'} bg-white shadow-lg max-h-[calc(100vh-70px)] overflow-y-auto`}>
+            <div className={`${isOpen ? 'block' : 'hidden'} ${isWideScreen ? 'lg:hidden' : 'xl:hidden'} bg-white/95 backdrop-blur-lg shadow-xl border-b border-primary/10 max-h-[calc(100vh-70px)] overflow-y-auto`}>
                 <div className="px-4 py-2 space-y-1">
                     {navItems.map(({ href, label, icon, match }) => {
                         const isActive = match(pathname)
@@ -251,10 +286,10 @@ export default function Navbar() {
                                 key={href}
                                 href={href}
                                 onClick={() => setIsOpen(false)}
-                                className={`block py-2 transition-colors text-text-primary hover:text-primary ${isActive ? 'text-primary underline font-bold' : 'text-text-primary hover:text-primary'
+                                className={`block py-2 transition-colors font-medium ${isActive ? 'text-primary font-bold' : 'text-text-primary hover:text-primary'
                                     }`}
                             >
-                                <span className="inline-flex items-center font-medium">
+                                <span className={`inline-flex items-center ${isActive ? 'underline' : ''}`}>
                                     {icon}
                                     <span>{label}</span>
                                 </span>
@@ -262,14 +297,14 @@ export default function Navbar() {
                         )
                     })}
                     {isAdmin && (
-                        <Link href="/admin" className={`block py-2 text-text-primary hover:text-primary ${pathname.startsWith('/admin') ? 'font-bold underline' : ''}`} onClick={() => setIsOpen(false)}>
-                            <span className="inline-flex items-center font-medium"><FaUser className="mr-2" /> Quản trị</span>
+                        <Link href="/admin" className={`block py-2 text-text-primary hover:text-primary font-medium ${pathname.startsWith('/admin') ? 'text-primary font-bold' : ''}`} onClick={() => setIsOpen(false)}>
+                            <span className={`inline-flex items-center ${pathname.startsWith('/admin') ? 'underline' : ''}`}><FaCog className="mr-2" /> Quản trị</span>
                         </Link>
                     )}
                     {user ? (
                         <>
-                            <Link href="/account" className={`block py-2 text-text-primary hover:text-primary ${pathname.startsWith('/account') ? 'font-bold underline' : ''}`} onClick={() => setIsOpen(false)}>
-                                <span className="inline-flex items-center font-medium"><FaUser className="mr-2" /> Tài khoản</span>
+                            <Link href="/account" className={`block py-2 text-text-primary hover:text-primary font-medium ${pathname.startsWith('/account') ? 'text-primary font-bold' : ''}`} onClick={() => setIsOpen(false)}>
+                                <span className={`inline-flex items-center ${pathname.startsWith('/account') ? 'underline' : ''}`}><FaUser className="mr-2" /> Tài khoản</span>
                             </Link>
                             <button
                                 onClick={() => {
@@ -282,14 +317,14 @@ export default function Navbar() {
                             </button>
                         </>
                     ) : (
-                        <Link href="/login" className={`block py-2 text-text-primary hover:text-primary ${pathname.startsWith('/login') ? 'font-bold underline' : ''}`} onClick={() => setIsOpen(false)}>
-                            <span className="inline-flex items-center font-medium"><FaSignInAlt className="mr-2" /> Đăng nhập</span>
+                        <Link href="/login" className={`block py-2 text-text-primary hover:text-primary font-medium ${pathname.startsWith('/login') ? 'text-primary font-bold' : ''}`} onClick={() => setIsOpen(false)}>
+                            <span className={`inline-flex items-center ${pathname.startsWith('/login') ? 'underline' : ''}`}><FaSignInAlt className="mr-2" /> Đăng nhập</span>
                         </Link>
                     )}
                 </div>
 
                 {/* Mobile search */}
-                <div className="px-4 py-3 border-t">
+                <div className="px-4 py-3 border-t border-gray-100">
                     <form onSubmit={handleSearch} className="relative">
                         <input
                             type="text"

@@ -1,7 +1,11 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
+import { FaCloudUploadAlt, FaDesktop, FaFolderOpen, FaImage } from 'react-icons/fa';
+
 import { uploadImagesFromDevice, uploadImageFromUrl } from '../lib/api';
+import Button from './admin/Button';
+import { controlClass } from './admin/Field';
 
 const ImageUploader = ({ onUpload, isMultiple = true }) => {
   const [uploadType, setUploadType] = useState(null);
@@ -11,46 +15,38 @@ const ImageUploader = ({ onUpload, isMultiple = true }) => {
   const [error, setError] = useState('');
   const [previews, setPreviews] = useState([]);
 
-  // Handle upload type selection
   const handleSelectUploadType = (type) => {
     setUploadType(type);
     setError('');
   };
 
-  // Handle URL input change
-  const handleUrlChange = (e) => {
-    setImageUrl(e.target.value);
+  const handleUrlChange = (event) => {
+    setImageUrl(event.target.value);
     setError('');
   };
 
-  // Handle file selection
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length > 0) {
-      setSelectedFiles(files);
-      setError('');
+  const handleFileChange = (event) => {
+    const files = Array.from(event.target.files);
+    if (!files.length) return;
 
-      // Create previews for each file
-      const newPreviews = files.map(file => {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            resolve(reader.result);
-          };
-          reader.readAsDataURL(file);
-        });
-      });
+    setSelectedFiles(files);
+    setError('');
 
-      Promise.all(newPreviews).then(previewUrls => {
-        setPreviews(previewUrls);
-      });
-    }
+    Promise.all(
+      files.map(
+        (file) =>
+          new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(file);
+          })
+      )
+    ).then(setPreviews);
   };
 
-  // Upload images from device
   const uploadFromDevice = async () => {
-    if (selectedFiles.length === 0) {
-      setError('Vui lòng chọn ít nhất một tệp ảnh');
+    if (!selectedFiles.length) {
+      setError('Chọn ít nhất một tệp ảnh trước khi tải lên.');
       return;
     }
 
@@ -64,16 +60,15 @@ const ImageUploader = ({ onUpload, isMultiple = true }) => {
       setSelectedFiles([]);
       setPreviews([]);
     } catch (err) {
-      setError('Lỗi khi tải lên ảnh: ' + err.message);
+      setError(`Không tải được ảnh: ${err.message}`);
     } finally {
       setIsUploading(false);
     }
   };
 
-  // Save image from URL
   const saveFromUrl = async () => {
     if (!imageUrl) {
-      setError('Vui lòng nhập URL ảnh');
+      setError('Nhập URL ảnh trước khi lưu.');
       return;
     }
 
@@ -86,13 +81,12 @@ const ImageUploader = ({ onUpload, isMultiple = true }) => {
       setUploadType(null);
       setImageUrl('');
     } catch (err) {
-      setError('Lỗi khi lưu URL ảnh: ' + err.message);
+      setError(`Không lưu được URL ảnh: ${err.message}`);
     } finally {
       setIsUploading(false);
     }
   };
 
-  // Cancel upload
   const handleCancel = () => {
     setUploadType(null);
     setSelectedFiles([]);
@@ -102,119 +96,112 @@ const ImageUploader = ({ onUpload, isMultiple = true }) => {
   };
 
   return (
-    <div className="mb-4">
-      {/* <label className="block font-medium mb-1">Ảnh</label> */}
-
-      {/* Preview images */}
+    <div>
       {previews.length > 0 && (
-        <div className="mb-2 flex flex-wrap gap-2">
+        <div className="mb-3 flex flex-wrap gap-2">
           {previews.map((preview, index) => (
-            <div key={index} className="relative inline-block">
-              <img
-                src={preview}
-                alt={`Preview ${index + 1}`}
-                className="w-40 h-24 object-cover rounded border"
-              />
-            </div>
+            <img
+              key={index}
+              src={preview}
+              alt={`Xem trước ${index + 1}`}
+              className="h-24 w-40 rounded-[6px] border border-[var(--a-line)] object-cover"
+            />
           ))}
         </div>
       )}
 
-      {/* Upload type selection */}
       {!uploadType && (
-        <div className="flex space-x-2 mb-2">
-          <button
-            type="button"
-            className="cursor-pointer bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-            onClick={() => handleSelectUploadType('device')}
-          >
+        <div className="flex flex-wrap gap-2">
+          <Button icon={FaDesktop} onClick={() => handleSelectUploadType('device')}>
             Tải lên từ thiết bị
-          </button>
-          <button
-            type="button"
-            className="cursor-pointer bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-            onClick={() => handleSelectUploadType('cloud')}
-          >
-            Tải lên từ cloud
-          </button>
+          </Button>
+          <Button icon={FaCloudUploadAlt} onClick={() => handleSelectUploadType('cloud')}>
+            Lấy từ URL
+          </Button>
         </div>
       )}
 
-      {/* Upload from device form */}
       {uploadType === 'device' && (
-        <div className="border-2 border-dashed border-gray-300 rounded-md p-4 text-center">
-          <label className="cursor-pointer">
-            <span className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
-              Chọn ảnh
-            </span>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="hidden"
-              multiple={isMultiple}
-            />
-          </label>
-          <p className="mt-2 text-gray-600">Không có ảnh được chọn</p>
-          <ul className="mt-2">
-            {selectedFiles.map((file, index) => (
-              <li key={index} className="text-gray-800">{file.name}</li>
-            ))}
-          </ul>
-          <div className="flex space-x-2">
-            <button
-              type="button"
-              className="cursor-pointer bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700"
+        <div className="rounded-[var(--a-radius-sm)] border border-dashed border-[var(--a-line-strong)] bg-[var(--a-raised)] p-4">
+          <div className="flex flex-col items-center gap-2 text-center">
+            <FaImage className="h-5 w-5 text-[var(--a-faint)]" aria-hidden="true" />
+            <label className="cursor-pointer">
+              <span className="inline-flex h-8 items-center gap-1.5 rounded-[var(--a-radius-sm)] border border-[var(--a-line-strong)] bg-[var(--a-surface)] px-3 text-[12.5px] font-medium text-[var(--a-ink)] transition hover:border-[var(--a-muted)]">
+                <FaFolderOpen className="h-3.5 w-3.5" aria-hidden="true" />
+                Chọn ảnh
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="sr-only"
+                multiple={isMultiple}
+              />
+            </label>
+            <p className="text-[12px] text-[var(--a-faint)]">
+              {selectedFiles.length
+                ? `Đã chọn ${selectedFiles.length} tệp`
+                : isMultiple
+                  ? 'Có thể chọn nhiều ảnh cùng lúc'
+                  : 'Chọn một ảnh'}
+            </p>
+          </div>
+
+          {selectedFiles.length > 0 && (
+            <ul className="mt-3 space-y-1 border-t border-[var(--a-line)] pt-3">
+              {selectedFiles.map((file, index) => (
+                <li key={index} className="truncate text-[12.5px] text-[var(--a-muted)]">
+                  {file.name}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="mt-3 flex gap-2">
+            <Button
+              variant="primary"
+              size="sm"
               onClick={uploadFromDevice}
-              disabled={isUploading || selectedFiles.length === 0}
+              loading={isUploading}
+              disabled={!selectedFiles.length}
             >
-              {isUploading ? 'Đang tải...' : 'Tải lên'}
-            </button>
-            <button
-              type="button"
-              className="cursor-pointer px-3 py-1 rounded border"
-              onClick={handleCancel}
-              disabled={isUploading}
-            >
+              {isUploading ? 'Đang tải…' : 'Tải lên'}
+            </Button>
+            <Button size="sm" onClick={handleCancel} disabled={isUploading}>
               Hủy
-            </button>
+            </Button>
           </div>
         </div>
       )}
 
-      {/* Upload from cloud form */}
       {uploadType === 'cloud' && (
-        <div className="mb-2">
+        <div className="rounded-[var(--a-radius-sm)] border border-[var(--a-line)] bg-[var(--a-raised)] p-4">
           <input
-            type="text"
-            placeholder="Nhập URL ảnh"
+            type="url"
+            placeholder="https://..."
             value={imageUrl}
             onChange={handleUrlChange}
-            className="w-full border px-3 py-2 rounded mb-2"
+            className={controlClass}
+            aria-label="URL ảnh"
           />
-          <div className="flex space-x-2">
-            <button
-              type="button"
-              className="cursor-pointer bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700"
+          <div className="mt-3 flex gap-2">
+            <Button
+              variant="primary"
+              size="sm"
               onClick={saveFromUrl}
-              disabled={isUploading || !imageUrl}
+              loading={isUploading}
+              disabled={!imageUrl}
             >
-              {isUploading ? 'Đang lưu...' : 'Lưu URL'}
-            </button>
-            <button
-              type="button"
-              className="cursor-pointer px-3 py-1 rounded border"
-              onClick={handleCancel}
-              disabled={isUploading}
-            >
+              {isUploading ? 'Đang lưu…' : 'Lưu URL'}
+            </Button>
+            <Button size="sm" onClick={handleCancel} disabled={isUploading}>
               Hủy
-            </button>
+            </Button>
           </div>
         </div>
       )}
 
-      {/* Error message */}
-      {error && <div className="text-red-500 text-sm mt-1">{error}</div>}
+      {error && <p className="mt-2 text-[12.5px] text-[var(--a-danger)]">{error}</p>}
     </div>
   );
 };

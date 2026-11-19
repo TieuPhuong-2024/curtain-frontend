@@ -1,0 +1,135 @@
+/* Footer Styles */
+.footer {
+  background: #241b13;
+  color: #f5eee6;
+}
+
+.footerContainer {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.footerContent {
+  padding: 3.5rem 0;
+}
+
+.footerGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.footerSection {
+  margin-bottom: 1rem;
+}
+
+.footerTitle {
+  margin-bottom: 1rem;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #fffaf6;
+}
+
+.footerDescription {
+  margin-bottom: 1.1rem;
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: rgba(245, 238, 230, 0.7);
+}
+
+.socialLinks {
+  display: flex;
+  gap: 1rem;
+}
+
+.socialLink {
+  color: rgba(245, 238, 230, 0.65);
+  transition: color 0.3s ease;
+}
+
+.socialLink:hover {
+  color: #d6b892;
+}
+
+.socialIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.footerLinks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footerLinks li {
+  margin-bottom: 0.5rem;
+}
+
+.footerLink {
+  font-size: 0.92rem;
+  color: rgba(245, 238, 230, 0.72);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footerLink:hover {
+  color: #e7cba9;
+}
+
+.contactInfo {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.contactInfo li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.55rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: rgba(245, 238, 230, 0.72);
+}
+
+.contactIcon {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.25rem;
+  color: #b99772;
+}
+
+.footerDivider {
+  border-top: 1px solid rgba(245, 238, 230, 0.14);
+  margin-top: 2rem;
+  padding-top: 2rem;
+  text-align: center;
+}
+
+.copyright {
+  color: rgba(245, 238, 230, 0.45);
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
+/* Responsive Design */
+@media (min-width: 768px) {
+  .footerGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3rem;
+  }
+
+  .footerContainer {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .footerContainer {
+    padding: 0 2rem;
+  }
+}

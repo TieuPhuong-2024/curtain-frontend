@@ -1,245 +1,285 @@
-import StructuredData, { createAboutPageSchema } from '@/components/StructureData';
+import Link from 'next/link';
 import Image from 'next/image';
-import { FaCheck, FaMedal, FaUsers, FaLightbulb } from 'react-icons/fa';
+import {
+  FaArrowRight,
+  FaCheck,
+  FaLightbulb,
+  FaMedal,
+  FaRegCommentDots,
+  FaUsers,
+} from 'react-icons/fa';
+import StructuredData, {
+  createAboutPageSchema,
+  createBreadcrumbSchema,
+} from '@/components/StructureData';
+import { createSettingReader, getServerSettings } from '@/lib/serverSettings';
+import { ROUTES_PATH } from '@/utils/constant';
+import styles from '@/styles/modules/About.module.css';
 
-export default function AboutPage() {
+const VALUE_ICONS = [FaMedal, FaUsers, FaLightbulb];
+
+export default async function AboutPage() {
+  const settings = await getServerSettings();
+  const v = createSettingReader(settings);
+
+  const stats = [1, 2, 3, 4]
+    .map((index) => ({
+      value: v(`about.stat${index}Value`),
+      label: v(`about.stat${index}Label`),
+    }))
+    .filter((stat) => stat.value || stat.label);
+
+  const values = VALUE_ICONS.map((icon, position) => ({
+    icon,
+    title: v(`about.value${position + 1}Title`),
+    text: v(`about.value${position + 1}Text`),
+  })).filter((value) => value.title || value.text);
+
+  const reasons = [1, 2, 3, 4, 5, 6]
+    .map((index) => ({
+      title: v(`about.reason${index}Title`),
+      text: v(`about.reason${index}Text`),
+    }))
+    .filter((reason) => reason.title || reason.text);
+
+  const facts = [1, 2, 3].map((index) => v(`about.fact${index}`)).filter(Boolean);
+
+  const zaloUrl = v('global.zaloUrl');
+  const quoteText = v('about.quoteText');
+
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className={styles.page}>
       <StructuredData
+        id="about-page-schema"
         data={createAboutPageSchema({
           title: 'Giới thiệu Tuấn Rèm',
-          description: 'Tuấn Rèm là đơn vị chuyên lắp đặt rèm cửa uy tín và chất lượng tại Việt Nam.',
+          description:
+            'Tuấn Rèm là đơn vị chuyên lắp đặt rèm cửa uy tín và chất lượng tại Việt Nam.',
         })}
       />
+      <StructuredData
+        id="about-breadcrumb-schema"
+        data={createBreadcrumbSchema([
+          { name: 'Trang chủ', url: `${process.env.NEXT_PUBLIC_URL}` },
+          { name: 'Giới thiệu', url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.ABOUT}` },
+        ])}
+      />
 
-      <h1 className="text-3xl font-bold mb-2">Về Chúng Tôi</h1>
-      <p className="text-gray-600 mb-8">
-        Câu chuyện về Tuấn Rèm và những giá trị chúng tôi mang lại
-      </p>
+      <header className={styles.pageHead}>
+        <div className={styles.headInner}>
+          <nav className={styles.breadcrumb} aria-label="Breadcrumb">
+            <Link href="/">Trang chủ</Link>
+            <span className={styles.breadcrumbSep} aria-hidden="true">
+              /
+            </span>
+            <span className={styles.breadcrumbCurrent} aria-current="page">
+              Giới thiệu
+            </span>
+          </nav>
 
-      {/* Our Story Section */}
-      <section className="mb-16">
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="md:flex">
-            <div className="md:w-1/2">
-              <div className="relative h-80 md:h-full">
+          <div className={styles.headGrid}>
+            <div>
+              {v('about.kicker') && <p className={styles.kicker}>{v('about.kicker')}</p>}
+              {v('about.title') && <h1 className={styles.title}>{v('about.title')}</h1>}
+            </div>
+            <div className={styles.headAside}>
+              {v('about.lead') && <p className={styles.lead}>{v('about.lead')}</p>}
+              {v('about.note') && <p className={styles.headNote}>{v('about.note')}</p>}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section className={styles.storySection} aria-labelledby="about-story-title">
+        <div className={styles.sectionInner}>
+          <div className={styles.storyGrid}>
+            <figure className={styles.storyMedia}>
+              <div className={styles.storyImageWrap}>
                 <Image
-                  src="/images/logo-2.png"
-                  alt="Cửa hàng rèm cửa"
+                  src="/images/living-room-curtains.jpg"
+                  alt="Rèm vải may đo trong không gian phòng khách"
                   fill
-                  style={{ objectFit: 'contain' }}
+                  sizes="(max-width: 900px) 100vw, 45vw"
+                  priority
+                  className={styles.storyImage}
                 />
+                {v('about.storyTag') && (
+                  <span className={styles.storyTag}>{v('about.storyTag')}</span>
+                )}
+              </div>
+              <figcaption className={styles.storyCaption}>
+                <span>{v('about.storyCaption')}</span>
+                <span className={styles.storyIndex}>01</span>
+              </figcaption>
+            </figure>
+
+            <div>
+              {v('about.storyKicker') && (
+                <p className={styles.sectionKicker}>{v('about.storyKicker')}</p>
+              )}
+              {v('about.storyTitle') && (
+                <h2 id="about-story-title" className={styles.storyTitle}>
+                  {v('about.storyTitle')}
+                </h2>
+              )}
+              {v('about.storyP1') && <p className={styles.storyText}>{v('about.storyP1')}</p>}
+              {v('about.storyP2') && <p className={styles.storyText}>{v('about.storyP2')}</p>}
+
+              {facts.length > 0 && (
+                <ul className={styles.storyFacts}>
+                  {facts.map((fact) => (
+                    <li key={fact} className={styles.storyFact}>
+                      <FaCheck className={styles.storyFactIcon} aria-hidden="true" />
+                      {fact}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {stats.length > 0 && (
+        <section className={styles.statsSection} aria-label="Tuấn Rèm qua những con số">
+          <div className={styles.sectionInner}>
+            <div className={styles.statsInner}>
+              {stats.map((stat, index) => (
+                <div key={`${stat.label}-${index}`} className={styles.statItem}>
+                  <span className={styles.statValue}>{stat.value}</span>
+                  <span className={styles.statLabel}>{stat.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {values.length > 0 && (
+        <section className={styles.valuesSection} aria-labelledby="about-values-title">
+          <div className={styles.sectionInner}>
+            <div className={styles.sectionHead}>
+              <div>
+                {v('about.valuesKicker') && (
+                  <p className={styles.sectionKicker}>{v('about.valuesKicker')}</p>
+                )}
+                {v('about.valuesTitle') && (
+                  <h2 id="about-values-title" className={styles.sectionTitle}>
+                    {v('about.valuesTitle')}
+                  </h2>
+                )}
+              </div>
+              <div className={styles.sectionAside}>
+                {v('about.valuesLead') && (
+                  <p className={styles.sectionLead}>{v('about.valuesLead')}</p>
+                )}
               </div>
             </div>
 
-            <div className="md:w-1/2 p-8">
-              <h2 className="text-2xl font-bold mb-4">Câu Chuyện Của Chúng Tôi</h2>
-              <p className="text-gray-600 mb-4">
-                Tuấn Rèm là một cơ sở chuyên về rèm cửa với hơn 10 năm kinh nghiệm trong nghề. Chúng
-                tôi luôn đặt uy tín và chất lượng lên hàng đầu, mong muốn mang đến cho khách hàng
-                những sản phẩm phù hợp, bền đẹp và tinh tế.
-              </p>
-              <p className="text-gray-600">
-                Với mẫu mã đa dạng và đầy đủ thanh phụ kiện cao cấp cho nhiều loại khung cửa khác
-                nhau, Tuấn Rèm đáp ứng được nhu cầu của nhiều không gian – từ nhà ở, căn hộ cho đến
-                văn phòng và cửa hàng. Chúng tôi chú trọng từng chi tiết trong thi công, đảm bảo lắp
-                đặt nhanh gọn, chuẩn xác, và đi kèm với đó là chế độ bảo hành 12 tháng để khách hàng
-                yên tâm sử dụng. Với Tuấn Rèm, mỗi bộ rèm không chỉ là sản phẩm, mà còn là sự chăm
-                chút cho không gian sống của bạn.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Our Values Section */}
-      <section className="mb-16">
-        <h2 className="text-2xl font-bold mb-6 text-center">Giá Trị Cốt Lõi</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4 mx-auto">
-              <FaMedal className="w-8 h-8 text-red-600" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2 text-center">Chất Lượng</h3>
-            <p className="text-gray-600 text-center">
-              Chúng tôi cam kết sử dụng những nguyên vật liệu tốt nhất và quy trình sản xuất tiên
-              tiến để tạo ra các sản phẩm bền đẹp, an toàn và thân thiện với môi trường.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-            <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mb-4 mx-auto">
-              <FaUsers className="w-8 h-8 text-blue-600" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2 text-center">Dịch Vụ Khách Hàng</h3>
-            <p className="text-gray-600 text-center">
-              Chúng tôi đặt khách hàng vào trung tâm của mọi hoạt động. Từ tư vấn chọn lựa đến lắp
-              đặt và hậu mãi, chúng tôi luôn nỗ lực mang đến trải nghiệm tốt nhất cho khách hàng.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-            <div className="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center mb-4 mx-auto">
-              <FaLightbulb className="w-8 h-8 text-yellow-600" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2 text-center">Sáng Tạo</h3>
-            <p className="text-gray-600 text-center">
-              Chúng tôi không ngừng đổi mới, cập nhật xu hướng và công nghệ mới nhất để mang đến
-              những sản phẩm độc đáo, thẩm mỹ và đáp ứng nhu cầu ngày càng cao của khách hàng.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Why Choose Us Section */}
-      <section className="mb-16">
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <h2 className="text-2xl font-bold mb-6 text-center">Tại Sao Chọn Chúng Tôi?</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <ul className="space-y-4">
-                <li className="flex items-start">
-                  <FaCheck className="text-green-500 mt-1 mr-3" />
-                  <div>
-                    <h3 className="font-semibold">Đa dạng sản phẩm</h3>
-                    <p className="text-gray-600">
-                      Chúng tôi cung cấp đầy đủ các loại rèm cửa từ rèm vải, rèm cuốn, rèm sáo đến
-                      rèm cầu vồng với nhiều mẫu mã, chất liệu và màu sắc.
-                    </p>
-                  </div>
-                </li>
-
-                <li className="flex items-start">
-                  <FaCheck className="text-green-500 mt-1 mr-3" />
-                  <div>
-                    <h3 className="font-semibold">Tư vấn chuyên nghiệp</h3>
-                    <p className="text-gray-600">
-                      Đội ngũ tư vấn giàu kinh nghiệm sẽ giúp bạn chọn lựa sản phẩm phù hợp nhất với
-                      không gian và ngân sách.
-                    </p>
-                  </div>
-                </li>
-
-                <li className="flex items-start">
-                  <FaCheck className="text-green-500 mt-1 mr-3" />
-                  <div>
-                    <h3 className="font-semibold">Sản xuất theo yêu cầu</h3>
-                    <p className="text-gray-600">
-                      Chúng tôi có thể sản xuất rèm cửa theo kích thước và thiết kế riêng của bạn.
-                    </p>
-                  </div>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <ul className="space-y-4">
-                <li className="flex items-start">
-                  <FaCheck className="text-green-500 mt-1 mr-3" />
-                  <div>
-                    <h3 className="font-semibold">Lắp đặt chuyên nghiệp</h3>
-                    <p className="text-gray-600">
-                      Đội ngũ kỹ thuật viên lành nghề sẽ đảm bảo sản phẩm được lắp đặt chính xác, an
-                      toàn và thẩm mỹ.
-                    </p>
-                  </div>
-                </li>
-
-                <li className="flex items-start">
-                  <FaCheck className="text-green-500 mt-1 mr-3" />
-                  <div>
-                    <h3 className="font-semibold">Bảo hành dài hạn</h3>
-                    <p className="text-gray-600">
-                      Chúng tôi cung cấp dịch vụ bảo hành cho tất cả sản phẩm, đảm bảo bạn hoàn toàn
-                      hài lòng với trải nghiệm mua sắm.
-                    </p>
-                  </div>
-                </li>
-
-                <li className="flex items-start">
-                  <FaCheck className="text-green-500 mt-1 mr-3" />
-                  <div>
-                    <h3 className="font-semibold">Giá cả cạnh tranh</h3>
-                    <p className="text-gray-600">
-                      Chúng tôi cam kết mang đến sản phẩm chất lượng với mức giá hợp lý nhất trên
-                      thị trường.
-                    </p>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Team Section */}
-      {/* <section>
-                <h2 className="text-2xl font-bold mb-6 text-center">Đội Ngũ Của Chúng Tôi</h2>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                    <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                        <div className="relative h-64">
-                            <Image
-                                src="/images/team-1.jpg"
-                                alt="CEO"
-                                fill
-                                style={{ objectFit: 'cover' }}
-                            />
-                        </div>
-                        <div className="p-4 text-center">
-                            <h3 className="font-semibold text-lg">Nguyễn Văn A</h3>
-                            <p className="text-indigo-600">Giám Đốc</p>
-                        </div>
+            <div className={styles.valuesGrid}>
+              {values.map((value, index) => {
+                const Icon = value.icon;
+                return (
+                  <article key={`${value.title}-${index}`} className={styles.value}>
+                    <div className={styles.valueTop}>
+                      <span className={styles.valueNumber}>
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <Icon className={styles.valueIcon} aria-hidden="true" />
                     </div>
+                    <h3 className={styles.valueTitle}>{value.title}</h3>
+                    <p className={styles.valueText}>{value.text}</p>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
-                    <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                        <div className="relative h-64">
-                            <Image
-                                src="/images/team-2.jpg"
-                                alt="Design Manager"
-                                fill
-                                style={{ objectFit: 'cover' }}
-                            />
-                        </div>
-                        <div className="p-4 text-center">
-                            <h3 className="font-semibold text-lg">Trần Thị B</h3>
-                            <p className="text-indigo-600">Quản Lý Thiết Kế</p>
-                        </div>
-                    </div>
+      {quoteText && (
+        <section className={styles.quoteSection} aria-label="Triết lý của Tuấn Rèm">
+          <div className={styles.quoteInner}>
+            <span className={styles.quoteMark} aria-hidden="true">
+              “
+            </span>
+            <blockquote className={styles.quote}>{quoteText}</blockquote>
+            {v('about.quoteCite') && <cite className={styles.quoteCite}>{v('about.quoteCite')}</cite>}
+          </div>
+        </section>
+      )}
 
-                    <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                        <div className="relative h-64">
-                            <Image
-                                src="/images/team-3.jpg"
-                                alt="Sales Manager"
-                                fill
-                                style={{ objectFit: 'cover' }}
-                            />
-                        </div>
-                        <div className="p-4 text-center">
-                            <h3 className="font-semibold text-lg">Lê Văn C</h3>
-                            <p className="text-indigo-600">Quản Lý Kinh Doanh</p>
-                        </div>
-                    </div>
+      {reasons.length > 0 && (
+        <section className={styles.whySection} aria-labelledby="about-why-title">
+          <div className={styles.sectionInner}>
+            <div className={styles.sectionHead}>
+              <div>
+                {v('about.whyKicker') && (
+                  <p className={styles.sectionKicker}>{v('about.whyKicker')}</p>
+                )}
+                {v('about.whyTitle') && (
+                  <h2 id="about-why-title" className={styles.sectionTitle}>
+                    {v('about.whyTitle')}
+                  </h2>
+                )}
+              </div>
+              <div className={styles.sectionAside}>
+                {v('about.whyLead') && (
+                  <p className={styles.sectionLead}>{v('about.whyLead')}</p>
+                )}
+                <Link href={`/${ROUTES_PATH.CONG_TRINH}`} className={styles.textLink}>
+                  Xem công trình thực tế
+                  <FaArrowRight className={styles.textLinkIcon} aria-hidden="true" />
+                </Link>
+              </div>
+            </div>
 
-                    <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                        <div className="relative h-64">
-                            <Image
-                                src="/images/team-4.jpg"
-                                alt="Customer Service"
-                                fill
-                                style={{ objectFit: 'cover' }}
-                            />
-                        </div>
-                        <div className="p-4 text-center">
-                            <h3 className="font-semibold text-lg">Phạm Thị D</h3>
-                            <p className="text-indigo-600">Chăm Sóc Khách Hàng</p>
-                        </div>
-                    </div>
+            <div className={styles.whyGrid}>
+              {reasons.map((reason, index) => (
+                <div key={`${reason.title}-${index}`} className={styles.whyItem}>
+                  <span className={styles.whyIcon}>
+                    <FaCheck aria-hidden="true" />
+                  </span>
+                  <div>
+                    <h3 className={styles.whyTitle}>{reason.title}</h3>
+                    <p className={styles.whyText}>{reason.text}</p>
+                  </div>
                 </div>
-            </section> */}
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className={styles.ctaSection} aria-labelledby="about-cta-title">
+        <div className={styles.ctaInner}>
+          {v('about.ctaKicker') && <p className={styles.ctaKicker}>{v('about.ctaKicker')}</p>}
+          {v('about.ctaTitle') && (
+            <h2 id="about-cta-title" className={styles.ctaTitle}>
+              {v('about.ctaTitle')}
+            </h2>
+          )}
+          {v('about.ctaText') && <p className={styles.ctaText}>{v('about.ctaText')}</p>}
+          <div className={styles.ctaActions}>
+            <Link href={`/${ROUTES_PATH.CONTACT}`} className={styles.ctaPrimary}>
+              Liên hệ tư vấn
+              <FaArrowRight aria-hidden="true" />
+            </Link>
+            {zaloUrl && (
+              <a
+                href={zaloUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.ctaGhost}
+              >
+                <FaRegCommentDots aria-hidden="true" />
+                Nhắn Zalo
+              </a>
+            )}
+          </div>
+          {v('about.ctaNote') && <p className={styles.ctaNote}>{v('about.ctaNote')}</p>}
+        </div>
+      </section>
     </div>
   );
 }

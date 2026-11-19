@@ -1,123 +1,95 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import Link from 'next/link';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import CategoryCard from './CategoryCard';
-import { useEffect } from 'react';
+import styles from '@/styles/modules/CategorySlider.module.css';
 
-const CategorySlider = ({ categories, productCounts = {} }) => {
+const CategorySlider = ({ categories = [], productCounts = {} }) => {
   const sliderRef = useRef(null);
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(false);
-  const [isCentered, setIsCentered] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
-  // Function to handle slider scroll
+  const updateArrows = useCallback(() => {
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = slider;
+    setCanScrollLeft(scrollLeft > 4);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 4);
+  }, []);
+
   const scroll = (direction) => {
-    if (sliderRef.current) {
-      const { current } = sliderRef;
-      const scrollAmount = direction === 'left' ? -300 : 300;
-      current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-  };
+    const slider = sliderRef.current;
+    if (!slider) return;
 
-  // Function to check scroll position and update arrow visibility
-  const handleScroll = () => {
-    if (sliderRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
-      // Nếu không thể scroll (scrollWidth <= clientWidth), ẩn cả hai arrow
-      if (scrollWidth <= clientWidth) {
-        setShowLeftArrow(false);
-        setShowRightArrow(false);
-        setIsCentered(true);
-      } else {
-        setShowLeftArrow(scrollLeft > 0);
-        setShowRightArrow(scrollLeft < scrollWidth - clientWidth);
-        setIsCentered(false);
-      }
-    }
+    slider.scrollBy({
+      left: direction === 'left' ? -slider.clientWidth * 0.8 : slider.clientWidth * 0.8,
+      behavior: 'smooth',
+    });
   };
 
   useEffect(() => {
-    handleScroll();
-    window.addEventListener('resize', handleScroll);
-    return () => window.removeEventListener('resize', handleScroll);
-  }, [categories]);
+    updateArrows();
+    window.addEventListener('resize', updateArrows);
+    return () => window.removeEventListener('resize', updateArrows);
+  }, [categories, updateArrows]);
 
-  if (!categories || categories.length === 0) {
-    return <div className="text-center py-12 text-lg">Chưa có danh mục nào.</div>;
+  const visibleCategories = categories.filter(
+    (category) => category.image && String(category.image).trim() !== ''
+  );
+
+  if (visibleCategories.length === 0) {
+    return (
+      <div className={styles.emptyState}>
+        Danh mục đang cập nhật ảnh. Gọi{' '}
+        <a href="tel:+84937543809">0937 543 809</a> để xem mẫu vải tại nhà.
+      </div>
+    );
   }
 
   return (
-    <>
-      <p className="text-center text-gray-500 max-w-3xl mx-auto mb-8 text-base">
-        Rèm cửa không chỉ là một phụ kiện trang trí đơn thuần, mà còn là yếu tố quan trọng tạo nên không gian lý tưởng cho gia đình bạn.
-      </p>
-
-      <div className="relative px-0 md:px-8">
-        {/* Left navigation arrow */}
-        {showLeftArrow && (
-          <button
-            onClick={() => scroll('left')}
-            className="cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-primary text-gray-800 hover:text-white p-2 rounded-full z-10 shadow-md transition-all hover:scale-110 hidden md:flex"
-            aria-label="Previous categories"
-          >
-            <FaArrowLeft size={20} />
-          </button>
-        )}
-
-        {/* Categories slider container */}
-        <div
-          ref={sliderRef}
-          className={`flex overflow-x-auto gap-4 py-4 px-4 md:px-2 hide-scrollbar${isCentered ? ' justify-center items-center' : ''}`}
-          onScroll={handleScroll}
+    <div className={styles.wrapper}>
+      {canScrollLeft && (
+        <button
+          type="button"
+          onClick={() => scroll('left')}
+          className={`${styles.arrow} ${styles.arrowLeft}`}
+          aria-label="Danh mục trước"
         >
-          {categories.map(category => (
-            <div
-              key={category._id}
-              className="flex-shrink-0 w-[250px] md:w-[280px]"
-            >
-              <CategoryCard
-                category={category}
-                productCount={productCounts[category._id] || 0}
-              />
-            </div>
-          ))}
-        </div>
+          <FaArrowLeft size={14} />
+        </button>
+      )}
 
-        {/* Right navigation arrow */}
-        {showRightArrow && (
-          <button
-            onClick={() => scroll('right')}
-            className="cursor-pointer absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-primary text-gray-800 hover:text-white p-2 rounded-full z-10 shadow-md transition-all hover:scale-110 hidden md:flex"
-            aria-label="Next categories"
-          >
-            <FaArrowRight size={20} />
-          </button>
-        )}
+      <div
+        ref={sliderRef}
+        className={styles.track}
+        onScroll={updateArrows}
+        role="list"
+        aria-label="Danh mục rèm cửa"
+      >
+        {visibleCategories.map((category) => (
+          <div key={category._id} className={styles.item} role="listitem">
+            <CategoryCard
+              category={category}
+              productCount={productCounts[category._id] || 0}
+            />
+          </div>
+        ))}
       </div>
 
-      <div className="text-center mt-8">
-        <Link
-          href="/products"
-          className="inline-flex items-center text-primary hover:text-primary-dark font-medium transition-colors"
+      {canScrollRight && (
+        <button
+          type="button"
+          onClick={() => scroll('right')}
+          className={`${styles.arrow} ${styles.arrowRight}`}
+          aria-label="Danh mục tiếp theo"
         >
-          Xem tất cả danh mục <FaArrowRight className="ml-2" size={14} />
-        </Link>
-      </div>
-
-      {/* CSS for hiding scrollbar */}
-      <style jsx>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
-    </>
+          <FaArrowRight size={14} />
+        </button>
+      )}
+    </div>
   );
 };
 
-export default CategorySlider; 
+export default CategorySlider;

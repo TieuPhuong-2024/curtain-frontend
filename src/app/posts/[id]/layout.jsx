@@ -1,20 +1,28 @@
-import { getPostById } from '@/lib/api';
 import { ROUTES_PATH, SITE_NAME } from '@/utils/constant';
+
+const API_URL = process.env.API_URL_INTERNAL
+  ? `${process.env.API_URL_INTERNAL}/api`
+  : 'http://localhost:5000/api';
 
 export async function generateMetadata({ params }) {
   try {
-    const post = await getPostById(params?.id);
+    const { id } = await params;
+    const response = await fetch(`${API_URL}/posts/${id}?recordView=false`, {
+      next: { revalidate: 60 },
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const post = await response.json();
     
     return {
       title: `${post.title} | ${SITE_NAME}`,
       description: post.title || 'Bài viết từ Tuấn Rèm',
       keywords: `${post.title}, tin tức rèm cửa, ${post.tags?.join(', ') || ''}`,
-      url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}/${params.id}`,
+      url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}/${id}`,
       openGraph: {
         title: post.title,
         description: post.title || 'Bài viết từ Tuấn Rèm',
         type: 'article',
-        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}/${params?.id}`,
+        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.POSTS}/${id}`,
         images: post.featuredImage ? [
           {
             url: post.featuredImage,

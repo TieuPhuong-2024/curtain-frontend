@@ -1,8 +1,10 @@
 import { api } from './apiConfig';
 
-export const getBanners = async () => {
+export const getBanners = async (includeInactive = false) => {
     try {
-        const response = await api.get('/banners');
+        const response = await api.get('/banners', {
+            params: includeInactive ? { includeInactive: true } : undefined,
+        });
         return response.data;
     } catch (error) {
         console.error('Error fetching banners:', error);

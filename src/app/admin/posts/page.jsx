@@ -1,10 +1,32 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { FaEye, FaFileAlt, FaPen, FaPlus, FaTrash } from 'react-icons/fa';
+
 import { getPosts, deletePost } from '@/lib/api';
-import PostCard from '@/components/PostCard';
-import { useRouter } from 'next/navigation';
-import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
+import { ROUTES_PATH } from '@/utils/constant';
+import PageHeader from '@/components/admin/PageHeader';
+import Panel from '@/components/admin/Panel';
+import Toolbar from '@/components/admin/Toolbar';
+import LedgerTable from '@/components/admin/LedgerTable';
+import Pagination from '@/components/admin/Pagination';
+import Button, { buttonClasses } from '@/components/admin/Button';
+import Badge from '@/components/admin/Badge';
+import Thumb from '@/components/admin/Thumb';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import EmptyState from '@/components/admin/EmptyState';
+import { formatDate, formatNumber } from '@/components/admin/format';
+import { notify } from '@/components/admin/notify';
+import { selectClass } from '@/components/admin/Field';
+
+const PAGE_SIZE = 10;
+
+function statusInfo(status) {
+  if (status === 'published') return { label: 'Đã xuất bản', tone: 'success' };
+  if (status === 'draft') return { label: 'Bản nháp', tone: 'warning' };
+  return { label: status || 'Chưa rõ', tone: 'neutral' };
+}
 
 export default function AdminPosts() {
   const [posts, setPosts] = useState([]);
@@ -12,19 +34,22 @@ export default function AdminPosts() {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const [statusFilter, setStatusFilter] = useState('');
-  const router = useRouter();
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
-  // Fetch posts
   const fetchPosts = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const response = await getPosts(currentPage, 12, statusFilter);
-      setPosts(response.posts);
-      setTotalPages(response.pagination.pages);
+      const response = await getPosts(currentPage, PAGE_SIZE, statusFilter);
+      setPosts(response.posts || []);
+      setTotalPages(response.pagination?.pages || 1);
+      setTotal(response.pagination?.total ?? response.posts?.length ?? 0);
     } catch (err) {
-      setError('Failed to load posts');
-      console.error(err);
+      console.error('Error fetching posts:', err);
+      setError('Không tải được danh sách bài viết.');
     } finally {
       setLoading(false);
     }
@@ -34,122 +59,212 @@ export default function AdminPosts() {
     fetchPosts();
   }, [currentPage, statusFilter]);
 
-  // Handle delete post
-  const handleDelete = async (id) => {
-    if (confirm('Are you sure you want to delete this post?')) {
-      try {
-        await deletePost(id);
-        // Refresh the posts list
-        fetchPosts();
-      } catch (err) {
-        alert('Failed to delete post');
-        console.error(err);
-      }
+  useEffect(() => {
+    if (totalPages >= 1 && currentPage > totalPages) setCurrentPage(totalPages);
+  }, [totalPages, currentPage]);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      setDeleting(true);
+      await deletePost(deleteTarget._id);
+      notify.success('Đã xóa bài viết.');
+      setDeleteTarget(null);
+      await fetchPosts();
+    } catch (err) {
+      console.error('Error deleting post:', err);
+      notify.error('Không xóa được bài viết. Vui lòng thử lại.');
+    } finally {
+      setDeleting(false);
     }
   };
 
-  // Handle create new post
-  const handleCreatePost = () => {
-    router.push('/admin/posts/new');
-  };
+  const columns = [
+    {
+      key: 'title',
+      label: 'Bài viết',
+      primary: true,
+      render: (post) => {
+        const status = statusInfo(post.status);
+        return (
+          <div className="flex min-w-0 items-center gap-3">
+            <Thumb src={post.featuredImage} alt={post.title} className="h-12 w-16 shrink-0" />
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="truncate font-medium text-[var(--a-ink)]">{post.title}</p>
+                <Badge tone={status.tone} dot>
+                  {status.label}
+                </Badge>
+              </div>
+              <p className="mt-0.5 line-clamp-2 text-[12px] leading-5 text-[var(--a-faint)]">
+                {post.summary || 'Chưa có mô tả ngắn'}
+              </p>
+              {post.tags?.length > 0 && (
+                <div className="mt-1.5 flex flex-wrap gap-1">
+                  {post.tags.slice(0, 3).map((tag) => (
+                    <Badge key={tag}>{tag}</Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'createdAt',
+      label: 'Ngày đăng',
+      render: (post) => (
+        <span className="whitespace-nowrap tabular-nums text-[var(--a-muted)]">
+          {formatDate(post.createdAt)}
+        </span>
+      ),
+    },
+    {
+      key: 'viewCount',
+      label: 'Lượt xem',
+      align: 'right',
+      width: '96px',
+      render: (post) => (
+        <span className="tabular-nums text-[var(--a-muted)]">{formatNumber(post.viewCount || 0)}</span>
+      ),
+    },
+    {
+      key: 'actions',
+      label: '',
+      actions: true,
+      align: 'right',
+      width: '132px',
+      render: (post) => (
+        <div className="flex items-center justify-end gap-1">
+          <Link
+            href={`/${ROUTES_PATH.POSTS}/${post._id}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex h-8 w-8 items-center justify-center rounded-[6px] text-[var(--a-muted)] transition hover:bg-[var(--a-raised)] hover:text-[var(--a-cham)]"
+            aria-label={`Xem bài ${post.title}`}
+            title="Xem trên site"
+          >
+            <FaEye className="h-3.5 w-3.5" />
+          </Link>
+          <Link
+            href={`/admin/posts/${post._id}`}
+            className="flex h-8 w-8 items-center justify-center rounded-[6px] text-[var(--a-muted)] transition hover:bg-[var(--a-raised)] hover:text-[var(--a-cham)]"
+            aria-label={`Sửa ${post.title}`}
+            title="Sửa bài viết"
+          >
+            <FaPen className="h-3.5 w-3.5" />
+          </Link>
+          <button
+            type="button"
+            onClick={() => setDeleteTarget(post)}
+            className="flex h-8 w-8 items-center justify-center rounded-[6px] text-[var(--a-muted)] transition hover:bg-[var(--a-danger-soft)] hover:text-[var(--a-danger)]"
+            aria-label={`Xóa ${post.title}`}
+            title="Xóa bài viết"
+          >
+            <FaTrash className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      ),
+    },
+  ];
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Quản lý Bài viết</h1>
-        <button
-          onClick={handleCreatePost}
-          className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-md flex items-center hover:bg-blue-700 transition"
-        >
-          <FaPlus className='mr-2' /> Thêm bài viết mới
-        </button>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Bài viết"
+        description="Mẹo chọn rèm, câu chuyện xưởng và hướng dẫn bảo quản — nội dung giúp khách tin tay nghề."
+        meta={loading ? undefined : `${formatNumber(total)} bài viết`}
+        actions={
+          <Link href="/admin/posts/new" className={buttonClasses('primary', 'md')}>
+            <FaPlus className="h-3.5 w-3.5" />
+            Viết bài mới
+          </Link>
+        }
+      />
 
-      {/* Filters */}
-      <div className="mb-6 bg-white p-4 rounded shadow">
-        <div className="flex gap-4">
-          <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700">
-              Trạng thái
-            </label>
-            <select
-              id="status"
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            >
-              <option value="">Tất cả</option>
-              <option value="published">Đã xuất bản</option>
-              <option value="draft">Bản nháp</option>
-            </select>
+      {error ? (
+        <Panel className="border-[rgba(156,59,54,0.25)]">
+          <div className="flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-[var(--a-danger)]">{error}</p>
+            <Button size="sm" onClick={fetchPosts}>
+              Thử lại
+            </Button>
           </div>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center my-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      ) : error ? (
-        <div className="bg-red-100 text-red-700 p-4 rounded">
-          {error}
-        </div>
+        </Panel>
       ) : (
-        <>
-          {posts.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">No posts found</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {posts.map((post) => (
-                <div key={post._id} className="relative">
-                  <PostCard post={post} isAdmin={true} />
+        <Panel>
+          <Toolbar
+            filters={
+              <select
+                value={statusFilter}
+                onChange={(event) => {
+                  setStatusFilter(event.target.value);
+                  setCurrentPage(1);
+                }}
+                className={selectClass}
+                aria-label="Lọc theo trạng thái"
+              >
+                <option value="">Tất cả trạng thái</option>
+                <option value="published">Đã xuất bản</option>
+                <option value="draft">Bản nháp</option>
+              </select>
+            }
+          >
+            <p className="text-[12.5px] text-[var(--a-faint)]">Sắp xếp theo ngày tạo mới nhất</p>
+          </Toolbar>
 
-                  {/* Admin Actions Overlay */}
-                  <div className="absolute top-0 right-0 p-2 flex gap-2">
-                    <button
-                      onClick={() => router.push(`/admin/posts/${post._id}`)}
-                      className="cursor-pointer bg-blue-600 text-white p-2 rounded hover:bg-blue-700 text-sm"
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(post._id)}
-                      className="cursor-pointer bg-red-600 text-white p-2 rounded hover:bg-red-700 text-sm"
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <LedgerTable
+            columns={columns}
+            rows={posts}
+            loading={loading}
+            caption="Danh sách bài viết"
+            empty={
+              <EmptyState
+                icon={FaFileAlt}
+                title={statusFilter ? 'Không có bài viết ở trạng thái này' : 'Chưa có bài viết nào'}
+                description={
+                  statusFilter
+                    ? 'Đổi bộ lọc trạng thái để xem bài khác.'
+                    : 'Viết bài đầu tiên để khách hiểu hơn về chất liệu và cách chọn rèm.'
+                }
+                action={
+                  statusFilter ? (
+                    <Button size="sm" onClick={() => setStatusFilter('')}>
+                      Xem tất cả
+                    </Button>
+                  ) : (
+                    <Link href="/admin/posts/new" className={buttonClasses('primary', 'sm')}>
+                      Viết bài mới
+                    </Link>
+                  )
+                }
+              />
+            }
+          />
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center mt-8">
-              <div className="flex space-x-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`cursor-pointer px-4 py-2 rounded ${currentPage === page
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white text-gray-700 hover:bg-gray-100'
-                      }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </>
+          <Pagination
+            page={currentPage}
+            totalPages={totalPages}
+            total={total}
+            onChange={setCurrentPage}
+          />
+        </Panel>
       )}
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Xóa bài viết?"
+        description={
+          deleteTarget
+            ? `“${deleteTarget.title}” sẽ bị gỡ khỏi trang bài viết. Thao tác này không hoàn tác được.`
+            : ''
+        }
+        confirmLabel="Xóa bài viết"
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => !deleting && setDeleteTarget(null)}
+      />
     </div>
   );
 }

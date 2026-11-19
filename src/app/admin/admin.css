@@ -1,0 +1,109 @@
+/* Sổ xưởng — admin design tokens */
+.admin-scope {
+  --a-canvas: #f5f2ec;
+  --a-surface: #ffffff;
+  --a-raised: #fbf9f5;
+  --a-ink: #221f1b;
+  --a-muted: #746c61;
+  --a-faint: #98907f;
+  --a-line: #e4ded3;
+  --a-line-strong: #cfc6b7;
+  --a-cham: #2c4657;
+  --a-cham-deep: #1b2f3b;
+  --a-cham-soft: #e9eef1;
+  --a-brass: #b08a4f;
+  --a-brass-soft: #f4ecdc;
+  --a-success: #3e6b4f;
+  --a-success-soft: #e9f0ea;
+  --a-warning: #a9762f;
+  --a-warning-soft: #f8efdd;
+  --a-danger: #9c3b36;
+  --a-danger-soft: #f7e9e7;
+  --a-radius: 10px;
+  --a-radius-sm: 7px;
+  min-height: 100vh;
+  background-color: var(--a-canvas);
+  color: var(--a-ink);
+  font-family: var(--font-admin), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.admin-scope ::selection {
+  background: rgba(176, 138, 79, 0.3);
+}
+
+.admin-scope :focus-visible {
+  outline: 2px solid var(--a-cham);
+  outline-offset: 2px;
+}
+
+/* Nếp gấp vải — motif cấu trúc, dùng cho sidebar */
+.a-pleats {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.055) 0,
+    rgba(255, 255, 255, 0.055) 1px,
+    transparent 1px,
+    transparent 9px
+  );
+}
+
+/* Thanh cuộn mảnh cho vùng nội dung */
+.admin-scope ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.admin-scope ::-webkit-scrollbar-thumb {
+  background: var(--a-line-strong);
+  border: 3px solid var(--a-canvas);
+  border-radius: 999px;
+}
+.admin-scope ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* CKEditor theo tông sổ xưởng */
+.admin-scope .ck.ck-editor {
+  width: 100%;
+}
+.admin-scope .ck.ck-editor__top .ck-toolbar {
+  border-color: var(--a-line-strong);
+  background: var(--a-raised);
+  border-radius: var(--a-radius-sm) var(--a-radius-sm) 0 0;
+}
+.admin-scope .ck.ck-editor__main > .ck-editor__editable {
+  min-height: 240px;
+  border-color: var(--a-line-strong);
+  border-radius: 0 0 var(--a-radius-sm) var(--a-radius-sm);
+  background: var(--a-surface);
+  font-family: var(--font-admin), ui-sans-serif, system-ui, sans-serif;
+}
+.admin-scope .ck.ck-editor__main > .ck-editor__editable.ck-focused {
+  border-color: var(--a-cham);
+  box-shadow: 0 0 0 3px rgba(44, 70, 87, 0.12);
+}
+
+/* Toast đồng bộ tông */
+.a-toast {
+  border-radius: 10px !important;
+  border: 1px solid var(--a-line) !important;
+  background: var(--a-surface) !important;
+  color: var(--a-ink) !important;
+  font-family: var(--font-admin), ui-sans-serif, system-ui, sans-serif !important;
+  box-shadow: 0 10px 30px rgba(34, 31, 27, 0.1) !important;
+}
+.a-toast .Toastify__progress-bar {
+  background: var(--a-brass) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-scope *,
+  .admin-scope *::before,
+  .admin-scope *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
