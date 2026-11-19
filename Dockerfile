@@ -1,11 +1,19 @@
-FROM node:22-alpine AS builder
-WORKDIR /app
+# syntax=docker/dockerfile:1
 
+# Node 22 LTS, pinned to today's digest for reproducible builds.
+# To bump: docker pull node:22-alpine && docker image inspect node:22-alpine --format '{{index .RepoDigests 0}}'
+FROM node:22-alpine@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a AS builder
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Dependency layer: only invalidated when the manifest or lockfile changes.
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm npm ci
 
 COPY . .
 
+# NEXT_PUBLIC_* values are inlined into the client bundle at build time,
+# so they must be provided as build args, not runtime env.
 ARG NEXT_PUBLIC_URL
 ARG NEXT_PUBLIC_API_URL=/api
 ARG API_URL_INTERNAL=http://backend:5000
@@ -38,14 +46,17 @@ ENV NEXT_PUBLIC_URL=$NEXT_PUBLIC_URL \
 
 RUN npm run build
 
-FROM node:22-alpine AS runner
+# Runtime image: only the standalone server and static assets.
+FROM node:22-alpine@sha256:1314fb30ec37592d5845e5a160d522c0e680972aa534549940b8d73bde88481a AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
-    HOSTNAME=0.0.0.0 \
-    API_URL_INTERNAL=http://backend:5000
+    HOSTNAME=0.0.0.0
 
+# Rewrites from next.config.js are resolved at build time; the value below is
+# informational for operators. Changing the backend URL requires a rebuild.
 COPY --from=builder --chown=node:node /app/public ./public
 COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
@@ -54,6 +65,6 @@ USER node
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD wget -q --spider http://127.0.0.1:3000/ || exit 1
+    CMD wget -q --spider "http://127.0.0.1:${PORT:-3000}/" || exit 1
 
 CMD ["node", "server.js"]
