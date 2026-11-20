@@ -9,6 +9,7 @@ import CurtainCard from '@/components/CurtainCard';
 import { FaFilter, FaTimes } from 'react-icons/fa';
 import StructuredData, { createBreadcrumbSchema, createProductSchema } from '@/components/StructureData';
 import { ROUTES_PATH } from '@/utils/constant';
+import { getSiteUrl } from '@/utils/seo';
 import styles from '@/styles/modules/Products.module.css';
 
 const MAX_PRICE = 10000000;
@@ -163,10 +164,11 @@ export default function ProductsPage() {
                             item: createProductSchema({
                                 name: curtain.name,
                                 description: curtain.description,
-                                images: Array.isArray(curtain.images) ? curtain.images : [curtain.images],
+                                images: [curtain.mainImage, ...(Array.isArray(curtain.images) ? curtain.images : [])].filter(Boolean),
                                 price: curtain.price,
                                 inStock: curtain.inStock,
-                                url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.PRODUCTS}/${curtain._id}`,
+                                material: curtain.material,
+                                url: `${getSiteUrl()}/${ROUTES_PATH.PRODUCTS}/${curtain._id}`,
                             }),
                         })),
                     },

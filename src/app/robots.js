@@ -1,14 +1,26 @@
-export default function robots() {
-    const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://remcuathuduc.shop'
+import { getSiteUrl } from '@/utils/seo';
 
-    return {
-        rules: {
-            userAgent: '*',
-            allow: '/',
-            disallow: '/admin/',
-        },
-        sitemap: [
-            `${baseUrl}/sitemap_index.xml`,
+export default function robots() {
+  const baseUrl = getSiteUrl();
+
+  return {
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: [
+          '/admin/',
+          '/api/',
+          '/account',
+          '/favorites',
+          '/login',
+          '/register',
+          '/forgot-password',
+          '/search',
         ],
-    }
+      },
+    ],
+    sitemap: `${baseUrl}/sitemap.xml`,
+    host: baseUrl,
+  };
 }

@@ -17,7 +17,9 @@ import { SITE_DESCRIPTION, SITE_NAME } from '@/utils/constant';
 import StructuredData, {
   createOrganizationSchema,
   createWebPageSchema,
+  createWebSiteSchema,
 } from '@/components/StructureData';
+import { getSiteUrl } from '@/utils/seo';
 
 export default function Home() {
   const { getValue } = useSettings();
@@ -54,10 +56,18 @@ export default function Home() {
   const [spotlightProject, setSpotlightProject] = useState(null);
   const [projectImageFailed, setProjectImageFailed] = useState(false);
 
+  const siteUrl = getSiteUrl();
+
+  const webSiteSchema = createWebSiteSchema({
+    name: siteName || SITE_NAME,
+    description: siteDescription || SITE_DESCRIPTION,
+    url: siteUrl,
+  });
+
   const organizationSchema = createOrganizationSchema({
     name: siteName || SITE_NAME,
-    url: process.env.NEXT_PUBLIC_URL,
-    logo: `${process.env.NEXT_PUBLIC_URL}/logo.png`,
+    url: siteUrl,
+    logo: `${siteUrl}/logo.png`,
     description: siteDescription || SITE_DESCRIPTION,
     address: {
       street: getValue('global.address'),
@@ -73,8 +83,8 @@ export default function Home() {
   const webPageSchema = createWebPageSchema({
     title: siteName || SITE_NAME,
     description: siteDescription || SITE_DESCRIPTION,
-    url: process.env.NEXT_PUBLIC_URL,
-    image: `${process.env.NEXT_PUBLIC_URL}/logo.png`,
+    url: siteUrl,
+    image: `${siteUrl}/logo.png`,
   });
 
   const loadFeaturedProducts = async () => {
@@ -154,6 +164,7 @@ export default function Home() {
 
   return (
     <div className={styles.container}>
+      <StructuredData data={webSiteSchema} />
       <StructuredData data={organizationSchema} />
       <StructuredData data={webPageSchema} />
 
