@@ -6,38 +6,18 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { FaArrowRight, FaMapMarkerAlt, FaPhoneAlt, FaSearch, FaStar, FaTimes } from 'react-icons/fa';
 import { getProjects } from '@/lib/api';
+import { useSettings } from '@/lib/SettingsContext';
 import ProjectListCard from '@/components/projects/ProjectListCard';
 import StructuredData, {
   createArticleSchemaShort,
   createBreadcrumbSchema,
 } from '@/components/StructureData';
 import { ROUTES_PATH } from '@/utils/constant';
+import { phoneDigits } from '@/utils/siteSettings';
 import styles from '@/styles/modules/Projects.module.css';
 
-const PHONE_DISPLAY = '0937 543 809';
-const PHONE_HREF = 'tel:+84937543809';
-const ZALO_HREF = 'https://zalo.me/0937543809';
 const FALLBACK_IMAGE = '/images/curtain-placeholder.jpg';
 const PAGE_SIZE = 9;
-
-const STATS = [
-  {
-    value: process.env.NEXT_PUBLIC_PROJECTS_COMPLETED || '200+',
-    label: 'Công trình hoàn thành',
-  },
-  {
-    value: process.env.NEXT_PUBLIC_HAPPY_CUSTOMERS || '100+',
-    label: 'Khách hàng hài lòng',
-  },
-  {
-    value: process.env.NEXT_PUBLIC_YEARS_OF_EXPERIENCE || '10+',
-    label: 'Năm kinh nghiệm',
-  },
-  {
-    value: process.env.NEXT_PUBLIC_TYPES_OF_CURTAINS || '20+',
-    label: 'Loại rèm cung cấp',
-  },
-];
 
 const PROCESS_STEPS = [
   {
@@ -134,6 +114,7 @@ function FeaturedProjectCard({ project, index, priority = false }) {
 }
 
 export default function CongTrinhPage() {
+  const { getValue } = useSettings();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -141,6 +122,12 @@ export default function CongTrinhPage() {
   const [activeType, setActiveType] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  const hotline = getValue('global.hotline');
+  const hotlineDigits = phoneDigits(hotline);
+  const phoneHref = hotlineDigits ? `tel:+84${hotlineDigits.replace(/^0/, '')}` : '';
+  const zaloUrl = getValue('global.zaloUrl');
+  const address = getValue('global.address');
 
   useEffect(() => {
     let ignore = false;
@@ -333,19 +320,6 @@ export default function CongTrinhPage() {
         </section>
       )}
 
-      <section className={styles.statsSection} aria-label="Thành tựu của Tuấn Rèm">
-        <div className={styles.sectionInner}>
-          <div className={styles.statsInner}>
-            {STATS.map(stat => (
-              <div key={stat.label} className={styles.statItem}>
-                <span className={styles.statValue}>{stat.value}</span>
-                <span className={styles.statLabel}>{stat.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section id="all-projects" className={styles.allSection} aria-labelledby="all-projects-title">
         <div className={styles.sectionInner}>
           <div className={styles.sectionHead}>
@@ -478,17 +452,21 @@ export default function CongTrinhPage() {
                 Gọi hoặc nhắn Zalo để xem album lắp đặt mới nhất và hẹn khảo sát tại nhà.
               </p>
               <div className={styles.stateActions}>
-                <a href={PHONE_HREF} className={styles.stateButton}>
-                  <FaPhoneAlt aria-hidden="true" /> {PHONE_DISPLAY}
-                </a>
-                <a
-                  href={ZALO_HREF}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.stateButtonGhost}
-                >
-                  Nhắn Zalo
-                </a>
+                {phoneHref && (
+                  <a href={phoneHref} className={styles.stateButton}>
+                    <FaPhoneAlt aria-hidden="true" /> {hotline}
+                  </a>
+                )}
+                {zaloUrl && (
+                  <a
+                    href={zaloUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.stateButtonGhost}
+                  >
+                    Nhắn Zalo
+                  </a>
+                )}
               </div>
             </div>
           ) : filteredProjects.length === 0 ? (
@@ -614,16 +592,20 @@ export default function CongTrinhPage() {
             <Link href="/contact" className={styles.ctaPrimary}>
               Liên hệ ngay
             </Link>
-            <a
-              href={ZALO_HREF}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.ctaGhost}
-            >
-              Nhắn Zalo
-            </a>
+            {zaloUrl && (
+              <a
+                href={zaloUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.ctaGhost}
+              >
+                Nhắn Zalo
+              </a>
+            )}
           </div>
-          <p className={styles.ctaNote}>0937 543 809 · Dĩ An, Bình Dương</p>
+          {(hotline || address) && (
+            <p className={styles.ctaNote}>{[hotline, address].filter(Boolean).join(' · ')}</p>
+          )}
         </div>
       </section>
     </div>

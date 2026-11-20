@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   FaArrowRight,
@@ -34,6 +34,18 @@ export default function ContactPage() {
   const { getValue } = useSettings();
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const product = params.get('product')?.trim();
+    if (!product) return;
+
+    setFormData(prev => ({
+      ...prev,
+      subject: prev.subject || `Đặt lịch tư vấn: ${product}`,
+      message: prev.message || `Tôi muốn đặt lịch tư vấn và đo rèm mẫu "${product}".`,
+    }));
+  }, []);
 
   const hotline = getValue('global.hotline');
   const hotlineDigits = phoneDigits(hotline);
@@ -291,7 +303,7 @@ export default function ContactPage() {
               )}
             </div>
 
-            <div className={styles.formPane}>
+            <div id="contact-form" className={styles.formPane}>
               {getValue('contact.formKicker') && (
                 <p className={styles.paneKicker}>{getValue('contact.formKicker')}</p>
               )}

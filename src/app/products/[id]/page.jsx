@@ -5,18 +5,16 @@ import { use, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getCurtainById, getImagesByCurtainId } from '@/lib/api';
+import { useSettings } from '@/lib/SettingsContext';
 import { FaCheck, FaImages, FaPhoneAlt } from 'react-icons/fa';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import StructuredData, { createBreadcrumbSchema, createProductSchema } from '@/components/StructureData';
 import { ROUTES_PATH } from '@/utils/constant';
 import { getSiteUrl } from '@/utils/seo';
+import { phoneDigits } from '@/utils/siteSettings';
 import ProductPrice from '@/components/ProductPrice';
 import styles from '@/styles/modules/ProductDetail.module.css';
-
-const PHONE_DISPLAY = '0937 543 809';
-const PHONE_HREF = 'tel:+84937543809';
-const ZALO_HREF = 'https://zalo.me/0937543809';
 
 const SERVICES = [
     'Tư vấn, đo đạc tận nhà miễn phí',
@@ -27,6 +25,11 @@ const SERVICES = [
 
 export default function ProductDetailPage({ params }) {
     const { id } = use(params);
+    const { getValue } = useSettings();
+    const hotline = getValue('global.hotline');
+    const hotlineDigits = phoneDigits(hotline);
+    const phoneHref = hotlineDigits ? `tel:+84${hotlineDigits.replace(/^0/, '')}` : '';
+    const zaloUrl = getValue('global.zaloUrl');
 
     const [curtain, setCurtain] = useState(null);
     const [images, setImages] = useState([]);
@@ -300,17 +303,17 @@ export default function ProductDetailPage({ params }) {
                         </dl>
 
                         <div className={styles.actions}>
-                            <a
-                                href={ZALO_HREF}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                            <Link
+                                href={`/contact?product=${encodeURIComponent(name)}#contact-form`}
                                 className={styles.primaryAction}
                             >
                                 Đặt lịch tư vấn
-                            </a>
-                            <a href={PHONE_HREF} className={styles.secondaryAction}>
-                                <FaPhoneAlt aria-hidden="true" /> {PHONE_DISPLAY}
-                            </a>
+                            </Link>
+                            {phoneHref && (
+                                <a href={phoneHref} className={styles.secondaryAction}>
+                                    <FaPhoneAlt aria-hidden="true" /> {hotline}
+                                </a>
+                            )}
                         </div>
 
                         <ul className={styles.services}>
@@ -333,17 +336,21 @@ export default function ProductDetailPage({ params }) {
                         Đặt lịch hẹn đo và xem mẫu vải tại nhà — miễn phí tại Bình Dương &amp; TP.HCM.
                     </p>
                     <div className={styles.ctaActions}>
-                        <a href={PHONE_HREF} className={styles.ctaPrimary}>
-                            <FaPhoneAlt aria-hidden="true" /> {PHONE_DISPLAY}
-                        </a>
-                        <a
-                            href={ZALO_HREF}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={styles.ctaGhost}
-                        >
-                            Nhắn Zalo
-                        </a>
+                        {phoneHref && (
+                            <a href={phoneHref} className={styles.ctaPrimary}>
+                                <FaPhoneAlt aria-hidden="true" /> {hotline}
+                            </a>
+                        )}
+                        {zaloUrl && (
+                            <a
+                                href={zaloUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.ctaGhost}
+                            >
+                                Nhắn Zalo
+                            </a>
+                        )}
                     </div>
                 </div>
             </section>
