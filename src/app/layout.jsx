@@ -1,4 +1,4 @@
-import { Playfair_Display, Quicksand } from 'next/font/google';
+import { Be_Vietnam_Pro, Playfair_Display } from 'next/font/google';
 import { ToastContainer } from 'react-toastify';
 
 import SiteChrome from '@/components/SiteChrome';
@@ -11,16 +11,16 @@ import './globals.css';
 import './styles/cozy-theme.css';
 import 'react-toastify/dist/ReactToastify.css';
 
-const quicksand = Quicksand({
+const beVietnamPro = Be_Vietnam_Pro({
   subsets: ['latin', 'vietnamese'],
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
-  variable: '--font-quicksand',
+  variable: '--font-body',
 });
 
 const playfair = Playfair_Display({
   subsets: ['latin', 'vietnamese'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500', '600'],
   style: ['normal', 'italic'],
   display: 'swap',
   variable: '--font-display',
@@ -79,8 +79,8 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="vi" className={`${quicksand.variable} ${playfair.variable}`}>
-      <body className={`${quicksand.className} flex flex-col min-h-screen cozy-bg`}>
+    <html lang="vi" className={`${beVietnamPro.variable} ${playfair.variable}`}>
+      <body className={`${beVietnamPro.className} flex flex-col min-h-screen cozy-bg`}>
         <SettingsProvider>
           <AuthProvider>
             <SiteChrome>{children}</SiteChrome>

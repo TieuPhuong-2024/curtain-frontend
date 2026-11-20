@@ -3,7 +3,7 @@
 body, .cozy-bg {
     background: #f5eee6;
     color: #5b4636;
-    font-family: 'Quicksand', 'Nunito', Arial, sans-serif;
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
     transition: background 0.3s, color 0.3s;
 }
 

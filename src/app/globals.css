@@ -22,7 +22,7 @@
     --spacing-xl: 2rem;
     
     /* Typography */
-    --font-family: 'Quicksand', 'Nunito', Arial, sans-serif;
+    --font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
     --font-size-sm: 0.875rem;
     --font-size-base: 1rem;
     --font-size-lg: 1.125rem;
