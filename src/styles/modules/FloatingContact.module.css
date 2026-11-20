@@ -1,0 +1,151 @@
+.dock {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.75rem;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem;
+  border-radius: 999px;
+  background: rgba(255, 250, 246, 0.92);
+  border: 1px solid rgba(63, 47, 34, 0.14);
+  box-shadow: 0 10px 28px rgba(35, 27, 20, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.divider {
+  width: 22px;
+  height: 1px;
+  background: rgba(63, 47, 34, 0.12);
+}
+
+.action {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.action:focus-visible {
+  outline: 2px solid #a67c52;
+  outline-offset: 2px;
+}
+
+.call {
+  background: #231b14;
+  color: #fffaf6;
+}
+
+.call:hover {
+  background: #a67c52;
+  color: #fffaf6;
+  transform: translateY(-1px);
+}
+
+.zalo {
+  background: #f5eee6;
+  color: #3f2f22;
+}
+
+.zalo:hover {
+  background: #a67c52;
+  color: #fffaf6;
+  transform: translateY(-1px);
+}
+
+.phoneIcon {
+  font-size: 0.95rem;
+}
+
+.zaloIcon {
+  font-size: 1.25rem;
+}
+
+.tooltip {
+  position: absolute;
+  right: calc(100% + 0.65rem);
+  top: 50%;
+  transform: translateY(-50%) translateX(4px);
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: #231b14;
+  color: #fffaf6;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(35, 27, 20, 0.18);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.action:hover .tooltip,
+.action:focus-visible .tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+@media (max-width: 640px) {
+  .dock {
+    right: 0.75rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    padding: 0.25rem;
+    gap: 0.25rem;
+    background: rgba(255, 250, 246, 0.88);
+    box-shadow: 0 6px 18px rgba(35, 27, 20, 0.1);
+  }
+
+  .divider {
+    width: 18px;
+  }
+
+  .action {
+    width: 36px;
+    height: 36px;
+  }
+
+  .phoneIcon {
+    font-size: 0.82rem;
+  }
+
+  .zaloIcon {
+    font-size: 1.05rem;
+  }
+
+  .tooltip {
+    display: none;
+  }
+}
+
+@media (hover: none) {
+  .action:hover {
+    transform: none;
+  }
+
+  .action:active {
+    transform: scale(0.93);
+  }
+
+  .tooltip {
+    display: none;
+  }
+}
