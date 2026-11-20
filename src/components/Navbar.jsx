@@ -224,7 +224,7 @@ export default function Navbar() {
                         <form onSubmit={handleSearch} className="relative ml-1 sm:ml-2 xl:ml-6">
                             <input
                                 type="text"
-                                placeholder="Tìm kiếm sản phẩm..."
+                                placeholder="Tìm rèm, công trình, bài viết..."
                                 className="w-24 xs:w-28 sm:w-32 md:w-36 lg:w-40 xl:w-64 pl-4 lg:pl-5 xl:pl-6 pr-8 lg:pr-10 xl:pr-12 py-2 lg:py-2.5 xl:py-3 border border-gray-200 rounded-full text-xs lg:text-sm bg-gray-50/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all duration-300 shadow-sm hover:shadow-md"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
