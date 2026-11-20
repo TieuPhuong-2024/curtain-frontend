@@ -1,9 +1,12 @@
-// src/app/cong-trinh/[id]/layout.jsx
-import { ROUTES_PATH, SITE_NAME } from '@/utils/constant';
+import { ROUTES_PATH } from '@/utils/constant';
+import {
+  buildPageMetadata,
+  getInternalApiUrl,
+  stripHtmlAndTruncate,
+  toAbsoluteUrl,
+} from '@/utils/seo';
 
-const API_URL = process.env.API_URL_INTERNAL
-    ? `${process.env.API_URL_INTERNAL}/api`
-    : 'http://localhost:5000/api';
+const API_URL = getInternalApiUrl();
 
 export async function generateMetadata({ params }) {
   try {
@@ -11,37 +14,42 @@ export async function generateMetadata({ params }) {
     const response = await fetch(`${API_URL}/projects/${id}`, {
       next: { revalidate: 60 },
     });
+
+    if (response.status === 404) {
+      return {
+        title: 'Không Tìm Thấy Công Trình',
+        robots: { index: false, follow: false },
+      };
+    }
+
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const project = await response.json();
 
-    return {
-      title: `${project.title || 'Chi tiết công trình'} | ${SITE_NAME}`,
-      description: project.shortDescription || 'Chi tiết công trình rèm cửa tiêu biểu của Tuấn Rèm',
-      keywords: `${project.title}, công trình rèm cửa, ${project.location || ''}`,
-      url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.CONG_TRINH}/${id}`,
-      openGraph: {
-        title: project.title || 'Chi tiết công trình',
-        description: project.shortDescription || 'Chi tiết công trình rèm cửa tiêu biểu của Tuấn Rèm',
-        type: 'website',
-        url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.CONG_TRINH}/${id}`,
-        images: project.thumbnail
-          ? [
-              {
-                url: project.thumbnail,
-                alt: project.title,
-              },
-            ]
-          : [],
+    const title = project.title || 'Chi Tiết Công Trình';
+    const description =
+      stripHtmlAndTruncate(project.shortDescription || project.detailedContent, 160) ||
+      'Chi tiết công trình lắp đặt rèm cửa tiêu biểu của Tuấn Rèm.';
+    const imageUrl = toAbsoluteUrl(project.thumbnail);
+
+    return buildPageMetadata({
+      title,
+      description,
+      keywords: [project.title, 'công trình rèm cửa', 'lắp đặt rèm cửa', project.location]
+        .filter(Boolean)
+        .join(', '),
+      path: `/${ROUTES_PATH.CONG_TRINH}/${id}`,
+      type: 'article',
+      images: imageUrl ? [{ url: imageUrl, alt: title }] : undefined,
+      openGraphExtra: {
+        ...(project.createdAt ? { publishedTime: project.createdAt } : {}),
+        ...(project.updatedAt ? { modifiedTime: project.updatedAt } : {}),
       },
-    };
+    });
   } catch (error) {
     console.error('Error generating project metadata:', error);
     return {
       title: 'Chi Tiết Công Trình',
-      description: 'Thông tin chi tiết về công trình rèm cửa tiêu biểu',
-      openGraph: {
-        type: 'website',
-      },
+      description: 'Thông tin chi tiết về công trình rèm cửa tiêu biểu của Tuấn Rèm.',
     };
   }
 }

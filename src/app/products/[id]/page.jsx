@@ -10,6 +10,7 @@ import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import StructuredData, { createBreadcrumbSchema, createProductSchema } from '@/components/StructureData';
 import { ROUTES_PATH } from '@/utils/constant';
+import { getSiteUrl } from '@/utils/seo';
 import ProductPrice from '@/components/ProductPrice';
 import styles from '@/styles/modules/ProductDetail.module.css';
 
@@ -194,7 +195,8 @@ export default function ProductDetailPage({ params }) {
                     images: galleryImages,
                     price,
                     inStock,
-                    url: `${process.env.NEXT_PUBLIC_URL}/${ROUTES_PATH.PRODUCTS}/${curtain._id}`,
+                    material,
+                    url: `${getSiteUrl()}/${ROUTES_PATH.PRODUCTS}/${curtain._id}`,
                 })} />
 
             <div className={styles.container}>
